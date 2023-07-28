@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { WpService } from './../../services/wp.service';
+import { Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-single-product',
   templateUrl: './single-product.component.html',
   styleUrls: ['./single-product.component.scss']
 })
-export class SingleProductComponent {
+export class SingleProductComponent implements OnInit {
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';
@@ -26,8 +28,17 @@ export class SingleProductComponent {
   isGettingTopicTitle = false;
   isGettingTopicInfo = false;
   isGettingCompleteArticle = false;
+  firstFormGroup = this._formBuilder.group({
+    firstCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  isLinear = false;
+ngOnInit(): void {
 
-  constructor(private openAIService: OpenAIService) {}
+}
+  constructor(private openAIService: OpenAIService, private wpService: WpService, private _formBuilder: FormBuilder) {}
 
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
@@ -106,9 +117,9 @@ export class SingleProductComponent {
     this.isGettingSections = true;
     const sections_count = 10;
     const prompt_test =
-      'Scrivi ' +
+      'Genera ' +
       sections_count +
-      ' intestazioni consecutive per un articolo su ' +
+      ' titoli di sezioni per un articolo su ' +
       this.topicTitle +
       ' ' +
       this.topicInfos +
@@ -118,38 +129,42 @@ export class SingleProductComponent {
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      ' Ogni sezione deve essere completa e deve essere lunga tra i 60 e gli 80 caratteri. Deve contenere sezioni come "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Devono essere elencate in ordine di importanza e alla fine ti tutte le sezioni va aggiunta la sezione "Conclusioni". Avvolgi tutte le sezioni nel tag h2.';
+      ' I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta, ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2.';
     this.openAIService.getResponse(prompt_test).subscribe((response) => {
       this.isGettingSections = false;
       this.sectionsResponse = response.message;
     });
   }
 
+
   getContent() {
     this.isGettingContent = true;
     const paragraphs_per_section = 3;
+    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
     const prompt_test =
       'Scrivi un articolo su ' +
       this.titleResponse +
       ' in ' +
       this.language +
-      '. L articolo è organizzato secondo i seguenti titoli: ' +
-      this.sectionsResponse +
-      '  Ogni sezione deve avere ' +
+      ' L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
+      sections.join(', ') +
+      '. Ogni sezione deve avere ' +
       paragraphs_per_section +
-      ' Usa HTML per la formattazione, includi tag h2, tag h3, elenchi e grassetto. ' +
+      ' paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l\'intestazione corrispondente. Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing. ' +
       ' Basati sulle informazioni seguenti: ' +
       this.topicInfos +
       ' Stile: ' +
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      '  Deve essere compreso tra 700 e 900 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete."';
+      ' Deve essere compreso tra 700 e 900 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1. Ogni paragrafo deve iniziare in modo diverso, evitando ripetizioni all\'inizio dei paragrafi. Ogni sezione deve iniziare con la sua intestazione h2 corrispondente.';
     this.openAIService.getResponse(prompt_test).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
     });
   }
+
+
 
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
@@ -173,10 +188,10 @@ export class SingleProductComponent {
     // Assemble the complete article
     this.completeArticleResponse = `
       ${this.titleResponse}
-  
+
       [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center"]
       <br>
-  
+
       ${this.introductionResponse}
        <br>
       <h3>Punti chiave:</h3>
@@ -185,9 +200,9 @@ export class SingleProductComponent {
       [amazon fields="${this.topicASIN}" value="description" description_length="400"]
       [content-egg-block template=offers_list_no_price]
       <br>
-  
+
       ${contentWithImage}
-  
+
       <h3> Migliori Offerte inerenti a ${this.topicKeyword}: </h3>
       <br>
       <p> [amazon bestseller="piscina ${this.topicKeyword} " items="5"/] </p>
@@ -195,4 +210,28 @@ export class SingleProductComponent {
 
     this.isGettingCompleteArticle = false;
   }
+
+  publishArticleOnWP() {
+    if (!this.isGettingCompleteArticle) {
+      // Rimuovi completamente i tag <h1> e il loro contenuto
+      const cleanedContent = this.completeArticleResponse.replace(/<h1\b[^>]*>.*?<\/h1>/g, '');
+
+      this.wpService.publishPost(this.titleResponse, cleanedContent)
+        .subscribe(response => {
+          alert('Articolo pubblicato con successo!');
+        });
+    }
+  }
+
+
+  wordsCount: number = 0
+  countWords() {
+    if (this.completeArticleResponse) {
+      this.wordsCount = this.completeArticleResponse.split(/\s+/).length;
+    } else {
+      this.wordsCount = 0;
+    }
+  }
+
+
 }

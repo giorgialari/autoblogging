@@ -22,7 +22,7 @@ app.post('/api/openai', async (req, res) => {
         frequency_penalty: 0,
         presence_penalty: 0,
       });
-      
+
       // Extract the content of the assistant's response
       const assistantMessage = response.data.choices[0].message.content;
       // Send the assistant's message as the response

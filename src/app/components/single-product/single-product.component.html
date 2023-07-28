@@ -1,101 +1,121 @@
-<div class="container my-4">
-    <div class="card mb-4">
-      <div class="card-header bg-info text-white">Topic</div>
-      <div class="card-body">
-        <div class="form-group">
-          <label for="topicInput">Enter the keyword here:</label>
-          <input type="text" class="form-control" id="topicKeyword" [(ngModel)]="topicKeyword">
-        </div>
-        <div class="form-group">
-          <label for="topicInput">Enter the ASIN here:</label>
-          <input type="text" class="form-control" id="topicASIN" [(ngModel)]="topicASIN">
-        </div>
-        <div class="form-group">
-          <label for="topicInput">Enter the topic title here:</label>
-          <input type="text" class="form-control" id="topicInput" [(ngModel)]="topicTitle">
-        </div>
-      
-        <button class="btn btn-secondary my-3" (click)="improveTopicTitle()" [disabled]="isGettingTopicTitle">
-          <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicTitle" role="status" aria-hidden="true"></span>
-          Improve Topic Title
-        </button>
-        <div class="form-group">
-          <label for="topicInput">Enter the topic info here:</label>
-          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="topicInfos">
-          </textarea>
-          <button class="btn btn-secondary my-3" (click)="improveTopicInfo()" [disabled]="isGettingTopicInfo">
-            <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicInfo" role="status" aria-hidden="true"></span>
-            Improve Topic Infos
-          </button>
-        </div>
-       
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-primary text-white">Title</div>
-          <div class="card-body">
-            <button class="btn btn-secondary mb-3" (click)="getTitle()" [disabled]="isGettingTitle">
-              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTitle" role="status" aria-hidden="true"></span>
-              Generate Title
-            </button>
-            <textarea class="form-control" rows="4"  [(ngModel)]="titleResponse"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-info text-white">Introduction</div>
-        <div class="card-body">
-          <button class="btn btn-secondary mb-3" (click)="getIntroduction()" [disabled]="isGettingIntroduction">
-            <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingIntroduction" role="status" aria-hidden="true"></span>
-            Generate Introduction
-          </button>
-          <textarea class="form-control" rows="4"  [(ngModel)]="introductionResponse"></textarea>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="row my-2">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-success text-white">Sections</div>
-          <div class="card-body">
-            <button class="btn btn-secondary mb-3" (click)="getSections()" [disabled]="isGettingSections">
-              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingSections" role="status" aria-hidden="true"></span>
-              Generate Sections
-            </button>
-            <textarea class="form-control" rows="4" [(ngModel)]="sectionsResponse"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-warning text-white">Content</div>
-          <div class="card-body">
-            <button class="btn btn-secondary mb-3" (click)="getContent()" [disabled]="isGettingContent">
-              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingContent" role="status" aria-hidden="true"></span>
-              Generate Content
-            </button>
-            <textarea class="form-control" rows="4"  [(ngModel)]="contentResponse"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container my-4">
-      <div class="card mb-4">
-        <div class="card-header bg-info text-white">Generate Complete Article</div>
-        <div class="card-body">
-          <button class="btn btn-primary mb-3" (click)="getCompleteArticle()" [disabled]="isGettingCompleteArticle">
-            <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status" aria-hidden="true"></span>
-            Generate Complete Article with Images
-          </button>
-          <div class="form-group">
-            <label for="completeArticle">Complete Article:</label>
-            <textarea class="form-control" rows="10" id="completeArticle" [(ngModel)]="completeArticleResponse"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+ <div class="container my-4">
+   <div class="card mb-4">
+     <div class="card-header bg-info text-white">Topic</div>
+     <div class="card-body">
+       <div class="form-group">
+         <label for="topicInput">Enter the keyword here:</label>
+         <input type="text" class="form-control" id="topicKeyword" [(ngModel)]="topicKeyword">
+       </div>
+       <div class="form-group">
+         <label for="topicInput">Enter the ASIN here:</label>
+         <input type="text" class="form-control" id="topicASIN" [(ngModel)]="topicASIN">
+       </div>
+       <div class="form-group">
+         <label for="topicInput">Enter the topic title here:</label>
+         <input type="text" class="form-control" id="topicInput" [(ngModel)]="topicTitle">
+       </div>
+
+       <button class="btn btn-secondary my-3" (click)="improveTopicTitle()" [disabled]="isGettingTopicTitle">
+         <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicTitle" role="status" aria-hidden="true"></span>
+         Improve Topic Title
+       </button>
+       <div class="form-group">
+         <label for="topicInput">Enter the topic info here:</label>
+         <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="topicInfos">
+            </textarea>
+         <button class="btn btn-secondary my-3" (click)="improveTopicInfo()" [disabled]="isGettingTopicInfo">
+           <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicInfo" role="status"
+             aria-hidden="true"></span>
+           Improve Topic Infos
+         </button>
+       </div>
+     </div>
+   </div>
+
+   <mat-horizontal-stepper linear
+     *ngIf="topicKeyword != '' && topicASIN != '' &&  topicTitle != '' && topicInfos != ''">
+     <mat-step label="Title">
+       <ng-template matStepLabel>Title</ng-template>
+       <div class="card my-2">
+         <div class="card-header bg-primary text-white">Title</div>
+         <div class="card-body">
+           <button class="btn btn-secondary mb-3" (click)="getTitle()" [disabled]="isGettingTitle">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTitle" role="status" aria-hidden="true"></span>
+             Generate Title
+           </button>
+           <textarea class="form-control" rows="4" [(ngModel)]="titleResponse"></textarea>
+         </div>
+       </div>
+     </mat-step>
+
+     <mat-step label="Introduction">
+       <ng-template matStepLabel>Introduction</ng-template>
+       <div class="card my-2">
+         <div class="card-header bg-info text-white">Introduction</div>
+         <div class="card-body">
+           <button class="btn btn-secondary mb-3" (click)="getIntroduction()" [disabled]="isGettingIntroduction">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingIntroduction" role="status"
+               aria-hidden="true"></span>
+             Generate Introduction
+           </button>
+           <textarea class="form-control" rows="4" [(ngModel)]="introductionResponse"></textarea>
+         </div>
+       </div>
+     </mat-step>
+
+     <mat-step label="Sections">
+       <ng-template matStepLabel>Sections</ng-template>
+       <div class="card my-2">
+         <div class="card-header bg-success text-white">Sections</div>
+         <div class="card-body">
+           <button class="btn btn-secondary mb-3" (click)="getSections()" [disabled]="isGettingSections">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingSections" role="status"
+               aria-hidden="true"></span>
+             Generate Sections
+           </button>
+           <textarea class="form-control" rows="4" [(ngModel)]="sectionsResponse"></textarea>
+         </div>
+       </div>
+     </mat-step>
+
+     <mat-step label="Content">
+       <ng-template matStepLabel>Content</ng-template>
+       <div class="card my-2">
+         <div class="card-header bg-warning text-white">Content</div>
+         <div class="card-body">
+           <button class="btn btn-secondary mb-3" (click)="getContent()" [disabled]="isGettingContent">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingContent" role="status"
+               aria-hidden="true"></span>
+             Generate Content
+           </button>
+           <textarea class="form-control" rows="4" [(ngModel)]="contentResponse"></textarea>
+         </div>
+       </div>
+     </mat-step>
+
+     <mat-step label="Publsish">
+       <ng-template matStepLabel>Publish</ng-template>
+       <div class="card my-2">
+         <div class="card-header bg-info text-white">Generate Complete Article</div>
+         <div class="card-body">
+           <button class="btn btn-primary mb-3" (click)="getCompleteArticle(); countWords()"
+             [disabled]="isGettingCompleteArticle">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
+               aria-hidden="true"></span>
+             Generate Complete Article with Images
+           </button>
+           <button class="btn btn-primary mx-2  mb-3" (click)="publishArticleOnWP()"
+             [disabled]="isGettingCompleteArticle">
+             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
+               aria-hidden="true"></span>
+             Publish on WP
+           </button>
+           <p>Words: {{wordsCount}} </p>
+           <div class="form-group">
+             <app-editor [data]="completeArticleResponse" [(ngModel)]="completeArticleResponse"></app-editor>
+           </div>
+         </div>
+       </div>
+     </mat-step>
+   </mat-horizontal-stepper>
+ </div>
