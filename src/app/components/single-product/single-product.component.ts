@@ -202,48 +202,6 @@ export class SingleProductComponent implements OnInit {
       this.sectionsResponse = response.message;
     });
   }
-  // async getAndOptimizeSections(): Promise<void> {
-  //   this.isGettingSections = true;
-  //   const sections_count = 10;
-  //   const prompt_test =
-  //     'Genera ' +
-  //     sections_count +
-  //     ' titoli di sezioni per un articolo su ' +
-  //     this.topicTitle +
-  //     ' ' +
-  //     this.topicInfos +
-  //     ' in ' +
-  //     this.language +
-  //     '. Stile: ' +
-  //     this.writing_style +
-  //     '. Tono: ' +
-  //     this.writing_tone +
-  //     ' I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta, ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2. Usa un linguaggio naturale. NON usare elenchi puntati. Inserisci in alcuni titoli la parola chiave: ' + this.topicKeyword + '. Evita il keyword stuffing.';
-
-  //   this.openAIService.getResponse(prompt_test).toPromise().then((response) => {
-  //     this.isGettingSections = false;
-  //     let originalTitles = response.message.split("\n").map((title: string) => title.replace(/<h2>|<\/h2>/g, '')); // remove <h2> tags
-
-  //     let seoScore = this.analyzeSeoSections(originalTitles); // assume analyzeSeoSections is implemented
-
-  //     const someThreshold = 3; // Adjust this value based on your specific needs
-
-  //     // If SEO score isn't satisfactory, optimize the sections
-  //     if (seoScore < someThreshold) {
-  //       // Keyword insertion, only if keyword is not present in more than 50% of the titles
-  //       if (originalTitles.filter((title: string | string[]) => title.includes(this.topicKeyword)).length <= originalTitles.length / 2) {
-  //         // Randomly insert the keyword in one of the titles
-  //         let titleIndex = Math.floor(Math.random() * originalTitles.length);
-  //         let titleWords = originalTitles[titleIndex].split(" ");
-  //         let keywordPosition = Math.floor(Math.random() * titleWords.length); // random position in the title for the keyword
-  //         titleWords.splice(keywordPosition, 0, this.topicKeyword); // insert keyword at the random position
-  //         originalTitles[titleIndex] = titleWords.join(" ");
-  //       }
-  //     }
-  //     this.sectionsResponse = originalTitles.map((title: any) => `<h2>${title}</h2>`).join("\n"); // re-add <h2> tags
-  //   });
-  // }
-
 
   async getAndOptimizeSections(maxRetries: number = 3): Promise<void> {
     const sections_count = 10;
@@ -260,7 +218,11 @@ export class SingleProductComponent implements OnInit {
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      ` I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta, ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2. Evita la ripetizione eccessiva della parola chiave e dei titoli. NON usare elenchi puntati nei titoli. Cerca di utilizzare un linguaggio naturale e colloquiale.`;
+      ` I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo",
+      "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta,
+       ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni,
+       aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2. NON usare elenchi puntati nei titoli.
+        Cerca di utilizzare un linguaggio naturale e colloquiale.`;
 
     let lastTitles: string[] = [];
 
