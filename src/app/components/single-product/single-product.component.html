@@ -53,7 +53,7 @@
        <div class="card my-2">
          <div class="card-header bg-info text-white">Introduction</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getIntroduction()" [disabled]="isGettingIntroduction">
+           <button class="btn btn-secondary mb-3" (click)="getAndOptimizeIntroduction()" [disabled]="isGettingIntroduction">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingIntroduction" role="status"
                aria-hidden="true"></span>
              Generate Introduction
@@ -68,7 +68,7 @@
        <div class="card my-2">
          <div class="card-header bg-success text-white">Sections</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getSections()" [disabled]="isGettingSections">
+           <button class="btn btn-secondary mb-3" (click)="getAndOptimizeSections()" [disabled]="isGettingSections">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingSections" role="status"
                aria-hidden="true"></span>
              Generate Sections
