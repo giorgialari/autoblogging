@@ -2,6 +2,8 @@ import { WpService } from './../../services/wp.service';
 import { Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-single-product',
@@ -14,13 +16,18 @@ export class SingleProductComponent implements OnInit {
   sectionsResponse: string = '';
   contentResponse: string = '';
   completeArticleResponse: string = '';
-  topicTitle = '';
-  topicInfos = '';
-  topicKeyword = '';
-  topicASIN = '';
-  writing_tone = 'informal';
+  topicTitle = 'Brigros - Barbecue a gas DALLAS con rotelle potente e pratico, comodo da spostare, sistema di pulizia facile (3 fuochi)';
+  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni
+  Grigli barbecue 60 x 42 cm con opzioni di cottura infinite
+  Barbecue a gas con sistema di pulizia facile e veloce
+  bbq a gas dotato di rotelle per un facile trasporto
+  bbq gas dimensioni: prodotto (coperchio chiuso) 122 x 57 x 112 cm, peso del prodotto: 26,70 kg, imballo: 60 x 58 x 53 cm
+  L'accensione piezoelettrica assicura che l’accensione del BBQ sia semplice e rapida e un termometro integrato nel coperchio facilita la cottura ottima del cibo.`;
+  topicKeyword = 'Brigros - Barbecue a gas';
+  topicASIN = 'B08Y59NM8V';
+  writing_tone = 'informale';
   writing_style = 'blog post';
-  language = 'Italian';
+  language = 'Italiano';
   isGettingTitle = false;
   isGettingIntroduction = false;
   isGettingSections = false;
@@ -35,10 +42,10 @@ export class SingleProductComponent implements OnInit {
     secondCtrl: ['', Validators.required],
   });
   isLinear = false;
-ngOnInit(): void {
+  ngOnInit(): void {
 
-}
-  constructor(private openAIService: OpenAIService, private wpService: WpService, private _formBuilder: FormBuilder) {}
+  }
+  constructor(private openAIService: OpenAIService, private wpService: WpService, private _formBuilder: FormBuilder) { }
 
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
@@ -94,9 +101,29 @@ ngOnInit(): void {
       this.titleResponse = response.message;
     });
   }
-  getIntroduction() {
+  // getIntroduction() {
+  //   this.isGettingIntroduction = true;
+  //   const prompt_test =
+  //     'Scrivi una introduzione per un post del blog su ' +
+  //     this.topicTitle +
+  //     ' ' +
+  //     this.topicInfos +
+  //     'in ' +
+  //     this.language +
+  //     '. Stile: ' +
+  //     this.writing_style +
+  //     '. Tono: ' +
+  //     this.writing_tone +
+  //     '.  Non possono esserci frasi incomplete. Deve invogliare il lettore ad approfondire l argomento e a leggere la recensione del prodotto, non deve spingere all acquisto ma dare una idea degli argomenti trattati nell articolo. Il testo deve contenere al massimo 70 parole, parla al lettore al singolare, non svelare troppe informazioni sul prodotto.';
+  //   this.openAIService.getResponse(prompt_test).subscribe((response) => {
+  //     this.isGettingIntroduction = false;
+  //     this.introductionResponse = response.message;
+  //   });
+  // }
+
+  async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
     this.isGettingIntroduction = true;
-    const prompt_test =
+    const basePrompt =
       'Scrivi una introduzione per un post del blog su ' +
       this.topicTitle +
       ' ' +
@@ -108,11 +135,51 @@ ngOnInit(): void {
       '. Tono: ' +
       this.writing_tone +
       '.  Non possono esserci frasi incomplete. Deve invogliare il lettore ad approfondire l argomento e a leggere la recensione del prodotto, non deve spingere all acquisto ma dare una idea degli argomenti trattati nell articolo. Il testo deve contenere al massimo 70 parole, parla al lettore al singolare, non svelare troppe informazioni sul prodotto.';
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
-      this.isGettingIntroduction = false;
-      this.introductionResponse = response.message;
-    });
+
+    const someThreshold = 20; // Adjust this value based on your specific needs
+    let lastIntroduction = '';
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      let optimizationHints = '';
+
+      let prompt_test = basePrompt + optimizationHints;
+
+      let response = await this.openAIService.getResponse(prompt_test).toPromise();
+      var originalIntroduction = response.message;
+      lastIntroduction = originalIntroduction; //store the latest attempt
+
+      let seoScore = this.analyzeSeoIntroduction(originalIntroduction);
+
+      // If SEO score is satisfactory, set the introduction response and exit the function
+      if (seoScore >= someThreshold) {
+        this.isGettingIntroduction = false;
+        this.introductionResponse = originalIntroduction;
+        return;
+      } else {
+        optimizationHints = '';
+
+        // Instruct the AI to include the keyword in the text
+        if (!originalIntroduction.includes(this.topicKeyword)) {
+          optimizationHints += ' Includi la parola chiave <strong>"' + this.topicKeyword + '"</strong> nella prima frase.';
+        }
+
+        // Change the tone to be more informal
+        if (originalIntroduction.includes('Siete')) {
+          optimizationHints += ' Usa un tono più informale, dando del tu al lettore.';
+        }
+
+        // Add other suggestions as needed...
+      }
+    }
+
+    // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
+    // Use the last generated introduction anyway
+    this.isGettingIntroduction = false;
+    this.introductionResponse = lastIntroduction;
+    console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
   }
+
+
   getSections() {
     this.isGettingSections = true;
     const sections_count = 10;
@@ -135,6 +202,98 @@ ngOnInit(): void {
       this.sectionsResponse = response.message;
     });
   }
+  // async getAndOptimizeSections(): Promise<void> {
+  //   this.isGettingSections = true;
+  //   const sections_count = 10;
+  //   const prompt_test =
+  //     'Genera ' +
+  //     sections_count +
+  //     ' titoli di sezioni per un articolo su ' +
+  //     this.topicTitle +
+  //     ' ' +
+  //     this.topicInfos +
+  //     ' in ' +
+  //     this.language +
+  //     '. Stile: ' +
+  //     this.writing_style +
+  //     '. Tono: ' +
+  //     this.writing_tone +
+  //     ' I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta, ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2. Usa un linguaggio naturale. NON usare elenchi puntati. Inserisci in alcuni titoli la parola chiave: ' + this.topicKeyword + '. Evita il keyword stuffing.';
+
+  //   this.openAIService.getResponse(prompt_test).toPromise().then((response) => {
+  //     this.isGettingSections = false;
+  //     let originalTitles = response.message.split("\n").map((title: string) => title.replace(/<h2>|<\/h2>/g, '')); // remove <h2> tags
+
+  //     let seoScore = this.analyzeSeoSections(originalTitles); // assume analyzeSeoSections is implemented
+
+  //     const someThreshold = 3; // Adjust this value based on your specific needs
+
+  //     // If SEO score isn't satisfactory, optimize the sections
+  //     if (seoScore < someThreshold) {
+  //       // Keyword insertion, only if keyword is not present in more than 50% of the titles
+  //       if (originalTitles.filter((title: string | string[]) => title.includes(this.topicKeyword)).length <= originalTitles.length / 2) {
+  //         // Randomly insert the keyword in one of the titles
+  //         let titleIndex = Math.floor(Math.random() * originalTitles.length);
+  //         let titleWords = originalTitles[titleIndex].split(" ");
+  //         let keywordPosition = Math.floor(Math.random() * titleWords.length); // random position in the title for the keyword
+  //         titleWords.splice(keywordPosition, 0, this.topicKeyword); // insert keyword at the random position
+  //         originalTitles[titleIndex] = titleWords.join(" ");
+  //       }
+  //     }
+  //     this.sectionsResponse = originalTitles.map((title: any) => `<h2>${title}</h2>`).join("\n"); // re-add <h2> tags
+  //   });
+  // }
+
+
+  async getAndOptimizeSections(maxRetries: number = 3): Promise<void> {
+    const sections_count = 10;
+    const initialPrompt =
+      'Genera ' +
+      sections_count +
+      ' titoli di sezioni per un articolo su ' +
+      this.topicTitle +
+      ' ' +
+      this.topicInfos +
+      ' in ' +
+      this.language +
+      '. Stile: ' +
+      this.writing_style +
+      '. Tono: ' +
+      this.writing_tone +
+      ` I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta, ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2. Evita la ripetizione eccessiva della parola chiave e dei titoli. NON usare elenchi puntati nei titoli. Cerca di utilizzare un linguaggio naturale e colloquiale.`;
+
+    let lastTitles: string[] = [];
+
+    for (let i = 0; i < maxRetries; i++) {
+      this.isGettingSections = true;
+
+      const prompt = i === 0 ? initialPrompt : `${initialPrompt} Assicurati che almeno alcuni titoli includano la parola chiave "${this.topicKeyword}" e che coprano vari aspetti del prodotto (ad esempio, "Design del prodotto", "Facilità d'uso", "Qualità costruttiva", ecc.).`;
+
+      const response = await this.openAIService.getResponse(prompt).toPromise();
+
+      this.isGettingSections = false;
+      let originalTitles = response.message.split("\n").map((title: string) => title.replace(/<h2>|<\/h2>/g, '')).filter((title: string) => title.trim() !== ''); // remove <h2> tags and empty titles
+      lastTitles = originalTitles;
+
+      // Check if at least 3 titles contain the keyword
+      let seoScore = originalTitles.filter((title: string | string[]) => title.includes(this.topicKeyword)).length;
+
+      const someThreshold = 3; // Adjust this value based on your specific needs
+
+      // If SEO score is satisfactory, set the sections response and exit the function
+      if (seoScore >= someThreshold) {
+        this.sectionsResponse = originalTitles.map((title: any) => `<h2>${title}</h2>`).join("\n"); // re-add <h2> tags
+        return;
+      }
+    }
+
+    // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
+    // Use the last generated titles anyway
+    this.sectionsResponse = lastTitles.map((title: any) => `<h2>${title}</h2>`).join("\n"); // re-add <h2> tags
+    console.error("Used section titles with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+  }
+
+
 
 
   getContent() {
@@ -165,7 +324,6 @@ ngOnInit(): void {
   }
 
 
-
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
 
@@ -178,7 +336,7 @@ ngOnInit(): void {
 
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] =
-      `<p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center"] </p> <br> <h2>` +
+      `<p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p> <br> <h2>` +
       contentSections[randomSectionIndex] +
       '</h2>';
 
@@ -189,7 +347,7 @@ ngOnInit(): void {
     this.completeArticleResponse = `
       ${this.titleResponse}
 
-      [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center"]
+      [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]
       <br>
 
       ${this.introductionResponse}
@@ -197,7 +355,7 @@ ngOnInit(): void {
       <h3>Punti chiave:</h3>
       <br>
 
-      [amazon fields="${this.topicASIN}" value="description" description_length="400"]
+      [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
       [content-egg-block template=offers_list_no_price]
       <br>
 
@@ -232,6 +390,56 @@ ngOnInit(): void {
       this.wordsCount = 0;
     }
   }
+
+  //*************SEO IMPROVMENT *******************//
+  analyzeSeoIntroduction(text: string): number {
+    let seoScore = 0;
+
+    //Split the text into sentences
+    let sentences = text.split('. ');
+
+    //Increase the score if the keyword is in the first sentence
+    if (sentences.length > 0 && sentences[0].includes(this.topicKeyword)) {
+      seoScore += 10;
+    }
+
+    //Increase the score if the keyword is in bold
+    if (text.includes('<strong>' + this.topicKeyword + '</strong>')) {
+      seoScore += 10;
+    }
+
+    //Increase the score if the text has a certain length
+    if (text.length > 70) {
+      seoScore += 10;
+    }
+
+    //Other SEO criteria can be added here...
+
+    return seoScore;
+  }
+
+  analyzeSeoSections(titles: string[]): number {
+    let seoScore = 0;
+    let keywordCount = 0;
+
+    for (let title of titles) {
+      //Increase the score if the title includes the keyword
+      if (title.includes(this.topicKeyword)) {
+        seoScore += 3;  // change here
+        keywordCount++;
+      }
+    }
+
+    //If too many titles include the keyword, reduce the score to avoid keyword stuffing
+    if (keywordCount > titles.length * 0.5) {
+      seoScore -= 5;  // change here
+    }
+
+    //Other SEO criteria can be added here...
+
+    return seoScore;
+  }
+
 
 
 }
