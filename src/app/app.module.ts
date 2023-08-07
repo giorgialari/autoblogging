@@ -15,6 +15,7 @@ import { SingleProductComponent } from './components/single-product/single-produ
 import { NavbarComponent } from './shared/ui/navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgCircleProgressModule } from 'ng-circle-progress';
+import { BulkSingleProductComponent } from './components/bulk-single-product/bulk-single-product.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
     AppComponent,
     SingleProductComponent,
     NavbarComponent,
-    EditorComponent
+    EditorComponent,
+    BulkSingleProductComponent
   ],
   imports: [
     BrowserAnimationsModule,
