@@ -97,6 +97,7 @@ export class SingleProductComponent implements OnInit {
     this.openAIService.getResponse(prompt_test).subscribe((response) => {
       this.isGettingTitle = false;
       this.titleResponse = response.message;
+      this.analyzeSeoTitle(this.titleResponse);
     });
   }
 
@@ -235,6 +236,7 @@ export class SingleProductComponent implements OnInit {
     this.openAIService.getResponse(prompt_test).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
+      this.analyzeSeoContent(this.contentResponse);
     });
   }
 
@@ -279,6 +281,7 @@ export class SingleProductComponent implements OnInit {
 
     this.isGettingCompleteArticle = false;
     this.countWords();
+    this.calculateTotalSeoScore();
     this.cdr.detectChanges();
   }
 
@@ -305,30 +308,58 @@ export class SingleProductComponent implements OnInit {
   }
 
   //*************SEO IMPROVMENT *******************//
+  maxTitleScore = 30;
+  maxIntroductionScore = 30;
+  maxSectionsScore = 20;
+  maxContentScore = 20;
+  seoTitleScore: number = 0;
   seoIntroductionScore: number = 0;
   seoSectionsScore: number = 0;
+  seoContentScore: number = 0;
+  totalSeoScore: number = 0;
+
+  analyzeSeoTitle(text: string): number {
+    let seoScore = 0;
+
+    if (text.includes(this.topicKeyword)) {
+      seoScore += 10;
+    }
+
+    if (text.startsWith('<h1>') && text.endsWith('</h1>')) {
+      seoScore += 10;
+    }
+
+    if (text.length >= 40 && text.length <= 60) {
+      seoScore += 10;
+    }
+
+    this.seoTitleScore = seoScore
+    return this.seoTitleScore;
+  }
+
   analyzeSeoIntroduction(text: string): number {
     let seoScore = 0;
 
-    //Split the text into sentences
+    // Split the text into sentences
     let sentences = text.split('. ');
 
-    //Increase the score if the keyword is in the first sentence
+    // Increase the score if the keyword is in the first sentence
     if (sentences.length > 0 && sentences[0].includes(this.topicKeyword)) {
       seoScore += 10;
     }
 
-    //Increase the score if the keyword is in bold
+    // Increase the score if the keyword is in bold
     if (text.includes('<strong>' + this.topicKeyword + '</strong>')) {
       seoScore += 10;
     }
 
-    //Increase the score if the text has a certain length
+    // Increase the score if the text has a certain length
     if (text.length > 70) {
       seoScore += 10;
     }
-    this.seoIntroductionScore = seoScore;
-    return seoScore;
+
+    this.seoIntroductionScore =seoScore
+    return this.seoIntroductionScore
   }
 
   analyzeSeoSections(titles: string[]): number {
@@ -345,9 +376,70 @@ export class SingleProductComponent implements OnInit {
     if (keywordCount > titles.length * 0.5) {
       seoScore -= 5;
     }
-    this.seoSectionsScore = seoScore;
-    return seoScore;
+
+    this.seoSectionsScore = seoScore
+    return this.seoSectionsScore;
   }
+
+  analyzeSeoContent(text: string): number {
+    let seoScore = 0;
+
+    // Check if the text is between 700 and 900 words.
+    const wordCount = text.split(' ').length;
+    if (wordCount >= 700 && wordCount <= 900) {
+      seoScore += 10;
+    }
+
+    // Check if the text does not contain incomplete sentences.
+    if (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) {
+      seoScore += 10;
+    }
+
+    // Check if every section starts with the corresponding <h2> heading.
+    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
+    for (const section of sections) {
+      if (text.includes('<h2>' + section + '</h2>')) {
+        seoScore += 5;
+      }
+    }
+
+    // Check if the text does not repeat the <h1> title.
+    if (!text.includes(this.titleResponse)) {
+      seoScore += 10;
+    }
+
+    // Check if the first line of each paragraph is different.
+    const paragraphs = text.split('\n');
+    const firstLines = paragraphs.map(p => p.split('. ')[0]);
+    if (new Set(firstLines).size === firstLines.length) {
+      seoScore += 5;
+    }
+
+    this.seoContentScore = seoScore
+    return this.seoContentScore;
+  }
+
+  calculateTotalSeoScore(): number {
+    const titleWeight = 0.3;
+    const introductionWeight = 0.3;
+    const sectionsWeight = 0.2;
+    const contentWeight = 0.2;
+
+    const totalMaxScore = (this.maxTitleScore * titleWeight) +
+                         (this.maxIntroductionScore * introductionWeight) +
+                         (this.maxSectionsScore * sectionsWeight) +
+                         (this.maxContentScore * contentWeight);
+
+    const totalScore = (this.seoTitleScore * titleWeight) +
+                       (this.seoIntroductionScore * introductionWeight) +
+                       (this.seoSectionsScore * sectionsWeight) +
+                       (this.seoContentScore * contentWeight);
+
+    this.totalSeoScore = (totalScore / totalMaxScore) * 100;
+
+    return this.totalSeoScore;
+  }
+
 
 
 
