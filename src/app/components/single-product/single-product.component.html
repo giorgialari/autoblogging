@@ -53,11 +53,15 @@
        <div class="card my-2">
          <div class="card-header bg-info text-white">Introduction</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getAndOptimizeIntroduction()" [disabled]="isGettingIntroduction">
+           <button class="btn btn-secondary mb-3" (click)="getAndOptimizeIntroduction()"
+             [disabled]="isGettingIntroduction">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingIntroduction" role="status"
                aria-hidden="true"></span>
              Generate Introduction
            </button>
+           <div>
+             Seo Score: {{seoIntroductionScore}}
+           </div>
            <textarea class="form-control" rows="4" [(ngModel)]="introductionResponse"></textarea>
          </div>
        </div>
@@ -73,6 +77,9 @@
                aria-hidden="true"></span>
              Generate Sections
            </button>
+           <div>
+            Seo Score: {{seoSectionsScore}}
+          </div>
            <textarea class="form-control" rows="4" [(ngModel)]="sectionsResponse"></textarea>
          </div>
        </div>

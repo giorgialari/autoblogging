@@ -199,7 +199,7 @@ export class SingleProductComponent implements OnInit {
         const index = 3 + i * interval;
         sections[index] = sections[index].replace('<h2>', `<h2>${this.topicKeyword}: `);
       }
-
+      this.analyzeSeoSections(sections);
       // Combina tutte le sezioni
       this.sectionsResponse = sections.join('</h2>') + '</h2>';
     });
@@ -305,6 +305,8 @@ export class SingleProductComponent implements OnInit {
   }
 
   //*************SEO IMPROVMENT *******************//
+  seoIntroductionScore: number = 0;
+  seoSectionsScore: number = 0;
   analyzeSeoIntroduction(text: string): number {
     let seoScore = 0;
 
@@ -325,7 +327,7 @@ export class SingleProductComponent implements OnInit {
     if (text.length > 70) {
       seoScore += 10;
     }
-
+    this.seoIntroductionScore = seoScore;
     return seoScore;
   }
 
@@ -343,7 +345,7 @@ export class SingleProductComponent implements OnInit {
     if (keywordCount > titles.length * 0.5) {
       seoScore -= 5;
     }
-
+    this.seoSectionsScore = seoScore;
     return seoScore;
   }
 
