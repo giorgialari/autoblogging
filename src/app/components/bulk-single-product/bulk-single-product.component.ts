@@ -14,15 +14,10 @@ export class BulkSingleProductComponent {
   sectionsResponse: string = '';
   contentResponse: string = '';
   completeArticleResponse: string = '';
-  topicTitle = 'Brigros - Barbecue a gas DALLAS con rotelle potente e pratico, comodo da spostare, sistema di pulizia facile (3 fuochi)';
-  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni
-  Grigli barbecue 60 x 42 cm con opzioni di cottura infinite
-  Barbecue a gas con sistema di pulizia facile e veloce
-  bbq a gas dotato di rotelle per un facile trasporto
-  bbq gas dimensioni: prodotto (coperchio chiuso) 122 x 57 x 112 cm, peso del prodotto: 26,70 kg, imballo: 60 x 58 x 53 cm
-  L'accensione piezoelettrica assicura che l’accensione del BBQ sia semplice e rapida e un termometro integrato nel coperchio facilita la cottura ottima del cibo.`;
-  topicKeyword = 'Brigros - Barbecue a gas';
-  topicASIN = 'B08Y59NM8V';
+  topicTitle = '';
+  topicInfos = ``;
+  topicKeyword = '';
+  topicASIN = '';
   writing_tone = 'informale';
   writing_style = 'blog post';
   language = 'Italiano';
@@ -41,9 +36,12 @@ export class BulkSingleProductComponent {
   });
   isLinear = false;
   ngOnInit(): void { }
-  constructor(private openAIService: OpenAIService, private wpService: WpService, private _formBuilder: FormBuilder, private cdr: ChangeDetectorRef) { }
+  constructor(private openAIService: OpenAIService,
+    private wpService: WpService,
+    private _formBuilder: FormBuilder,
+    private cdr: ChangeDetectorRef) { }
 
-  improveTopicTitle() {
+  async improveTopicTitle() {
     this.isGettingTopicTitle = true;
     const prompt_test =
       'Migliora il contenuto di questo titolo ' +
@@ -55,17 +53,21 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete. Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve contenere solo le informazioni essenziali.';
-    this.openAIService.getResponse(prompt_test).subscribe((response: { message: string; }) => {
+
+    try {
+      const response = await this.openAIService.getResponse(prompt_test).toPromise();
       this.isGettingTopicTitle = false;
       console.log(response);
       this.topicTitle = response.message;
-    });
+    } catch (error) {
+      this.isGettingTopicTitle = false;
+      console.error('There was an error getting the topic title:', error);
+    }
   }
-
-  improveTopicInfo() {
+  async improveTopicInfo() {
     this.isGettingTopicInfo = true;
     const prompt_test =
-      'Migliora il contenuto di questo testo  ' +
+      'Migliora il contenuto di questo testo ' +
       this.topicInfos +
       ' in ' +
       this.language +
@@ -74,13 +76,18 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere massimo 500 caratteri. Deve contenere solo informazioni essenziali e non può contenere frasi incomplete. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve essere strutturato come elenco numerato.';
-    this.openAIService.getResponse(prompt_test).subscribe((response: { message: string; }) => {
+
+    try {
+      const response = await this.openAIService.getResponse(prompt_test).toPromise();
       this.isGettingTopicInfo = false;
       console.log(response);
       this.topicInfos = response.message;
-    });
+    } catch (error) {
+      this.isGettingTopicInfo = false;
+      console.error('There was an error getting the topic information:', error);
+    }
   }
-  getTitle() {
+  async getTitle() {
     this.isGettingTitle = true;
     const prompt_test =
       'Scrivi un titolo per un post del blog su ' +
@@ -92,13 +99,17 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 40 e 60 caratteri. Deve essere una frase completa e breve. Deve essere un titolo per la recensione di un post sul blog e deve contenere "Recensione" e deve essere avvolto da un tag <h1>. Ad esempio: <h1>Recensione del film Avengers: Endgame</h1>';
-    this.openAIService.getResponse(prompt_test).subscribe((response: { message: string; }) => {
+
+    try {
+      const response = await this.openAIService.getResponse(prompt_test).toPromise();
       this.isGettingTitle = false;
       this.titleResponse = response.message;
       this.analyzeSeoTitle(this.titleResponse);
-    });
+    } catch (error) {
+      this.isGettingTitle = false;
+      console.error('There was an error getting the title:', error);
+    }
   }
-
   async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
     this.isGettingIntroduction = true;
     const basePrompt =
@@ -156,8 +167,7 @@ export class BulkSingleProductComponent {
     this.introductionResponse = lastIntroduction;
     console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
   }
-
-  getSections() {
+  async getSections() {
     this.isGettingSections = true;
     const sections_count = 10;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
@@ -182,7 +192,8 @@ export class BulkSingleProductComponent {
       ...Altre sezioni...
       <h2>Conclusioni</h2>`;
 
-    this.openAIService.getResponse(prompt_test).subscribe((response: { message: string; }) => {
+    try {
+      const response = await this.openAIService.getResponse(prompt_test).toPromise();
       this.isGettingSections = false;
       let sections = response.message.split('</h2>');
       sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
@@ -199,10 +210,12 @@ export class BulkSingleProductComponent {
       this.analyzeSeoSections(sections);
       // Combina tutte le sezioni
       this.sectionsResponse = sections.join('</h2>') + '</h2>';
-    });
+    } catch (error) {
+      this.isGettingSections = false;
+      console.error('There was an error getting the sections:', error);
+    }
   }
-
-  getContent() {
+  async getContent() {
     this.isGettingContent = true;
     const paragraphs_per_section = 3;
     const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
@@ -211,7 +224,7 @@ export class BulkSingleProductComponent {
       this.titleResponse +
       ' in ' +
       this.language +
-      ' L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
+      ' L\'articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
       sections.join(', ') +
       '. Ogni sezione deve avere ' +
       paragraphs_per_section +
@@ -223,13 +236,17 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       ' Deve essere compreso tra 700 e 900 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1. Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.';
-    this.openAIService.getResponse(prompt_test).subscribe((response: { message: string; }) => {
+
+    try {
+      const response = await this.openAIService.getResponse(prompt_test).toPromise();
       this.isGettingContent = false;
       this.contentResponse = response.message;
       this.analyzeSeoContent(this.contentResponse);
-    });
+    } catch (error) {
+      this.isGettingContent = false;
+      console.error('There was an error getting the content:', error);
+    }
   }
-
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
 
@@ -241,7 +258,7 @@ export class BulkSingleProductComponent {
 
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] = `
-      <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
+    [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center"]
       <h2>${contentSections[randomSectionIndex]}</h2>
     `;
 
@@ -250,40 +267,40 @@ export class BulkSingleProductComponent {
 
     // Assemble the complete article
     this.completeArticleResponse = `
-      ${this.titleResponse}
-      <p> [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]</p>
-      ${this.introductionResponse}
-      <h3>Punti chiave:</h3>
-      [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
-      [content-egg-block template=offers_list_no_price]
-      ${contentWithImage}
-      <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
-      <p>[amazon bestseller="${this.topicKeyword}" items="5"/]</p>
-    `
-      .split('\n')
-      .map(line => line.trim()) // Remove whitespace at the start and end of each line
-      .filter(line => line) // Remove empty lines
-      .join('\n');
+    ${this.titleResponse}
+    [amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center"]
+    ${this.introductionResponse}
+    <h3>Punti chiave:</h3>
+    [amazon fields="${this.topicASIN}" value="description" description_length="400"]
+    [content-egg-block template=offers_list_no_price]
+    ${contentWithImage}
+    <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
+    [amazon bestseller="${this.topicKeyword}" items="5"/]
+  `
+    .split('\n')
+    .map(line => line.trim()) // Remove whitespace at the start and end of each line
+    .filter(line => line) // Remove empty lines
+    .join('\n');
 
     this.isGettingCompleteArticle = false;
     this.countWords();
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
   }
-
-  publishArticleOnWP() {
+  async publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
       const cleanedContent = this.completeArticleResponse.replace(/<h1\b[^>]*>.*?<\/h1>/g, '');
 
-      this.wpService.publishPost(this.titleResponse, cleanedContent)
-        .subscribe(() => {
-          alert('Articolo pubblicato con successo!');
-        });
+      try {
+        await this.wpService.publishPost(this.titleResponse, cleanedContent).toPromise();
+        alert('Articolo pubblicato con successo!');
+      } catch (error) {
+        console.error('There was an error publishing the article:', error);
+      }
     }
   }
-
-
+  //*************WORD COUNT *******************//
   wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
@@ -292,7 +309,6 @@ export class BulkSingleProductComponent {
       this.wordsCount = 0;
     }
   }
-
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;
   maxIntroductionScore = 30;
@@ -344,7 +360,7 @@ export class BulkSingleProductComponent {
       seoScore += 10;
     }
 
-    this.seoIntroductionScore =seoScore
+    this.seoIntroductionScore = seoScore
     return this.seoIntroductionScore
   }
 
@@ -412,19 +428,42 @@ export class BulkSingleProductComponent {
     const contentWeight = 0.2;
 
     const totalMaxScore = (this.maxTitleScore * titleWeight) +
-                         (this.maxIntroductionScore * introductionWeight) +
-                         (this.maxSectionsScore * sectionsWeight) +
-                         (this.maxContentScore * contentWeight);
+      (this.maxIntroductionScore * introductionWeight) +
+      (this.maxSectionsScore * sectionsWeight) +
+      (this.maxContentScore * contentWeight);
 
     const totalScore = (this.seoTitleScore * titleWeight) +
-                       (this.seoIntroductionScore * introductionWeight) +
-                       (this.seoSectionsScore * sectionsWeight) +
-                       (this.seoContentScore * contentWeight);
+      (this.seoIntroductionScore * introductionWeight) +
+      (this.seoSectionsScore * sectionsWeight) +
+      (this.seoContentScore * contentWeight);
 
     this.totalSeoScore = (totalScore / totalMaxScore) * 100;
 
     return this.totalSeoScore;
   }
 
+  //*** PROCESS ALL  ******//
+  listProducts: any;
+  async processAll() {
+    const products = JSON.parse(this.listProducts);
+    for (const item of products) {
+      // Assigning the properties to your class or object's instance variables
+      this.topicTitle = item.product_title;
+      this.topicInfos = item.product_infos.map((info: { product_infos: any; }) => info.product_infos).join(' ');
+      this.topicASIN = item.product_asin;
+      this.topicKeyword = item.product_title;
 
+      // Call the functions in the required order
+      await this.improveTopicTitle();
+      await this.improveTopicInfo();
+      await this.getTitle();
+      await this.getAndOptimizeIntroduction();
+      await this.getSections();
+      await this.getContent();
+      await this.getCompleteArticle();
+
+      // If you want to publish the article on WordPress, you can call the function here
+      await this.publishArticleOnWP();
+    }
+  }
 }
