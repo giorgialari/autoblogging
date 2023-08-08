@@ -1,0 +1,68 @@
+<div class="container my-4">
+
+  <div class="card">
+    <div class="card-header">
+      OpenAI Settings
+    </div>
+    <div class="card-body">
+      <form [formGroup]="openAISettingsForm">
+        <div class="mb-3">
+          <label for="apiKey" class="form-label">API Key</label>
+          <input type="text" class="form-control" id="apiKey" formControlName="apiKey">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Model</label>
+          <input type="text" class="form-control" id="model" formControlName="model">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Temperature</label>
+          <input type="text" class="form-control" id="model" formControlName="temperature">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Max Tokens</label>
+          <input type="text" class="form-control" id="model" formControlName="maxTokens">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Top P</label>
+          <input type="text" class="form-control" id="model" formControlName="topP">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Frequency Penalty</label>
+          <input type="text" class="form-control" id="model" formControlName="frequencyPenalty">
+        </div>
+        <div class="mb-3">
+          <label for="model" class="form-label">Presence Penalty</label>
+          <input type="text" class="form-control" id="model" formControlName="presencePenalty">
+        </div>
+        <button type="button" class="btn btn-primary" (click)="saveOpenAISettings()">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header">
+      WordPress Settings
+    </div>
+    <div class="card-body">
+      <form [formGroup]="wpSettingsForm">
+        <div class="mb-3">
+          <label for="wpUrl" class="form-label">WordPress URL</label>
+          <input type="text" class="form-control" id="wpUrl" formControlName="wpUrl">
+        </div>
+        <div class="mb-3">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-control" id="status" formControlName="status">
+            <option value="publish">Publish</option>
+            <option value="draft" selected>Draft</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="status" class="form-label">Btoa</label>
+          <input type="text" class="form-control" id="status" formControlName="btoa">
+        </div>
+        <button type="button" class="btn btn-primary" (click)="saveWPSettings()">Save</button>
+      </form>
+    </div>
+  </div>
+</div>

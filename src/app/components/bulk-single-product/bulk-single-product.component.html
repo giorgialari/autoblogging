@@ -1,2 +1,35 @@
-<textarea [(ngModel)]="listProducts"></textarea>
-<button class="btn btn-primary mb-3" (click)="processAll()">Process</button>
+<div class="container my-4">
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">Bulk products</div>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="topicInput" style="margin-right: 5px;">Insert Json here: </label>
+        <a href="assets/JSON_Info.pdf" target="_blank">Download valid example (PDF)</a>
+        <div class="text-danger my-1" *ngIf="formatJsonNotValid">
+          {{formatJsonNotValidMessage}}
+        </div>
+
+        <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="listProducts"></textarea>
+        <button class="btn btn-secondary my-3 btn-sm" (click)="processAll()" [disabled]="!listProducts">
+          Process
+        </button>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+<div class="overlay" *ngIf="showOverlay">
+  <div class="overlay-content d-flex justify-content-center align-items-center">
+    <div class="card bg-white" style="width: 18rem;">
+      <div class="card-body">
+        <div class="spinner-border text-primary" role="status" *ngIf="showOverlay">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="mt-2 font-weight-bold">{{currentArticleNumber}}</div>
+        <div class="mt-2">{{statusMessage}}</div>
+        <button class="btn btn-danger mt-3 btn-sm" (click)="stopProcess()">Stop all</button>
+      </div>
+    </div>
+  </div>
+</div>

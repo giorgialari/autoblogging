@@ -32,7 +32,11 @@ $autoblogging-theme: mat.define-light-theme((
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes($autoblogging-theme);
-
+@import 'src/bootstrap.min.css';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.card-header{
+  border-top-left-radius:  8px !important;
+  border-top-right-radius:  8px !important
+}

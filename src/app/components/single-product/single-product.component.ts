@@ -4,6 +4,9 @@ import { OpenAIService } from 'src/app/services/open-ai.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { StepperOrientation } from '@angular/material/stepper';
+import {BreakpointObserver} from '@angular/cdk/layout';
+
 
 @Component({
   selector: 'app-single-product',
@@ -42,8 +45,19 @@ export class SingleProductComponent implements OnInit {
     secondCtrl: ['', Validators.required],
   });
   isLinear = false;
+  stepperOrientation!: Observable<StepperOrientation>;
+
   ngOnInit(): void { }
-  constructor(private openAIService: OpenAIService, private wpService: WpService, private _formBuilder: FormBuilder, private cdr: ChangeDetectorRef) { }
+  constructor(private openAIService: OpenAIService,
+    private wpService: WpService,
+    private _formBuilder: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    breakpointObserver: BreakpointObserver) {
+      this.stepperOrientation = breakpointObserver
+      .observe('(min-width: 800px)')
+      .pipe(map(({matches}) => (matches ? 'horizontal' : 'vertical')));
+
+    }
 
   improveTopicTitle() {
     this.isGettingTopicTitle = true;

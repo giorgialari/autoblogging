@@ -15,7 +15,7 @@
          <input type="text" class="form-control" id="topicInput" [(ngModel)]="topicTitle">
        </div>
 
-       <button class="btn btn-secondary my-3" (click)="improveTopicTitle()" [disabled]="isGettingTopicTitle">
+       <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicTitle()" [disabled]="isGettingTopicTitle">
          <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicTitle" role="status" aria-hidden="true"></span>
          Improve Topic Title
        </button>
@@ -23,7 +23,7 @@
          <label for="topicInput">Enter the topic info here:</label>
          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="topicInfos">
             </textarea>
-         <button class="btn btn-secondary my-3" (click)="improveTopicInfo()" [disabled]="isGettingTopicInfo">
+         <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicInfo()" [disabled]="isGettingTopicInfo">
            <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicInfo" role="status"
              aria-hidden="true"></span>
            Improve Topic Infos
@@ -32,14 +32,15 @@
      </div>
    </div>
 
-   <mat-horizontal-stepper linear
+   <mat-stepper linear style="background-color: #d9e3f1;"
+   [orientation]="(stepperOrientation | async)!"
      *ngIf="topicKeyword != '' && topicASIN != '' &&  topicTitle != '' && topicInfos != ''">
      <mat-step label="Title">
        <ng-template matStepLabel>Title</ng-template>
        <div class="card my-2">
          <div class="card-header bg-primary text-white">Title</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getTitle()" [disabled]="isGettingTitle">
+           <button class="btn btn-secondary mb-3 btn-sm" (click)="getTitle()" [disabled]="isGettingTitle">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTitle" role="status" aria-hidden="true"></span>
              Generate Title
            </button>
@@ -53,7 +54,7 @@
        <div class="card my-2">
          <div class="card-header bg-info text-white">Introduction</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getAndOptimizeIntroduction()"
+           <button class="btn btn-secondary mb-3 btn-sm" (click)="getAndOptimizeIntroduction()"
              [disabled]="isGettingIntroduction">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingIntroduction" role="status"
                aria-hidden="true"></span>
@@ -69,7 +70,7 @@
        <div class="card my-2">
          <div class="card-header bg-success text-white">Sections</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getSections()" [disabled]="isGettingSections">
+           <button class="btn btn-secondary mb-3 btn-sm" (click)="getSections()" [disabled]="isGettingSections">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingSections" role="status"
                aria-hidden="true"></span>
              Generate Sections
@@ -84,7 +85,7 @@
        <div class="card my-2">
          <div class="card-header bg-warning text-white">Content</div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3" (click)="getContent()" [disabled]="isGettingContent">
+           <button class="btn btn-secondary mb-3 btn-sm" (click)="getContent()" [disabled]="isGettingContent">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingContent" role="status"
                aria-hidden="true"></span>
              Generate Content
@@ -99,24 +100,30 @@
        <div class="card my-2">
          <div class="card-header bg-info text-white">Generate Complete Article</div>
          <div class="card-body">
-           <button class="btn btn-primary mb-3" (click)="getCompleteArticle(); countWords()"
-             [disabled]="isGettingCompleteArticle">
-             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
-               aria-hidden="true"></span>
-             Generate Complete Article with Images
-           </button>
-           <button class="btn btn-primary mx-2  mb-3" (click)="publishArticleOnWP()"
-             [disabled]="isGettingCompleteArticle">
-             <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
-               aria-hidden="true"></span>
-             Publish on WP
-           </button>
-           <div class="d-flex">
-             <circle-progress [percent]="wordsCount" [maxPercent]="1000" [showUnits]="false" [subtitle]="'Words'" [radius]="60" class="custom-circle-progress" [outerStrokeColor]="'#0041c2'"
-             [innerStrokeColor]="'#95b7e4'">
-            </circle-progress>
-             <circle-progress [percent]="totalSeoScore" [subtitle]="'SEO'" [radius]="60" class="custom-circle-progress">
-             </circle-progress>
+           <div>
+            <div class="d-flex justify-content-center">
+              <circle-progress [percent]="wordsCount" [maxPercent]="1000" [showUnits]="false" [subtitle]="'Words'"
+                [radius]="60" class="custom-circle-progress" [outerStrokeColor]="'#0041c2'"
+                [innerStrokeColor]="'#95b7e4'">
+              </circle-progress>
+              <circle-progress [percent]="totalSeoScore" [subtitle]="'SEO'" [radius]="60"
+                class="custom-circle-progress">
+              </circle-progress>
+            </div>
+             <button class="btn btn-primary mb-3 btn-sm" (click)="getCompleteArticle(); countWords()"
+               [disabled]="isGettingCompleteArticle">
+               <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
+                 aria-hidden="true"></span>
+               Generate Complete Article with Images
+             </button>
+             <button class="btn btn-primary mx-2  mb-3 btn-sm" (click)="publishArticleOnWP()"
+               [disabled]="isGettingCompleteArticle">
+               <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
+                 aria-hidden="true"></span>
+               Publish on WP
+             </button>
+
+
            </div>
            <div class="form-group">
              <app-editor [data]="completeArticleResponse" [(ngModel)]="completeArticleResponse"></app-editor>
@@ -124,5 +131,5 @@
          </div>
        </div>
      </mat-step>
-   </mat-horizontal-stepper>
+   </mat-stepper>
  </div>

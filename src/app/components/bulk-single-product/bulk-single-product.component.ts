@@ -242,6 +242,7 @@ export class BulkSingleProductComponent {
       this.isGettingContent = false;
       this.contentResponse = response.message;
       this.analyzeSeoContent(this.contentResponse);
+      this.getCompleteArticle();
     } catch (error) {
       this.isGettingContent = false;
       console.error('There was an error getting the content:', error);
@@ -249,6 +250,7 @@ export class BulkSingleProductComponent {
   }
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
+    this.statusMessage = ' Sto componendo l\'articolo';
 
     // Divide the content into sections based on <h2> tags
     let contentSections = this.contentResponse.split('<h2>').map(section => section.trim());
@@ -258,7 +260,7 @@ export class BulkSingleProductComponent {
 
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] = `
-    [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center"]
+      <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
       <h2>${contentSections[randomSectionIndex]}</h2>
     `;
 
@@ -267,26 +269,29 @@ export class BulkSingleProductComponent {
 
     // Assemble the complete article
     this.completeArticleResponse = `
-    ${this.titleResponse}
-    [amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center"]
-    ${this.introductionResponse}
-    <h3>Punti chiave:</h3>
-    [amazon fields="${this.topicASIN}" value="description" description_length="400"]
-    [content-egg-block template=offers_list_no_price]
-    ${contentWithImage}
-    <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
-    [amazon bestseller="${this.topicKeyword}" items="5"/]
-  `
-    .split('\n')
-    .map(line => line.trim()) // Remove whitespace at the start and end of each line
-    .filter(line => line) // Remove empty lines
-    .join('\n');
+      ${this.titleResponse}
+      <p> [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]</p>
+      ${this.introductionResponse}
+      <h3>Punti chiave:</h3>
+      [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
+      [content-egg-block template=offers_list_no_price]
+      ${contentWithImage}
+      <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
+      <p>[amazon bestseller="${this.topicKeyword}" items="5"/]</p>
+    `
+      .split('\n')
+      .map(line => line.trim()) // Remove whitespace at the start and end of each line
+      .filter(line => line) // Remove empty lines
+      .join('\n');
 
     this.isGettingCompleteArticle = false;
     this.countWords();
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
+    this.publishArticleOnWP();
   }
+
+
   async publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
@@ -294,7 +299,8 @@ export class BulkSingleProductComponent {
 
       try {
         await this.wpService.publishPost(this.titleResponse, cleanedContent).toPromise();
-        alert('Articolo pubblicato con successo!');
+        this.statusMessage = ' Articolo pubblicato con successo!';
+
       } catch (error) {
         console.error('There was an error publishing the article:', error);
       }
@@ -443,27 +449,74 @@ export class BulkSingleProductComponent {
   }
 
   //*** PROCESS ALL  ******//
+  showOverlay = false;
+  stopProcessing = false;
   listProducts: any;
+  currentArticleNumber: string = '';
+  statusMessage: string = '';
+  formatJsonNotValid: boolean = false;
+  formatJsonNotValidMessage: string = ''
+
   async processAll() {
-    const products = JSON.parse(this.listProducts);
-    for (const item of products) {
-      // Assigning the properties to your class or object's instance variables
-      this.topicTitle = item.product_title;
-      this.topicInfos = item.product_infos.map((info: { product_infos: any; }) => info.product_infos).join(' ');
-      this.topicASIN = item.product_asin;
-      this.topicKeyword = item.product_title;
+    try {
+      const products = JSON.parse(this.listProducts);
 
-      // Call the functions in the required order
-      await this.improveTopicTitle();
-      await this.improveTopicInfo();
-      await this.getTitle();
-      await this.getAndOptimizeIntroduction();
-      await this.getSections();
-      await this.getContent();
-      await this.getCompleteArticle();
+      if (!Array.isArray(products) || products.some(item => !this.isValidProduct(item))) {
+        this.formatJsonNotValid = true;
+        this.formatJsonNotValidMessage = 'Formato JSON non valido';
+        throw new Error('Formato JSON non valido');
+      }
 
-      // If you want to publish the article on WordPress, you can call the function here
-      await this.publishArticleOnWP();
+      const totalProducts = products.length;
+      this.showOverlay = true;
+
+      for (const [index, item] of products.entries()) {
+        this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
+        // Assigning the properties to your class or object's instance variables
+        this.topicTitle = item.product_title;
+        this.topicInfos = item.product_infos.map((info: { product_infos: any; }) => info.product_infos).join(' ');
+        this.topicASIN = item.product_asin.replace(/\u200E/g, "");
+        this.topicKeyword = item.product_keyword;
+
+        // Call the functions in the required order
+        // await this.improveTopicTitle();
+        // await this.improveTopicInfo();
+        this.statusMessage = ' Sto creando il titolo';
+        await this.getTitle();
+        this.statusMessage = ' Sto creando l\'introduzione';
+        await this.getAndOptimizeIntroduction();
+        this.statusMessage = ' Sto creando le sezioni';
+        await this.getSections();
+        this.statusMessage = ' Sto creando il contenuto';
+        await this.getContent();
+
+        if (index === totalProducts - 1) {
+          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
+          this.showOverlay = false; // Nasconde l'overlay e lo spinner
+        }
+      }
+    } catch (e: any) {
+      this.formatJsonNotValid = true;
+      console.error(e.message);
+      this.formatJsonNotValidMessage = e.message;
+      // Potresti anche voler aggiornare l'interfaccia utente qui per mostrare un messaggio di errore
     }
   }
+
+  isValidProduct(product: any): boolean {
+    // Verifica che tutti i campi richiesti siano presenti e abbiano il formato corretto
+    return typeof product.product_title === 'string' &&
+           Array.isArray(product.product_infos) &&
+           product.product_infos.every((info: { product_infos: any; }) => typeof info.product_infos === 'string') &&
+           typeof product.product_asin === 'string' &&
+           typeof product.product_keyword === 'string';
+  }
+
+  stopProcess() {
+    if (confirm('Sei sicuro di voler fermare il processo e tornare indietro?')) {
+      window.location.reload();
+    }
+  }
+
+
 }
