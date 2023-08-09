@@ -2,6 +2,8 @@ import { WpService } from './../../services/wp.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
 import { FormBuilder, Validators } from '@angular/forms';
+import { NotificationService } from 'src/app/services/notifications/notifications.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-bulk-single-product',
@@ -35,14 +37,19 @@ export class BulkSingleProductComponent {
     secondCtrl: ['', Validators.required],
   });
   isLinear = false;
+  hasError = false;
+
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
     private _formBuilder: FormBuilder,
-    private cdr: ChangeDetectorRef) { }
+    private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService) { }
 
   async improveTopicTitle() {
     this.isGettingTopicTitle = true;
+    const model = this.modelTitle;
+    const maxTokens = this.maxTokensTitle
     const prompt_test =
       'Migliora il contenuto di questo titolo ' +
       this.topicTitle +
@@ -55,7 +62,7 @@ export class BulkSingleProductComponent {
       '. Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete. Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve contenere solo le informazioni essenziali.';
 
     try {
-      const response = await this.openAIService.getResponse(prompt_test).toPromise();
+      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
       this.isGettingTopicTitle = false;
       console.log(response);
       this.topicTitle = response.message;
@@ -66,6 +73,8 @@ export class BulkSingleProductComponent {
   }
   async improveTopicInfo() {
     this.isGettingTopicInfo = true;
+    const model = this.modelTitle;
+    const maxTokens = this.maxTokensTitle
     const prompt_test =
       'Migliora il contenuto di questo testo ' +
       this.topicInfos +
@@ -78,7 +87,7 @@ export class BulkSingleProductComponent {
       '. Deve essere massimo 500 caratteri. Deve contenere solo informazioni essenziali e non può contenere frasi incomplete. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve essere strutturato come elenco numerato.';
 
     try {
-      const response = await this.openAIService.getResponse(prompt_test).toPromise();
+      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
       this.isGettingTopicInfo = false;
       console.log(response);
       this.topicInfos = response.message;
@@ -89,6 +98,9 @@ export class BulkSingleProductComponent {
   }
   async getTitle() {
     this.isGettingTitle = true;
+
+    const model = this.modelTitle;
+    const maxTokens = this.maxTokensTitle
     const prompt_test =
       'Scrivi un titolo per un post del blog su ' +
       this.topicTitle +
@@ -101,17 +113,21 @@ export class BulkSingleProductComponent {
       '. Deve essere compreso tra 40 e 60 caratteri. Deve essere una frase completa e breve. Deve essere un titolo per la recensione di un post sul blog e deve contenere "Recensione" e deve essere avvolto da un tag <h1>. Ad esempio: <h1>Recensione del film Avengers: Endgame</h1>';
 
     try {
-      const response = await this.openAIService.getResponse(prompt_test).toPromise();
+      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
       this.isGettingTitle = false;
       this.titleResponse = response.message;
       this.analyzeSeoTitle(this.titleResponse);
     } catch (error) {
       this.isGettingTitle = false;
       console.error('There was an error getting the title:', error);
+      this.hasError = true;
+      throw new Error('Failed to get title');
     }
   }
   async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
     this.isGettingIntroduction = true;
+    const model = this.modelIntroduction;
+    const maxTokens = this.maxTokensIntroduction
     const basePrompt =
       'Scrivi una introduzione per un post del blog su ' +
       this.topicTitle +
@@ -127,48 +143,55 @@ export class BulkSingleProductComponent {
 
     const someThreshold = 20; // Adjust this value based on your specific needs
     let lastIntroduction = '';
+    try {
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        let optimizationHints = '';
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      let optimizationHints = '';
+        let prompt_test = basePrompt + optimizationHints;
 
-      let prompt_test = basePrompt + optimizationHints;
+        let response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+        var originalIntroduction = response.message;
+        lastIntroduction = originalIntroduction; //store the latest attempt
 
-      let response = await this.openAIService.getResponse(prompt_test).toPromise();
-      var originalIntroduction = response.message;
-      lastIntroduction = originalIntroduction; //store the latest attempt
+        let seoScore = this.analyzeSeoIntroduction(originalIntroduction);
 
-      let seoScore = this.analyzeSeoIntroduction(originalIntroduction);
+        // If SEO score is satisfactory, set the introduction response and exit the function
+        if (seoScore >= someThreshold) {
+          this.isGettingIntroduction = false;
+          this.introductionResponse = originalIntroduction;
+          return;
+        } else {
+          optimizationHints = '';
 
-      // If SEO score is satisfactory, set the introduction response and exit the function
-      if (seoScore >= someThreshold) {
-        this.isGettingIntroduction = false;
-        this.introductionResponse = originalIntroduction;
-        return;
-      } else {
-        optimizationHints = '';
+          // Instruct the AI to include the keyword in the text
+          if (!originalIntroduction.includes(this.topicKeyword)) {
+            optimizationHints += ' Includi la parola chiave <strong>"' + this.topicKeyword + '"</strong> nella prima frase.';
+          }
 
-        // Instruct the AI to include the keyword in the text
-        if (!originalIntroduction.includes(this.topicKeyword)) {
-          optimizationHints += ' Includi la parola chiave <strong>"' + this.topicKeyword + '"</strong> nella prima frase.';
+          // Change the tone to be more informal
+          if (originalIntroduction.includes('Siete')) {
+            optimizationHints += ' Usa un tono più informale, dando del tu al lettore.';
+          }
+
+          // Add other suggestions as needed...
         }
-
-        // Change the tone to be more informal
-        if (originalIntroduction.includes('Siete')) {
-          optimizationHints += ' Usa un tono più informale, dando del tu al lettore.';
-        }
-
-        // Add other suggestions as needed...
       }
+      // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
+      // Use the last generated introduction anyway
+      this.isGettingIntroduction = false;
+      this.introductionResponse = lastIntroduction;
     }
-
-    // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
-    // Use the last generated introduction anyway
-    this.isGettingIntroduction = false;
-    this.introductionResponse = lastIntroduction;
-    console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+    catch (error) {
+      this.isGettingIntroduction = false;
+      console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+      throw new Error('Failed to get title');
+      this.hasError = true;
+    }
   }
   async getSections() {
     this.isGettingSections = true;
+    const model = this.modelSections;
+    const maxTokens = this.maxTokensSections
     const sections_count = 10;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     const prompt_test =
@@ -193,7 +216,7 @@ export class BulkSingleProductComponent {
       <h2>Conclusioni</h2>`;
 
     try {
-      const response = await this.openAIService.getResponse(prompt_test).toPromise();
+      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
       this.isGettingSections = false;
       let sections = response.message.split('</h2>');
       sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
@@ -213,11 +236,16 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingSections = false;
       console.error('There was an error getting the sections:', error);
+      this.hasError = true;
+      throw new Error('Failed to get title');
+
     }
   }
   async getContent() {
     this.isGettingContent = true;
     const paragraphs_per_section = 3;
+    const model = this.modelContent;
+    const maxTokens = this.maxTokensContent
     const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
     const prompt_test =
       'Scrivi un articolo su ' +
@@ -228,17 +256,24 @@ export class BulkSingleProductComponent {
       sections.join(', ') +
       '. Ogni sezione deve avere ' +
       paragraphs_per_section +
-      ' paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l\'intestazione corrispondente. Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.  ' +
+      ` paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.
+      Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.   ` +
       ' Basati sulle informazioni seguenti: ' +
       this.topicInfos +
       ' Stile: ' +
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      ' Deve essere compreso tra 700 e 900 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1. Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.';
+      ` Deve essere almeno di 1000 parole. Deve essere un articolo completo.
+      Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete.
+      Non ripetere il titolo h1.
+      Ogni sezione deve iniziare con la sua sezione h2 corrispondente, usa tutte le sezioni citate sopra.
+      La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.
+      Ogni articolo deve avere il suo paragrafo di conclusione. Ogni paragrafo deve essere concluso
+      e non deve essere incompleto.`;;
 
     try {
-      const response = await this.openAIService.getResponse(prompt_test).toPromise();
+      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
       this.isGettingContent = false;
       this.contentResponse = response.message;
       this.analyzeSeoContent(this.contentResponse);
@@ -246,6 +281,8 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingContent = false;
       console.error('There was an error getting the content:', error);
+      this.hasError = true;
+      throw new Error('Failed to get title');
     }
   }
   getCompleteArticle() {
@@ -290,8 +327,6 @@ export class BulkSingleProductComponent {
     this.cdr.detectChanges();
     this.publishArticleOnWP();
   }
-
-
   async publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
@@ -303,6 +338,8 @@ export class BulkSingleProductComponent {
 
       } catch (error) {
         console.error('There was an error publishing the article:', error);
+        this.hasError = true;
+        throw new Error('Failed to get title');
       }
     }
   }
@@ -447,8 +484,50 @@ export class BulkSingleProductComponent {
 
     return this.totalSeoScore;
   }
+  //*************SETTINGS FOR EVERY ARTICLES *******************//
+  modelTitle = 'gpt-3.5-turbo-0613';
+  maxTokensTitle = 2048;
+  modelIntroduction = 'gpt-3.5-turbo-0613';
+  maxTokensIntroduction = 2048;
+  modelSections = 'gpt-3.5-turbo-0613';
+  maxTokensSections = 2048;
+  modelContent = 'gpt-4-0613';
+  maxTokensContent = 4096;
 
-  //*** PROCESS ALL  ******//
+  setDefaultModelValue(currentStepValue: number) {
+    switch (currentStepValue) {
+      case 1:
+        this.modelTitle = 'gpt-3.5-turbo-0613';
+        break;
+      case 2:
+        this.modelIntroduction = 'gpt-3.5-turbo-0613';
+        break;
+      case 3:
+        this.modelSections = 'gpt-3.5-turbo-0613';
+        break;
+      case 4:
+        this.modelContent = 'gpt-4-0613';
+        break;
+    }
+  }
+  setDefaultMaxTokensValue(currentStepValue: number) {
+    switch (currentStepValue) {
+      case 1:
+        this.maxTokensTitle = 2048;
+        break;
+      case 2:
+        this.maxTokensIntroduction = 2048;
+        break;
+      case 3:
+        this.maxTokensSections = 2048;
+        break;
+      case 4:
+        this.maxTokensContent = 4096;
+        break;
+    }
+  }
+
+  //*** PROCESS ALL   ******//
   showOverlay = false;
   stopProcessing = false;
   listProducts: any;
@@ -471,6 +550,9 @@ export class BulkSingleProductComponent {
       this.showOverlay = true;
 
       for (const [index, item] of products.entries()) {
+        if (this.hasError) {
+          throw new Error('Error while processing product');
+        }
         this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
         // Assigning the properties to your class or object's instance variables
         this.topicTitle = item.product_title;
@@ -493,29 +575,124 @@ export class BulkSingleProductComponent {
         if (index === totalProducts - 1) {
           this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
+          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
         }
       }
     } catch (e: any) {
       this.formatJsonNotValid = true;
+      this.showOverlay = false;
       console.error(e.message);
       this.formatJsonNotValidMessage = e.message;
-      // Potresti anche voler aggiornare l'interfaccia utente qui per mostrare un messaggio di errore
+      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
     }
   }
 
   isValidProduct(product: any): boolean {
     // Verifica che tutti i campi richiesti siano presenti e abbiano il formato corretto
     return typeof product.product_title === 'string' &&
-           Array.isArray(product.product_infos) &&
-           product.product_infos.every((info: { product_infos: any; }) => typeof info.product_infos === 'string') &&
-           typeof product.product_asin === 'string' &&
-           typeof product.product_keyword === 'string';
+      Array.isArray(product.product_infos) &&
+      product.product_infos.every((info: { product_infos: any; }) => typeof info.product_infos === 'string') &&
+      typeof product.product_asin === 'string' &&
+      typeof product.product_keyword === 'string';
   }
 
   stopProcess() {
     if (confirm('Sei sicuro di voler fermare il processo e tornare indietro?')) {
       window.location.reload();
     }
+  }
+
+  //*** PROCESS ALL BY XLXS  ******//
+  formatExcelNotValid: boolean = false;
+  formatExcelNotValidMessage: string = ''
+  onFileChange(evt: any) {
+    /* wire up file reader */
+    const target: DataTransfer = <DataTransfer>(evt.target);
+    if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+
+    const reader: FileReader = new FileReader();
+
+    reader.onload = (e: any) => {
+      /* read workbook */
+      const bstr: string = e.target.result;
+      const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+
+      /* grab first sheet */
+      const wsname: string = wb.SheetNames[0];
+      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+      /* save data */
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      this.processExcelData(data);
+
+    };
+
+    reader.readAsBinaryString(target.files[0]);
+  }
+
+  processExcelData(data: any[]) {
+    const headers = data[0]; // Assuming first row is header
+    const products = data.slice(1).map(row => ({
+      Title: row[headers.indexOf('Title')],
+      Infos: row[headers.indexOf('Infos')],
+      ASIN: row[headers.indexOf('ASIN')],
+      Keyword: row[headers.indexOf('Keyword')],
+    }));
+
+    this.processExcel(products);
+  }
+  async processExcel(products: any[]) {
+    try {
+      if (!Array.isArray(products) || products.some(item => !this.isValidExcelProduct(item))) {
+        this.formatExcelNotValid = true;
+        this.formatExcelNotValidMessage = 'Formato Excel non valido';
+        throw new Error('Formato Excel non valido');
+      }
+
+      const totalProducts = products.length;
+      this.showOverlay = true;
+
+      for (const [index, item] of products.entries()) {
+        if (this.hasError) {
+          throw new Error('Error while processing product');
+        }
+        this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
+        // Assigning the properties to your class or object's instance variables
+        this.topicTitle = item.Title; // Make sure the Excel file has these headers
+        this.topicInfos = item.Infos;
+        this.topicASIN = item.ASIN.replace(/\u200E/g, "");
+        this.topicKeyword = item.Keyword;
+
+        // Call the functions in the required order
+        this.statusMessage = ' Sto creando il titolo';
+        await this.getTitle();
+        this.statusMessage = ' Sto creando l\'introduzione';
+        await this.getAndOptimizeIntroduction();
+        this.statusMessage = ' Sto creando le sezioni';
+        await this.getSections();
+        this.statusMessage = ' Sto creando il contenuto';
+        await this.getContent();
+
+        if (index === totalProducts - 1) {
+          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
+          this.showOverlay = false; // Nasconde l'overlay e lo spinner
+          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
+        }
+      }
+    } catch (e: any) {
+      this.formatExcelNotValid = true;
+      this.showOverlay = false;
+      console.error(e.message);
+      this.formatExcelNotValidMessage = e.message;
+      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
+    }
+  }
+  isValidExcelProduct(item: any): boolean {
+    return item &&
+      typeof item.Title === 'string' &&
+      typeof item.Infos === 'string' &&
+      typeof item.ASIN === 'string' &&
+      typeof item.Keyword === 'string';
   }
 
 

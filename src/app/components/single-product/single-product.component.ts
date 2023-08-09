@@ -5,7 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StepperOrientation } from '@angular/material/stepper';
-import {BreakpointObserver} from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 
 @Component({
@@ -53,14 +53,16 @@ export class SingleProductComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     breakpointObserver: BreakpointObserver) {
-      this.stepperOrientation = breakpointObserver
+    this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
-      .pipe(map(({matches}) => (matches ? 'horizontal' : 'vertical')));
+      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
 
-    }
+  }
 
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
+    const model = 'gpt-3.5-0613';
+    const maxTokens = 2048;
     const prompt_test =
       'Migliora il contenuto di questo titolo ' +
       this.topicTitle +
@@ -71,7 +73,7 @@ export class SingleProductComponent implements OnInit {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete. Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve contenere solo le informazioni essenziali.';
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTopicTitle = false;
       console.log(response);
       this.topicTitle = response.message;
@@ -80,6 +82,8 @@ export class SingleProductComponent implements OnInit {
 
   improveTopicInfo() {
     this.isGettingTopicInfo = true;
+    const model = 'gpt-3.5-turbo-0613';
+    const maxTokens = 2048;
     const prompt_test =
       'Migliora il contenuto di questo testo  ' +
       this.topicInfos +
@@ -90,7 +94,7 @@ export class SingleProductComponent implements OnInit {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere massimo 500 caratteri. Deve contenere solo informazioni essenziali e non può contenere frasi incomplete. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve essere strutturato come elenco numerato.';
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTopicInfo = false;
       console.log(response);
       this.topicInfos = response.message;
@@ -98,6 +102,9 @@ export class SingleProductComponent implements OnInit {
   }
   getTitle() {
     this.isGettingTitle = true;
+    // const model = 'gpt-3.5-turbo-0613';
+    const model = this.modelTitle;
+    const maxTokens = 2048;
     const prompt_test =
       'Scrivi un titolo per un post del blog su ' +
       this.topicTitle +
@@ -108,15 +115,23 @@ export class SingleProductComponent implements OnInit {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 40 e 60 caratteri. Deve essere una frase completa e breve. Deve essere un titolo per la recensione di un post sul blog e deve contenere "Recensione" e deve essere avvolto da un tag <h1>. Ad esempio: <h1>Recensione del film Avengers: Endgame</h1>';
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTitle = false;
       this.titleResponse = response.message;
       this.analyzeSeoTitle(this.titleResponse);
-    });
+    },
+      (error) => {
+        console.log(error);
+        this.isGettingTitle = false;
+      }
+    );
   }
 
   async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
     this.isGettingIntroduction = true;
+    // const model = 'gpt-3.5-turbo-16k-0613';
+    const model = this.modelIntroduction;
+    const maxTokens = 2048;
     const basePrompt =
       'Scrivi una introduzione per un post del blog su ' +
       this.topicTitle +
@@ -132,52 +147,55 @@ export class SingleProductComponent implements OnInit {
 
     const someThreshold = 20; // Adjust this value based on your specific needs
     let lastIntroduction = '';
+    try {
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        let optimizationHints = '';
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      let optimizationHints = '';
+        let prompt_test = basePrompt + optimizationHints;
 
-      let prompt_test = basePrompt + optimizationHints;
+        let response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+        var originalIntroduction = response.message;
+        lastIntroduction = originalIntroduction; //store the latest attempt
 
-      let response = await this.openAIService.getResponse(prompt_test).toPromise();
-      var originalIntroduction = response.message;
-      lastIntroduction = originalIntroduction; //store the latest attempt
+        let seoScore = this.analyzeSeoIntroduction(originalIntroduction);
 
-      let seoScore = this.analyzeSeoIntroduction(originalIntroduction);
+        // If SEO score is satisfactory, set the introduction response and exit the function
+        if (seoScore >= someThreshold) {
+          this.isGettingIntroduction = false;
+          this.introductionResponse = originalIntroduction;
+          return;
+        } else {
+          optimizationHints = '';
 
-      // If SEO score is satisfactory, set the introduction response and exit the function
-      if (seoScore >= someThreshold) {
-        this.isGettingIntroduction = false;
-        this.introductionResponse = originalIntroduction;
-        return;
-      } else {
-        optimizationHints = '';
+          // Instruct the AI to include the keyword in the text
+          if (!originalIntroduction.includes(this.topicKeyword)) {
+            optimizationHints += ' Includi la parola chiave <strong>"' + this.topicKeyword + '"</strong> nella prima frase.';
+          }
 
-        // Instruct the AI to include the keyword in the text
-        if (!originalIntroduction.includes(this.topicKeyword)) {
-          optimizationHints += ' Includi la parola chiave <strong>"' + this.topicKeyword + '"</strong> nella prima frase.';
+          // Change the tone to be more informal
+          if (originalIntroduction.includes('Siete')) {
+            optimizationHints += ' Usa un tono più informale, dando del tu al lettore.';
+          }
+
+          // Add other suggestions as needed...
         }
-
-        // Change the tone to be more informal
-        if (originalIntroduction.includes('Siete')) {
-          optimizationHints += ' Usa un tono più informale, dando del tu al lettore.';
-        }
-
-        // Add other suggestions as needed...
       }
+      // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
+      // Use the last generated introduction anyway
+      this.isGettingIntroduction = false;
+      this.introductionResponse = lastIntroduction;
+    } catch (error) {
+      this.isGettingIntroduction = false;
+      console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+      console.error(error);
     }
-
-    // If we reach this point, it means that after maxRetries attempts, the SEO score is still unsatisfactory.
-    // Use the last generated introduction anyway
-    this.isGettingIntroduction = false;
-    this.introductionResponse = lastIntroduction;
-    console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
   }
-
-
-
   getSections() {
     this.isGettingSections = true;
     const sections_count = 10;
+    // const model = 'gpt-3.5-turbo-0613';
+    const model = this.modelSections;
+    const maxTokens = 2048;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     const prompt_test =
       'Genera ' +
@@ -200,7 +218,7 @@ export class SingleProductComponent implements OnInit {
       ...Altre sezioni...
       <h2>Conclusioni</h2>`;
 
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingSections = false;
       let sections = response.message.split('</h2>');
       sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
@@ -217,17 +235,19 @@ export class SingleProductComponent implements OnInit {
       this.analyzeSeoSections(sections);
       // Combina tutte le sezioni
       this.sectionsResponse = sections.join('</h2>') + '</h2>';
-    });
+    },
+      (error) => {
+        console.log(error);
+        this.isGettingSections = false;
+      }
+    );
   }
-
-
-
-
-
-
 
   getContent() {
     this.isGettingContent = true;
+    // const model = 'gpt-4-0613';
+    const model = this.modelContent;
+    const maxTokens = 4096;
     const paragraphs_per_section = 3;
     const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
     const prompt_test =
@@ -239,25 +259,31 @@ export class SingleProductComponent implements OnInit {
       sections.join(', ') +
       '. Ogni sezione deve avere ' +
       paragraphs_per_section +
-      ' paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l\'intestazione corrispondente. Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.  ' +
+      ` paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.
+      Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.   ` +
       ' Basati sulle informazioni seguenti: ' +
       this.topicInfos +
       ' Stile: ' +
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      ' Deve essere compreso tra 700 e 900 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1. Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.';
-    this.openAIService.getResponse(prompt_test).subscribe((response) => {
+      ` Deve essere almeno di 1000 parole. Deve essere un articolo completo.
+      Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete.
+      Non ripetere il titolo h1.
+      Ogni sezione deve iniziare con la sua sezione h2 corrispondente, usa tutte le sezioni citate sopra.
+      La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.
+      Ogni articolo deve avere il suo paragrafo di conclusione. Ogni paragrafo deve essere concluso
+      e non deve essere incompleto.`;
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
       this.analyzeSeoContent(this.contentResponse);
-    });
+    },
+      (error) => {
+        console.log(error);
+        this.isGettingContent = false;
+      })
   }
-
-
-
-
-
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
 
@@ -298,7 +324,6 @@ export class SingleProductComponent implements OnInit {
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
   }
-
   publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
@@ -307,11 +332,14 @@ export class SingleProductComponent implements OnInit {
       this.wpService.publishPost(this.titleResponse, cleanedContent)
         .subscribe(response => {
           alert('Articolo pubblicato con successo!');
-        });
+        },
+          error => {
+            alert('Si è verificato un errore durante la pubblicazione dell articolo.');
+            console.error(error);
+          }
+        );
     }
   }
-
-
   wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
@@ -320,6 +348,118 @@ export class SingleProductComponent implements OnInit {
       this.wordsCount = 0;
     }
   }
+  //*************SETTINGS FOR EVERY STEPS *******************//
+  currentStepValue = 1;
+  modelTitle = 'gpt-3.5-turbo-0613';
+  maxTokensTitle = 2048;
+  modelIntroduction = 'gpt-3.5-turbo-0613';
+  maxTokensIntroduction = 2048;
+  modelSections = 'gpt-3.5-turbo-0613';
+  maxTokensSections = 2048;
+  modelContent = 'gpt-4-0613';
+  maxTokensContent = 4096;
+  currentStep(currenStep: number) {
+    this.currentStepValue = currenStep
+  }
+  getModelValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        return this.modelTitle;
+      case 2:
+        return this.modelIntroduction;
+      case 3:
+        return this.modelSections;
+      case 4:
+        return this.modelContent;
+      default:
+        return null;
+    }
+  }
+
+  setModelValue(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.modelTitle = value;
+        break;
+      case 2:
+        this.modelIntroduction = value;
+        break;
+      case 3:
+        this.modelSections = value;
+        break;
+      case 4:
+        this.modelContent = value;
+        break;
+    }
+  }
+
+  setDefaultModelValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.modelTitle = 'gpt-3.5-0613';
+        break;
+      case 2:
+        this.modelIntroduction = 'gpt-3.5-turbo-0613';
+        break;
+      case 3:
+        this.modelSections = 'gpt-3.5-turbo-0613';
+        break;
+      case 4:
+        this.modelContent = 'gpt-4-0613';
+        break;
+    }
+  }
+  setDefaultMaxTokensValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.maxTokensTitle = 2048;
+        break;
+      case 2:
+        this.maxTokensIntroduction = 2048;
+        break;
+      case 3:
+        this.maxTokensSections = 2048;
+        break;
+      case 4:
+        this.maxTokensContent = 4096;
+        break;
+    }
+  }
+
+  getMaxTokensValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        return this.maxTokensTitle;
+      case 2:
+        return this.maxTokensIntroduction;
+      case 3:
+        return this.maxTokensSections;
+      case 4:
+        return this.maxTokensContent;
+      default:
+        return null;
+    }
+  }
+
+  setMaxTokensValue(value: number) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.maxTokensTitle = value;
+        break;
+      case 2:
+        this.maxTokensIntroduction = value;
+        break;
+      case 3:
+        this.maxTokensSections = value;
+        break;
+      case 4:
+        this.maxTokensContent = value;
+        break;
+    }
+  }
+
+
+
 
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;
@@ -372,7 +512,7 @@ export class SingleProductComponent implements OnInit {
       seoScore += 10;
     }
 
-    this.seoIntroductionScore =seoScore
+    this.seoIntroductionScore = seoScore
     return this.seoIntroductionScore
   }
 
@@ -440,21 +580,18 @@ export class SingleProductComponent implements OnInit {
     const contentWeight = 0.2;
 
     const totalMaxScore = (this.maxTitleScore * titleWeight) +
-                         (this.maxIntroductionScore * introductionWeight) +
-                         (this.maxSectionsScore * sectionsWeight) +
-                         (this.maxContentScore * contentWeight);
+      (this.maxIntroductionScore * introductionWeight) +
+      (this.maxSectionsScore * sectionsWeight) +
+      (this.maxContentScore * contentWeight);
 
     const totalScore = (this.seoTitleScore * titleWeight) +
-                       (this.seoIntroductionScore * introductionWeight) +
-                       (this.seoSectionsScore * sectionsWeight) +
-                       (this.seoContentScore * contentWeight);
+      (this.seoIntroductionScore * introductionWeight) +
+      (this.seoSectionsScore * sectionsWeight) +
+      (this.seoContentScore * contentWeight);
 
     this.totalSeoScore = (totalScore / totalMaxScore) * 100;
 
     return this.totalSeoScore;
   }
-
-
-
 
 }

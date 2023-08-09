@@ -3,17 +3,43 @@
     <div class="card-header bg-info text-white">Bulk products</div>
     <div class="card-body">
       <div class="form-group">
-        <label for="topicInput" style="margin-right: 5px;">Insert Json here: </label>
-        <a href="assets/JSON_Info.pdf" target="_blank">Download valid example (PDF)</a>
-        <div class="text-danger my-1" *ngIf="formatJsonNotValid">
-          {{formatJsonNotValidMessage}}
+        <div class="form-group">
+          <div class="d-flex align-items-center">
+            <div class="my-2">
+              <label for="topicInput" style="margin-right: 5px;">Insert Excel here: </label>
+              <a href="assets/test_excel.xlsx" target="_blank">Download valid example (XLSX)</a>
+              <div class="text-danger my-1" *ngIf="formatExcelNotValid">
+                {{formatExcelNotValidMessage}}
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm mx-3 my-3" data-mdb-toggle="modal"
+              data-mdb-target="#exampleModal">
+              <i class="fas fa-sliders"></i>
+            </button>
+          </div>
+          <input type="file" (change)="onFileChange($event)" />
         </div>
 
+        <div class="d-flex align-items-center">
+          <div class="my-2">
+            <label for="topicInput" style="margin-right: 5px;">Insert Json here: </label>
+            <a href="assets/JSON_Info.pdf" target="_blank">Download valid example (PDF)</a>
+            <div class="text-danger my-1" *ngIf="formatJsonNotValid">
+              {{formatJsonNotValidMessage}}
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm mx-3 my-3" data-mdb-toggle="modal"
+            data-mdb-target="#exampleModal">
+            <i class="fas fa-sliders"></i>
+          </button>
+        </div>
         <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="listProducts"></textarea>
         <button class="btn btn-secondary my-3 btn-sm" (click)="processAll()" [disabled]="!listProducts">
           Process
         </button>
       </div>
+
+
 
 
     </div>
@@ -29,6 +55,170 @@
         <div class="mt-2 font-weight-bold">{{currentArticleNumber}}</div>
         <div class="mt-2">{{statusMessage}}</div>
         <button class="btn btn-danger mt-3 btn-sm" (click)="stopProcess()">Stop all</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modale Settings -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Settings for Bulk Section
+        </h5>
+        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <h5 class="form-label">Title</h5>
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <div class="row">
+              <div class="col-11">
+                <select class="form-control" id="model" [(ngModel)]="modelTitle">
+                  <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
+                  <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                  <option value="gpt-4-0613">gpt-4-0613</option>
+                </select>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultModelValue(1)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <div class="row">
+              <div class="col-11">
+                <input type="number" class="form-control" id="maxTokens" [(ngModel)]="maxTokensTitle">
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultMaxTokensValue(1)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+
+        <div class="mb-2">
+          <h5 class="form-label">Introduction</h5>
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <div class="row">
+              <div class="col-11">
+                <select class="form-control" id="model" [ngModel]="modelIntroduction">
+                  <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
+                  <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                  <option value="gpt-4-0613">gpt-4-0613</option>
+                </select>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultModelValue(2)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <div class="row">
+              <div class="col-11">
+                <input type="number" class="form-control" id="maxTokens" [(ngModel)]="maxTokensIntroduction">
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultMaxTokensValue(2)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+
+        <div class="mb-2">
+          <h5 class="form-label">Sections</h5>
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <div class="row">
+              <div class="col-11">
+                <select class="form-control" id="model" [ngModel]="modelSections">
+                  <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
+                  <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                  <option value="gpt-4-0613">gpt-4-0613</option>
+                </select>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultModelValue(3)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <div class="row">
+              <div class="col-11">
+                <input type="number" class="form-control" id="maxTokens" [(ngModel)]="maxTokensSections">
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultMaxTokensValue(3)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+
+        <div class="mb-2">
+          <h5 class="form-label">Content</h5>
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <div class="row">
+              <div class="col-11">
+                <select class="form-control" id="model" [(ngModel)]="modelContent">
+                  <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
+                  <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                  <option value="gpt-4-0613">gpt-4-0613</option>
+                </select>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultModelValue(4)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <div class="row">
+              <div class="col-11">
+                <input type="number" class="form-control" id="maxTokens" [(ngModel)]="maxTokensContent">
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultMaxTokensValue(4)">
+                  <i class="fas fa-arrow-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

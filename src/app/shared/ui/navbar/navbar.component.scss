@@ -1,3 +1,17 @@
 .active {
   font-weight: bold;
 }
+.badge-notification {
+  font-size: 11px; /* Riduci la dimensione del font */
+  padding: 2px 4px; /* Riduci il padding */
+  min-width: 20px; /* Imposta una larghezza minima */
+}
+
+.read {
+  font-weight: normal;
+  color: grey;
+}
+.notification {
+  font-weight: bold;
+  color: darken;
+}

@@ -13,11 +13,13 @@ const openai = new OpenAIApi(configuration);
 app.post('/api/openai', async (req, res) => {
   try {
     const prompt = req.body.prompt;
+    const model = req.body.model;
+    const maxTokens = req.body.maxTokens;
     const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k-0613",
+        model: model,
         messages: [{role: 'user', content: prompt}],
         temperature: 0.8,
-        max_tokens: 2048,
+        max_tokens: maxTokens,
         top_p: 1,
         frequency_penalty: 0,
         presence_penalty: 0,

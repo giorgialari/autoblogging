@@ -10,7 +10,7 @@
           <label for="apiKey" class="form-label">API Key</label>
           <input type="text" class="form-control" id="apiKey" formControlName="apiKey">
         </div>
-        <div class="mb-3">
+        <!-- <div class="mb-3">
           <label for="model" class="form-label">Model</label>
           <input type="text" class="form-control" id="model" formControlName="model">
         </div>
@@ -33,8 +33,8 @@
         <div class="mb-3">
           <label for="model" class="form-label">Presence Penalty</label>
           <input type="text" class="form-control" id="model" formControlName="presencePenalty">
-        </div>
-        <button type="button" class="btn btn-primary" (click)="saveOpenAISettings()">Save</button>
+        </div> -->
+        <button type="button" class="btn btn-primary btn-sm" (click)="saveOpenAISettings()">Save</button>
       </form>
     </div>
   </div>
@@ -61,7 +61,7 @@
           <label for="status" class="form-label">Btoa</label>
           <input type="text" class="form-control" id="status" formControlName="btoa">
         </div>
-        <button type="button" class="btn btn-primary" (click)="saveWPSettings()">Save</button>
+        <button type="button" class="btn btn-primary btn-sm" (click)="saveWPSettings()">Save</button>
       </form>
     </div>
   </div>

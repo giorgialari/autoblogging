@@ -59,31 +59,29 @@
 
     <!-- Right elements -->
     <div class="d-flex align-items-center">
-      <!-- Notifications -->
-      <!-- <div class="dropdown">
-        <a
-          class="text-reset me-3 dropdown-toggle hidden-arrow"
-          href="#"
-          id="navbarDropdownMenuLink"
-          role="button"
-          data-mdb-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <i class="fas fa-bell"></i>
-          <span class="badge rounded-pill badge-notification bg-danger">1</span>
-        </a>
-        <ul
-          class="dropdown-menu dropdown-menu-end"
-          aria-labelledby="navbarDropdownMenuLink"
-        >
-          <li>
-            <a class="dropdown-item" href="#">Settings</a>
-          </li>
-        </ul>
-      </div> -->
+     <!-- Notifications -->
+     <div class="dropdown mt-1">
+      <a
+        class="text-reset mx-4 my-auto dropdown-toggle hidden-arrow"
+        href="#"
+        id="navbarDropdownMenuLink"
+        role="button"
+        data-mdb-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="fas fa-bell  fa-lg"></i>
+        <span class="badge rounded-pill badge-notification bg-danger" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink" *ngIf="notificationCount > 0">
+        <li *ngFor="let notification of notifications; let i = index">
+          <div class="dropdown-item notification" [class.read]="notification.read" (click)="onNotificationClick(i)">{{ notification.message }}</div>
+        </li>
+      </ul>
+
+    </div>
       <!-- Avatar -->
       <div class="dropdown">
-        <a class="dropdown-toggle d-flex align-items-center hidden-arrow" href="#" id="navbarDropdownMenuAvatar"
+        <a class="dropdown-toggle d-flex align-items-center hidden-arrow" id="navbarDropdownMenuAvatar"
           role="button" data-mdb-toggle="dropdown" aria-expanded="false">
           <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.webp" class="rounded-circle" height="25"
             alt="Black and White Portrait of a Man" loading="lazy" />
@@ -92,12 +90,6 @@
           <li routerLinkActive="active">
             <a class="dropdown-item"  routerLink="/settings">Settings</a>
           </li>
-          <!-- <li>
-            <a class="dropdown-item" href="#">Settings</a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="#">Logout</a>
-          </li> -->
         </ul>
       </div>
     </div>

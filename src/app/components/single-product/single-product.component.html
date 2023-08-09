@@ -32,17 +32,20 @@
      </div>
    </div>
 
-   <mat-stepper linear style="background-color: #d9e3f1;"
-   [orientation]="(stepperOrientation | async)!"
+   <mat-stepper linear style="background-color: #d9e3f1;" [orientation]="(stepperOrientation | async)!"
      *ngIf="topicKeyword != '' && topicASIN != '' &&  topicTitle != '' && topicInfos != ''">
      <mat-step label="Title">
        <ng-template matStepLabel>Title</ng-template>
-       <div class="card my-2">
+       <div class="card my-2" (click)="currentStep(1)">
          <div class="card-header bg-primary text-white">Title</div>
          <div class="card-body">
            <button class="btn btn-secondary mb-3 btn-sm" (click)="getTitle()" [disabled]="isGettingTitle">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTitle" role="status" aria-hidden="true"></span>
              Generate Title
+           </button>
+           <button type="button" class="btn btn-primary btn-sm mx-3 mb-3" data-mdb-toggle="modal"
+             data-mdb-target="#exampleModal">
+             <i class="fas fa-sliders"></i>
            </button>
            <textarea class="form-control" rows="4" [(ngModel)]="titleResponse"></textarea>
          </div>
@@ -51,7 +54,7 @@
 
      <mat-step label="Introduction">
        <ng-template matStepLabel>Introduction</ng-template>
-       <div class="card my-2">
+       <div class="card my-2" (click)="currentStep(2)">
          <div class="card-header bg-info text-white">Introduction</div>
          <div class="card-body">
            <button class="btn btn-secondary mb-3 btn-sm" (click)="getAndOptimizeIntroduction()"
@@ -60,6 +63,10 @@
                aria-hidden="true"></span>
              Generate Introduction
            </button>
+           <button type="button" class="btn btn-primary btn-sm mx-3 mb-3" data-mdb-toggle="modal"
+             data-mdb-target="#exampleModal">
+             <i class="fas fa-sliders"></i>
+           </button>
            <textarea class="form-control" rows="4" [(ngModel)]="introductionResponse"></textarea>
          </div>
        </div>
@@ -67,13 +74,17 @@
 
      <mat-step label="Sections">
        <ng-template matStepLabel>Sections</ng-template>
-       <div class="card my-2">
+       <div class="card my-2" (click)="currentStep(3)">
          <div class="card-header bg-success text-white">Sections</div>
          <div class="card-body">
            <button class="btn btn-secondary mb-3 btn-sm" (click)="getSections()" [disabled]="isGettingSections">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingSections" role="status"
                aria-hidden="true"></span>
              Generate Sections
+           </button>
+           <button type="button" class="btn btn-primary btn-sm mx-3 mb-3" data-mdb-toggle="modal"
+             data-mdb-target="#exampleModal">
+             <i class="fas fa-sliders"></i>
            </button>
            <textarea class="form-control" rows="4" [(ngModel)]="sectionsResponse"></textarea>
          </div>
@@ -82,13 +93,17 @@
 
      <mat-step label="Content">
        <ng-template matStepLabel>Content</ng-template>
-       <div class="card my-2">
+       <div class="card my-2" (click)="currentStep(4)">
          <div class="card-header bg-warning text-white">Content</div>
          <div class="card-body">
            <button class="btn btn-secondary mb-3 btn-sm" (click)="getContent()" [disabled]="isGettingContent">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingContent" role="status"
                aria-hidden="true"></span>
              Generate Content
+           </button>
+           <button type="button" class="btn btn-primary btn-sm mx-3 mb-3" data-mdb-toggle="modal"
+             data-mdb-target="#exampleModal">
+             <i class="fas fa-sliders"></i>
            </button>
            <textarea class="form-control" rows="4" [(ngModel)]="contentResponse"></textarea>
          </div>
@@ -101,15 +116,15 @@
          <div class="card-header bg-info text-white">Generate Complete Article</div>
          <div class="card-body">
            <div>
-            <div class="d-flex justify-content-center">
-              <circle-progress [percent]="wordsCount" [maxPercent]="1000" [showUnits]="false" [subtitle]="'Words'"
-                [radius]="60" class="custom-circle-progress" [outerStrokeColor]="'#0041c2'"
-                [innerStrokeColor]="'#95b7e4'">
-              </circle-progress>
-              <circle-progress [percent]="totalSeoScore" [subtitle]="'SEO'" [radius]="60"
-                class="custom-circle-progress">
-              </circle-progress>
-            </div>
+             <div class="d-flex justify-content-center">
+               <circle-progress [percent]="wordsCount" [maxPercent]="1000" [showUnits]="false" [subtitle]="'Words'"
+                 [radius]="60" class="custom-circle-progress" [outerStrokeColor]="'#0041c2'"
+                 [innerStrokeColor]="'#95b7e4'">
+               </circle-progress>
+               <circle-progress [percent]="totalSeoScore" [subtitle]="'SEO'" [radius]="60"
+                 class="custom-circle-progress">
+               </circle-progress>
+             </div>
              <button class="btn btn-primary mb-3 btn-sm" (click)="getCompleteArticle(); countWords()"
                [disabled]="isGettingCompleteArticle">
                <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingCompleteArticle" role="status"
@@ -122,8 +137,6 @@
                  aria-hidden="true"></span>
                Publish on WP
              </button>
-
-
            </div>
            <div class="form-group">
              <app-editor [data]="completeArticleResponse" [(ngModel)]="completeArticleResponse"></app-editor>
@@ -132,4 +145,59 @@
        </div>
      </mat-step>
    </mat-stepper>
+ </div>
+
+ <!-- Modale Settings -->
+
+ <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="exampleModalLabel">Settings
+           {{currentStepValue == 1 ? 'Title' : currentStepValue == 2 ? 'Introduction' : currentStepValue == 3 ? 'Sections' : currentStepValue == 4 ? 'Content' : 'Publish' }}
+         </h5>
+         <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+         <div class="mb-3">
+           <label class="form-label">Model</label>
+           <div class="row">
+             <div class="col-11">
+               <select class="form-control" id="model" [ngModel]="getModelValue()"
+                 (ngModelChange)="setModelValue($event)">
+                 <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
+                 <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                 <option value="gpt-4-0613">gpt-4-0613</option>
+               </select>
+             </div>
+             <div class="col-1 d-flex justify-content-end align-items-center">
+               <button type="button" class="btn btn-primary btn-sm" (click)="setDefaultModelValue()">
+                 <i class="fas fa-arrow-rotate-left"></i>
+               </button>
+             </div>
+           </div>
+
+         </div>
+
+         <div class="mb-3">
+           <label class="form-label">Max Tokens</label>
+           <div class="row">
+             <div class="col-11">
+               <input type="number" class="form-control" id="maxTokens" [ngModel]="getMaxTokensValue()"
+                 (ngModelChange)="setMaxTokensValue($event)">
+             </div>
+             <div class="col-1 d-flex justify-content-end align-items-center">
+               <button type="button" class="btn btn-primary btn-sm"  (click)="setDefaultMaxTokensValue()">
+                <i class="fas fa-arrow-rotate-left"></i>
+              </button>
+             </div>
+           </div>
+         </div>
+
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">Close</button>
+       </div>
+     </div>
+   </div>
  </div>

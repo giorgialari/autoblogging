@@ -10,7 +10,7 @@ export class OpenAIService {
 
   constructor(private http: HttpClient) { }
 
-  getResponse(prompt: string): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { prompt });
+  getResponse(prompt: string, model: string, maxTokens: number): Observable<any> {
+    return this.http.post<any>(this.apiUrl, { prompt, model, maxTokens });
   }
 }
