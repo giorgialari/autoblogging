@@ -1,7 +1,7 @@
-import { BulkSingleProductComponent } from './components/bulk-single-product/bulk-single-product.component';
+import { BulkSingleProductComponent } from './components/amazon/bulk-single-product/bulk-single-product.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { SingleProductComponent } from './components/single-product/single-product.component';
+import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
 import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
 

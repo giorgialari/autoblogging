@@ -5,17 +5,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SingleProductComponent } from './components/single-product/single-product.component';
+import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
 import { NavbarComponent } from './shared/ui/navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgCircleProgressModule } from 'ng-circle-progress';
-import { BulkSingleProductComponent } from './components/bulk-single-product/bulk-single-product.component';
+import { BulkSingleProductComponent } from './components/amazon/bulk-single-product/bulk-single-product.component';
 import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
 
@@ -41,6 +42,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
+    MatDialogModule,
     ReactiveFormsModule,
     ReactiveFormsModule,
     NgCircleProgressModule.forRoot({

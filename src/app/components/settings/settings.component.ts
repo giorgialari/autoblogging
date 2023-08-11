@@ -46,4 +46,9 @@ export class SettingsComponent implements OnInit {
     localStorage.setItem('wp_status', settings.status);
     localStorage.setItem('wp_btoa', settings.btoa);
   }
+
+  saveAll(){
+    this.saveOpenAISettings()
+    this.saveWPSettings()
+  }
 }

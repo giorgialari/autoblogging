@@ -1,25 +1,33 @@
-import { WpService } from './../../services/wp.service';
+import { WpService } from '../../../services/wp.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
-import { FormBuilder, Validators } from '@angular/forms';
-import { NotificationService } from 'src/app/services/notifications/notifications.service';
-import * as XLSX from 'xlsx';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { StepperOrientation } from '@angular/material/stepper';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import Swal from 'sweetalert2';
+
 
 @Component({
-  selector: 'app-bulk-single-product',
-  templateUrl: './bulk-single-product.component.html',
-  styleUrls: ['./bulk-single-product.component.scss']
+  selector: 'app-single-product',
+  templateUrl: './single-product.component.html',
+  styleUrls: ['./single-product.component.scss']
 })
-export class BulkSingleProductComponent {
+export class SingleProductComponent implements OnInit {
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';
   contentResponse: string = '';
   completeArticleResponse: string = '';
-  topicTitle = '';
-  topicInfos = ``;
-  topicKeyword = '';
-  topicASIN = '';
+  topicTitle = 'Brigros - Barbecue a gas DALLAS con rotelle potente e pratico, comodo da spostare, sistema di pulizia facile (3 fuochi)';
+  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni
+  Grigli barbecue 60 x 42 cm con opzioni di cottura infinite
+  Barbecue a gas con sistema di pulizia facile e veloce
+  bbq a gas dotato di rotelle per un facile trasporto
+  bbq gas dimensioni: prodotto (coperchio chiuso) 122 x 57 x 112 cm, peso del prodotto: 26,70 kg, imballo: 60 x 58 x 53 cm
+  L'accensione piezoelettrica assicura che l’accensione del BBQ sia semplice e rapida e un termometro integrato nel coperchio facilita la cottura ottima del cibo.`;
+  topicKeyword = 'Brigros - Barbecue a gas';
+  topicASIN = 'B08Y59NM8V';
   writing_tone = 'informale';
   writing_style = 'blog post';
   language = 'Italiano';
@@ -31,18 +39,38 @@ export class BulkSingleProductComponent {
   isGettingTopicInfo = false;
   isGettingCompleteArticle = false;
   isLinear = false;
-  hasError = false;
+  stepperOrientation!: Observable<StepperOrientation>;
+  titleInfoArray: any[] = []
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService) { }
+    breakpointObserver: BreakpointObserver) {
+    this.stepperOrientation = breakpointObserver
+      .observe('(min-width: 800px)')
+      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
 
-  async improveTopicTitle() {
+  }
+  showSuccess(success: string) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Good news!',
+      text: success
+    });
+  }
+  showError(error: string) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Error',
+      text: error
+    });
+  }
+
+  improveTopicTitle() {
     this.isGettingTopicTitle = true;
-    const model = this.modelTitle;
-    const maxTokens = this.maxTokensTitle
+    const model = this.modelTopic;
+    const maxTokens = this.maxTokensTopic;
     const prompt_test =
       'Migliora il contenuto di questo titolo ' +
       this.topicTitle +
@@ -53,23 +81,22 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete. Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve contenere solo le informazioni essenziali.';
-
-    try {
-      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTopicTitle = false;
-      console.log(response);
       this.topicTitle = response.message;
-    } catch (error) {
-      this.isGettingTopicTitle = false;
-      console.error('There was an error getting the topic title:', error);
-    }
+    },
+      (error) => {
+        this.isGettingTopicTitle = false;
+         this.showError(error.error.message)
+      }
+    );
   }
-  async improveTopicInfo() {
+  improveTopicInfo() {
     this.isGettingTopicInfo = true;
-    const model = this.modelTitle;
-    const maxTokens = this.maxTokensTitle
+    const model = this.modelTopic;
+    const maxTokens = this.maxTokensTopic;
     const prompt_test =
-      'Migliora il contenuto di questo testo ' +
+      'Migliora il contenuto di questo testo  ' +
       this.topicInfos +
       ' in ' +
       this.language +
@@ -78,23 +105,20 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere massimo 500 caratteri. Deve contenere solo informazioni essenziali e non può contenere frasi incomplete. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve essere strutturato come elenco numerato.';
-
-    try {
-      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTopicInfo = false;
-      console.log(response);
       this.topicInfos = response.message;
-    } catch (error) {
-      this.isGettingTopicInfo = false;
-      console.error('There was an error getting the topic information:', error);
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
-    }
+    },
+      (error) => {
+         this.showError(error.error.message)
+        this.isGettingTopicInfo = false;
+      }
+    );
   }
-  async getTitle() {
+  getTitle() {
     this.isGettingTitle = true;
-
     const model = this.modelTitle;
-    const maxTokens = this.maxTokensTitle
+    const maxTokens = this.maxTokensTitle;
     const prompt_test =
       'Scrivi un titolo per un post del blog su ' +
       this.topicTitle +
@@ -105,25 +129,21 @@ export class BulkSingleProductComponent {
       '. Tono: ' +
       this.writing_tone +
       '. Deve essere compreso tra 40 e 60 caratteri. Deve essere una frase completa e breve. Deve essere un titolo per la recensione di un post sul blog e deve contenere "Recensione" e deve essere avvolto da un tag <h1>. Ad esempio: <h1>Recensione del film Avengers: Endgame</h1>';
-
-    try {
-      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingTitle = false;
       this.titleResponse = response.message;
       this.analyzeSeoTitle(this.titleResponse);
-    } catch (error) {
-      this.isGettingTitle = false;
-      console.error('There was an error getting the title:', error);
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
-      this.hasError = true;
-      throw new Error('Failed to get title');
-
-    }
+    },
+      (error) => {
+        this.showError(error.error.message)
+        this.isGettingTitle = false;
+      }
+    );
   }
   async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
     this.isGettingIntroduction = true;
     const model = this.modelIntroduction;
-    const maxTokens = this.maxTokensIntroduction
+    const maxTokens = this.maxTokensIntroduction;
     const basePrompt =
       'Scrivi una introduzione per un post del blog su ' +
       this.topicTitle +
@@ -176,20 +196,17 @@ export class BulkSingleProductComponent {
       // Use the last generated introduction anyway
       this.isGettingIntroduction = false;
       this.introductionResponse = lastIntroduction;
-    }
-    catch (error) {
+    } catch (error: any) {
+       this.showError(error.error.message)
       this.isGettingIntroduction = false;
       console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
-      throw new Error('Failed to get title');
-      this.hasError = true;
     }
   }
-  async getSections() {
+  getSections() {
     this.isGettingSections = true;
-    const model = this.modelSections;
-    const maxTokens = this.maxTokensSections
     const sections_count = 10;
+    const model = this.modelSections;
+    const maxTokens = this.maxTokensSections;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     const prompt_test =
       'Genera ' +
@@ -212,8 +229,7 @@ export class BulkSingleProductComponent {
       ...Altre sezioni...
       <h2>Conclusioni</h2>`;
 
-    try {
-      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingSections = false;
       let sections = response.message.split('</h2>');
       sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
@@ -230,79 +246,56 @@ export class BulkSingleProductComponent {
       this.analyzeSeoSections(sections);
       // Combina tutte le sezioni
       this.sectionsResponse = sections.join('</h2>') + '</h2>';
-    } catch (error) {
-      this.isGettingSections = false;
-      console.error('There was an error getting the sections:', error);
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
-      this.hasError = true;
-      throw new Error('Failed to get title');
+    },
+      (error) => {
+        this.isGettingSections = false;
+         this.showError(error.error.message)
 
-    }
+      }
+    );
   }
-  async getContent() {
+  getContent() {
     this.isGettingContent = true;
     const paragraphs_per_section = 3;
     const model = this.modelContent;
-    const maxTokens = this.maxTokensContent
+    const maxTokens = this.maxTokensContent;
     const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
     const prompt_test =
       'Scrivi un articolo su ' +
       this.titleResponse +
       ' in ' +
       this.language +
-      ' L\'articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
+      ' L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
       sections.join(', ') +
       '. Ogni sezione deve avere ' +
       paragraphs_per_section +
-      ` paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.
-      Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.   ` +
+      ' paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l\'intestazione corrispondente. Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.  ' +
       ' Basati sulle informazioni seguenti: ' +
       this.topicInfos +
       ' Stile: ' +
       this.writing_style +
       '. Tono: ' +
       this.writing_tone +
-      ` Deve essere almeno di 1000 parole. Deve essere un articolo completo.
-      Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete.
-      Non ripetere il titolo h1.
-      Ogni sezione deve iniziare con la sua sezione h2 corrispondente, usa tutte le sezioni citate sopra.
-      La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.
-      Ogni articolo deve avere il suo paragrafo di conclusione. Ogni paragrafo deve essere concluso
-      e non deve essere incompleto.`;;
-
-    try {
-      const response = await this.openAIService.getResponse(prompt_test, model, maxTokens).toPromise();
+      ' Deve essere compreso di almeno 950 parole. Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1. Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.';
+    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
       this.analyzeSeoContent(this.contentResponse);
-      this.getCompleteArticle();
-    } catch (error) {
-      this.isGettingContent = false;
-      console.error('There was an error getting the content:', error);
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
-      this.hasError = true;
-      throw new Error('Failed to get title');
-    }
+    });
   }
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
-    this.statusMessage = ' Sto componendo l\'articolo';
-
     // Divide the content into sections based on <h2> tags
     let contentSections = this.contentResponse.split('<h2>').map(section => section.trim());
-
     // Select a random section to insert the image (but not the first one)
     let randomSectionIndex = Math.floor(Math.random() * (contentSections.length - 1)) + 1;
-
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] = `
       <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
       <h2>${contentSections[randomSectionIndex]}</h2>
     `;
-
     // Reassemble the content
     let contentWithImage = contentSections.join('<h2>');
-
     // Assemble the complete article
     this.completeArticleResponse = `
       ${this.titleResponse}
@@ -324,25 +317,23 @@ export class BulkSingleProductComponent {
     this.countWords();
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
-    this.publishArticleOnWP();
   }
-  async publishArticleOnWP() {
+  publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
       const cleanedContent = this.completeArticleResponse.replace(/<h1\b[^>]*>.*?<\/h1>/g, '');
 
-      try {
-        await this.wpService.publishPost(this.titleResponse, cleanedContent).toPromise();
-        this.statusMessage = ' Articolo pubblicato con successo!';
-
-      } catch (error) {
-        console.error('There was an error publishing the article:', error);
-        this.hasError = true;
-        throw new Error('Failed to get title');
-      }
+      this.wpService.publishPost(this.titleResponse, cleanedContent)
+        .subscribe((response) => {
+          this.showSuccess('Article published successfully!');
+        },
+          (error) => {
+            this.showError(error.error.message);
+            console.error(error);
+          }
+        );
     }
   }
-  //*************WORD COUNT *******************//
   wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
@@ -351,6 +342,125 @@ export class BulkSingleProductComponent {
       this.wordsCount = 0;
     }
   }
+  //*************SETTINGS FOR EVERY STEPS *******************//
+  currentStepValue = 1;
+  modelTopic = 'gpt-3.5-turbo';
+  maxTokensTopic = 2048;
+  modelTitle = 'gpt-3.5-turbo';
+  maxTokensTitle = 2048;
+  modelIntroduction = 'gpt-3.5-turbo';
+  maxTokensIntroduction = 2048;
+  modelSections = 'gpt-3.5-turbo';
+  maxTokensSections = 2048;
+  modelContent = 'gpt-4';
+  maxTokensContent = 2048;
+  currentStep(currenStep: number) {
+    this.currentStepValue = currenStep
+  }
+  getModelValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        return this.modelTitle;
+      case 2:
+        return this.modelIntroduction;
+      case 3:
+        return this.modelSections;
+      case 4:
+        return this.modelContent;
+      default:
+        return null;
+    }
+  }
+
+  setModelValue(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.modelTitle = value;
+        break;
+      case 2:
+        this.modelIntroduction = value;
+        break;
+      case 3:
+        this.modelSections = value;
+        break;
+      case 4:
+        this.modelContent = value;
+        break;
+    }
+  }
+
+  setDefaultModelValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.modelTitle = 'gpt-3.5';
+        break;
+      case 2:
+        this.modelIntroduction = 'gpt-3.5-turbo';
+        break;
+      case 3:
+        this.modelSections = 'gpt-3.5-turbo';
+        break;
+      case 4:
+        this.modelContent = 'gpt-3.5-turbo-16k';
+        break;
+    }
+  }
+  setDefaultMaxTokensValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.maxTokensTitle = 2048;
+        break;
+      case 2:
+        this.maxTokensIntroduction = 2048;
+        break;
+      case 3:
+        this.maxTokensSections = 2048;
+        break;
+      case 4:
+        this.maxTokensContent = 2048;
+        break;
+    }
+  }
+  setDefaultModelValueTOPIC() {
+    this.modelTopic = 'gpt-3.5-turbo';
+  }
+  setDefaultMaxTokensValueTOPIC() {
+    this.maxTokensTopic = 2048;
+  }
+  getMaxTokensValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        return this.maxTokensTitle;
+      case 2:
+        return this.maxTokensIntroduction;
+      case 3:
+        return this.maxTokensSections;
+      case 4:
+        return this.maxTokensContent;
+      default:
+        return null;
+    }
+  }
+
+  setMaxTokensValue(value: number) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.maxTokensTitle = value;
+        break;
+      case 2:
+        this.maxTokensIntroduction = value;
+        break;
+      case 3:
+        this.maxTokensSections = value;
+        break;
+      case 4:
+        this.maxTokensContent = value;
+        break;
+    }
+  }
+
+
+
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;
   maxIntroductionScore = 30;
@@ -483,224 +593,5 @@ export class BulkSingleProductComponent {
 
     return this.totalSeoScore;
   }
-  //*************SETTINGS FOR EVERY ARTICLES *******************//
-  modelTitle = 'gpt-3.5-turbo';
-  maxTokensTitle = 2048;
-  modelIntroduction = 'gpt-3.5-turbo';
-  maxTokensIntroduction = 2048;
-  modelSections = 'gpt-3.5-turbo';
-  maxTokensSections = 2048;
-  modelContent = 'gpt-3.5-turbo-16k';
-  maxTokensContent = 2048;
-
-  setDefaultModelValue(currentStepValue: number) {
-    switch (currentStepValue) {
-      case 1:
-        this.modelTitle = 'gpt-3.5-turbo';
-        break;
-      case 2:
-        this.modelIntroduction = 'gpt-3.5-turbo';
-        break;
-      case 3:
-        this.modelSections = 'gpt-3.5-turbo';
-        break;
-      case 4:
-        this.modelContent = 'gpt-3.5-turbo-16k';
-        break;
-    }
-  }
-  setDefaultMaxTokensValue(currentStepValue: number) {
-    switch (currentStepValue) {
-      case 1:
-        this.maxTokensTitle = 2048;
-        break;
-      case 2:
-        this.maxTokensIntroduction = 2048;
-        break;
-      case 3:
-        this.maxTokensSections = 2048;
-        break;
-      case 4:
-        this.maxTokensContent = 4096;
-        break;
-    }
-  }
-
-  //*** PROCESS ALL   ******//
-  showOverlay = false;
-  stopProcessing = false;
-  listProducts: any;
-  currentArticleNumber: string = '';
-  statusMessage: string = '';
-  formatJsonNotValid: boolean = false;
-  formatJsonNotValidMessage: string = ''
-
-  async processAll() {
-    try {
-      const products = JSON.parse(this.listProducts);
-
-      if (!Array.isArray(products) || products.some(item => !this.isValidProduct(item))) {
-        this.formatJsonNotValid = true;
-        this.formatJsonNotValidMessage = 'Formato JSON non valido';
-        throw new Error('Formato JSON non valido');
-      }
-
-      const totalProducts = products.length;
-      this.showOverlay = true;
-
-      for (const [index, item] of products.entries()) {
-        if (this.hasError) {
-          throw new Error('Error while processing product');
-        }
-        this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
-        // Assigning the properties to your class or object's instance variables
-        this.topicTitle = item.product_title;
-        this.topicInfos = item.product_infos.map((info: { product_infos: any; }) => info.product_infos).join(' ');
-        this.topicASIN = item.product_asin.replace(/\u200E/g, "");
-        this.topicKeyword = item.product_keyword;
-
-        // Call the functions in the required order
-        // await this.improveTopicTitle();
-        // await this.improveTopicInfo();
-        this.statusMessage = ' Sto creando il titolo';
-        await this.getTitle();
-        this.statusMessage = ' Sto creando l\'introduzione';
-        await this.getAndOptimizeIntroduction();
-        this.statusMessage = ' Sto creando le sezioni';
-        await this.getSections();
-        this.statusMessage = ' Sto creando il contenuto';
-        await this.getContent();
-
-        if (index === totalProducts - 1) {
-          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
-          this.showOverlay = false; // Nasconde l'overlay e lo spinner
-          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
-        }
-      }
-    } catch (e: any) {
-      this.formatJsonNotValid = true;
-      this.showOverlay = false;
-      console.error(e.message);
-      this.formatJsonNotValidMessage = e.message;
-      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
-    }
-  }
-
-  isValidProduct(product: any): boolean {
-    // Verifica che tutti i campi richiesti siano presenti e abbiano il formato corretto
-    return typeof product.product_title === 'string' &&
-      Array.isArray(product.product_infos) &&
-      product.product_infos.every((info: { product_infos: any; }) => typeof info.product_infos === 'string') &&
-      typeof product.product_asin === 'string' &&
-      typeof product.product_keyword === 'string';
-  }
-
-  stopProcess() {
-    if (confirm('Sei sicuro di voler fermare il processo e tornare indietro?')) {
-      window.location.reload();
-    }
-  }
-
-  //*** PROCESS ALL BY XLXS  ******//
-  formatExcelNotValid: boolean = false;
-  formatExcelNotValidMessage: string = ''
-  fileName: string = '';
-
-  onFileChange(evt: any) {
-    const file = evt.target.files[0];
-    if (file) {
-      this.fileName = file.name;
-    }
-    if (confirm('Sei sicuro di voler caricare questo file?')) {
-      /* wire up file reader */
-      const target: DataTransfer = <DataTransfer>(evt.target);
-      if (target.files.length !== 1) throw new Error('Cannot use multiple files');
-
-      const reader: FileReader = new FileReader();
-
-      reader.onload = (e: any) => {
-        /* read workbook */
-        const bstr: string = e.target.result;
-        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
-
-        /* grab first sheet */
-        const wsname: string = wb.SheetNames[0];
-        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-
-        /* save data */
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        this.processExcelData(data);
-
-      };
-
-      reader.readAsBinaryString(target.files[0]);
-    }
-  }
-
-  processExcelData(data: any[]) {
-    const headers = data[0]; // Assuming first row is header
-    const products = data.slice(1).map(row => ({
-      Title: row[headers.indexOf('Title')],
-      Infos: row[headers.indexOf('Infos')],
-      ASIN: row[headers.indexOf('ASIN')],
-      Keyword: row[headers.indexOf('Keyword')],
-    }));
-
-    this.processExcel(products);
-  }
-  async processExcel(products: any[]) {
-    try {
-      if (!Array.isArray(products) || products.some(item => !this.isValidExcelProduct(item))) {
-        this.formatExcelNotValid = true;
-        this.formatExcelNotValidMessage = 'Formato Excel non valido';
-        throw new Error('Formato Excel non valido');
-      }
-
-      const totalProducts = products.length;
-      this.showOverlay = true;
-
-      for (const [index, item] of products.entries()) {
-        if (this.hasError) {
-          throw new Error('Error while processing product');
-        }
-        this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
-        // Assigning the properties to your class or object's instance variables
-        this.topicTitle = item.Title; // Make sure the Excel file has these headers
-        this.topicInfos = item.Infos;
-        this.topicASIN = item.ASIN.replace(/\u200E/g, "");
-        this.topicKeyword = item.Keyword;
-
-        // Call the functions in the required order
-        this.statusMessage = ' Sto creando il titolo';
-        await this.getTitle();
-        this.statusMessage = ' Sto creando l\'introduzione';
-        await this.getAndOptimizeIntroduction();
-        this.statusMessage = ' Sto creando le sezioni';
-        await this.getSections();
-        this.statusMessage = ' Sto creando il contenuto';
-        await this.getContent();
-
-        if (index === totalProducts - 1) {
-          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
-          this.showOverlay = false; // Nasconde l'overlay e lo spinner
-          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
-        }
-      }
-    } catch (e: any) {
-      this.formatExcelNotValid = true;
-      this.showOverlay = false;
-      console.error(e.message);
-      this.formatExcelNotValidMessage = e.message;
-      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
-    }
-  }
-  isValidExcelProduct(item: any): boolean {
-    return item &&
-      typeof item.Title === 'string' &&
-      typeof item.Infos === 'string' &&
-      typeof item.ASIN === 'string' &&
-      typeof item.Keyword === 'string';
-  }
-
 
 }

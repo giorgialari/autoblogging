@@ -3,7 +3,7 @@
      <div class="card-header bg-info text-white">Topic
       <button type="button" class="btn btn-secondary btn-sm shadow btn-sm mx-3" data-mdb-toggle="modal"
           data-mdb-target="#exampleModalTOPIC">
-          <i class="fas fa-sliders" (click)="currentStep(11)"></i>
+          <i class="fas fa-sliders"></i>
         </button>
      </div>
      <div class="card-body">
@@ -20,7 +20,7 @@
          <input type="text" class="form-control" id="topicInput" [(ngModel)]="topicTitle">
        </div>
 
-       <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicTitle()" [disabled]="isGettingTopicTitle">
+       <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicTitle()" [disabled]="topicTitle == ''">
          <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicTitle" role="status" aria-hidden="true"></span>
          Improve Topic Title
        </button>
@@ -28,8 +28,8 @@
          <label for="topicInput">Enter the topic info here:</label>
          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="topicInfos">
             </textarea>
-         <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicInfo()" [disabled]="isGettingTopicInfo">
-           <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicInfo" role="status"
+         <button class="btn btn-secondary my-3 btn-sm" (click)="improveTopicInfo()" [disabled]="topicInfos == ''">
+           <span class="spinner-grow spinner-grow-sm " *ngIf="isGettingTopicInfo" role="status"
              aria-hidden="true"></span>
            Improve Topic Infos
          </button>
@@ -112,7 +112,7 @@
 
          </div>
          <div class="card-body">
-           <button class="btn btn-secondary mb-3 btn-sm" (click)="createOutline()" [disabled]="isGettingContent">
+           <button class="btn btn-secondary mb-3 btn-sm" (click)="getContent()" [disabled]="isGettingContent">
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingContent" role="status"
                aria-hidden="true"></span>
              Generate Content
