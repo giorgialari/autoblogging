@@ -6,11 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class OpenAIService {
-  private apiUrl = 'http://localhost:3000/api/openai';
+  private apiUrl = 'http://localhost:3000';
+  private apiKey = '';
+  constructor(private http: HttpClient) {
+    this.apiKey = localStorage.getItem('openAI_apiKey') || '';
+   }
 
-  constructor(private http: HttpClient) { }
-
-  getResponse(prompt: string, model: string, maxTokens: number): Observable<any> {
-    return this.http.post<any>(this.apiUrl, { prompt, model, maxTokens });
+  getResponse(prompt: string, model: string, maxTokens: number ): Observable<any> {
+    return this.http.post<any>(this.apiUrl + '/api/openai', { prompt, model, maxTokens, apiKey:  localStorage.getItem('openAI_apiKey') });
   }
+
 }

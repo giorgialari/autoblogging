@@ -42,6 +42,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     MatFormFieldModule,
     MatButtonModule,
     ReactiveFormsModule,
+    ReactiveFormsModule,
     NgCircleProgressModule.forRoot({
       "radius": 60,
       "outerStrokeWidth": 10,

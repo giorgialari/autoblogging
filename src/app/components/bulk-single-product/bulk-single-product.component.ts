@@ -30,19 +30,12 @@ export class BulkSingleProductComponent {
   isGettingTopicTitle = false;
   isGettingTopicInfo = false;
   isGettingCompleteArticle = false;
-  firstFormGroup = this._formBuilder.group({
-    firstCtrl: ['', Validators.required],
-  });
-  secondFormGroup = this._formBuilder.group({
-    secondCtrl: ['', Validators.required],
-  });
   isLinear = false;
   hasError = false;
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
-    private _formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService) { }
 
@@ -94,6 +87,7 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingTopicInfo = false;
       console.error('There was an error getting the topic information:', error);
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
     }
   }
   async getTitle() {
@@ -120,8 +114,10 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingTitle = false;
       console.error('There was an error getting the title:', error);
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       this.hasError = true;
       throw new Error('Failed to get title');
+
     }
   }
   async getAndOptimizeIntroduction(maxRetries: number = 2): Promise<void> {
@@ -184,6 +180,7 @@ export class BulkSingleProductComponent {
     catch (error) {
       this.isGettingIntroduction = false;
       console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       throw new Error('Failed to get title');
       this.hasError = true;
     }
@@ -236,6 +233,7 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingSections = false;
       console.error('There was an error getting the sections:', error);
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       this.hasError = true;
       throw new Error('Failed to get title');
 
@@ -281,6 +279,7 @@ export class BulkSingleProductComponent {
     } catch (error) {
       this.isGettingContent = false;
       console.error('There was an error getting the content:', error);
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       this.hasError = true;
       throw new Error('Failed to get title');
     }
@@ -485,28 +484,28 @@ export class BulkSingleProductComponent {
     return this.totalSeoScore;
   }
   //*************SETTINGS FOR EVERY ARTICLES *******************//
-  modelTitle = 'gpt-3.5-turbo-0613';
+  modelTitle = 'gpt-3.5-turbo';
   maxTokensTitle = 2048;
-  modelIntroduction = 'gpt-3.5-turbo-0613';
+  modelIntroduction = 'gpt-3.5-turbo';
   maxTokensIntroduction = 2048;
-  modelSections = 'gpt-3.5-turbo-0613';
+  modelSections = 'gpt-3.5-turbo';
   maxTokensSections = 2048;
-  modelContent = 'gpt-4-0613';
-  maxTokensContent = 4096;
+  modelContent = 'gpt-3.5-turbo-16k';
+  maxTokensContent = 2048;
 
   setDefaultModelValue(currentStepValue: number) {
     switch (currentStepValue) {
       case 1:
-        this.modelTitle = 'gpt-3.5-turbo-0613';
+        this.modelTitle = 'gpt-3.5-turbo';
         break;
       case 2:
-        this.modelIntroduction = 'gpt-3.5-turbo-0613';
+        this.modelIntroduction = 'gpt-3.5-turbo';
         break;
       case 3:
-        this.modelSections = 'gpt-3.5-turbo-0613';
+        this.modelSections = 'gpt-3.5-turbo';
         break;
       case 4:
-        this.modelContent = 'gpt-4-0613';
+        this.modelContent = 'gpt-3.5-turbo-16k';
         break;
     }
   }
@@ -605,29 +604,37 @@ export class BulkSingleProductComponent {
   //*** PROCESS ALL BY XLXS  ******//
   formatExcelNotValid: boolean = false;
   formatExcelNotValidMessage: string = ''
+  fileName: string = '';
+
   onFileChange(evt: any) {
-    /* wire up file reader */
-    const target: DataTransfer = <DataTransfer>(evt.target);
-    if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+    const file = evt.target.files[0];
+    if (file) {
+      this.fileName = file.name;
+    }
+    if (confirm('Sei sicuro di voler caricare questo file?')) {
+      /* wire up file reader */
+      const target: DataTransfer = <DataTransfer>(evt.target);
+      if (target.files.length !== 1) throw new Error('Cannot use multiple files');
 
-    const reader: FileReader = new FileReader();
+      const reader: FileReader = new FileReader();
 
-    reader.onload = (e: any) => {
-      /* read workbook */
-      const bstr: string = e.target.result;
-      const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+      reader.onload = (e: any) => {
+        /* read workbook */
+        const bstr: string = e.target.result;
+        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
 
-      /* grab first sheet */
-      const wsname: string = wb.SheetNames[0];
-      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+        /* grab first sheet */
+        const wsname: string = wb.SheetNames[0];
+        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-      /* save data */
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      this.processExcelData(data);
+        /* save data */
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        this.processExcelData(data);
 
-    };
+      };
 
-    reader.readAsBinaryString(target.files[0]);
+      reader.readAsBinaryString(target.files[0]);
+    }
   }
 
   processExcelData(data: any[]) {

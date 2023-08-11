@@ -1,8 +1,7 @@
 import { WpService } from './../../services/wp.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
-import { FormBuilder, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StepperOrientation } from '@angular/material/stepper';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -38,19 +37,12 @@ export class SingleProductComponent implements OnInit {
   isGettingTopicTitle = false;
   isGettingTopicInfo = false;
   isGettingCompleteArticle = false;
-  firstFormGroup = this._formBuilder.group({
-    firstCtrl: ['', Validators.required],
-  });
-  secondFormGroup = this._formBuilder.group({
-    secondCtrl: ['', Validators.required],
-  });
   isLinear = false;
   stepperOrientation!: Observable<StepperOrientation>;
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
-    private _formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     breakpointObserver: BreakpointObserver) {
     this.stepperOrientation = breakpointObserver
@@ -61,8 +53,8 @@ export class SingleProductComponent implements OnInit {
 
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
-    const model = 'gpt-3.5-0613';
-    const maxTokens = 2048;
+    const model = this.modelTopic;
+    const maxTokens = this.maxTokensTopic;
     const prompt_test =
       'Migliora il contenuto di questo titolo ' +
       this.topicTitle +
@@ -77,13 +69,19 @@ export class SingleProductComponent implements OnInit {
       this.isGettingTopicTitle = false;
       console.log(response);
       this.topicTitle = response.message;
-    });
+    },
+      (error) => {
+        this.isGettingTopicTitle = false;
+        alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
+        console.log(error);
+      }
+    );
   }
 
   improveTopicInfo() {
     this.isGettingTopicInfo = true;
-    const model = 'gpt-3.5-turbo-0613';
-    const maxTokens = 2048;
+    const model = this.modelTopic;
+    const maxTokens = this.maxTokensTopic;
     const prompt_test =
       'Migliora il contenuto di questo testo  ' +
       this.topicInfos +
@@ -98,7 +96,13 @@ export class SingleProductComponent implements OnInit {
       this.isGettingTopicInfo = false;
       console.log(response);
       this.topicInfos = response.message;
-    });
+    },
+      (error) => {
+        alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
+        this.isGettingTopicInfo = false;
+        console.log(error);
+      }
+    );
   }
   getTitle() {
     this.isGettingTitle = true;
@@ -123,6 +127,7 @@ export class SingleProductComponent implements OnInit {
       (error) => {
         console.log(error);
         this.isGettingTitle = false;
+        alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       }
     );
   }
@@ -187,6 +192,7 @@ export class SingleProductComponent implements OnInit {
     } catch (error) {
       this.isGettingIntroduction = false;
       console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
+      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       console.error(error);
     }
   }
@@ -239,51 +245,107 @@ export class SingleProductComponent implements OnInit {
       (error) => {
         console.log(error);
         this.isGettingSections = false;
+        alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
       }
     );
   }
 
-  getContent() {
+  outline: any;
+  async createOutline() {
     this.isGettingContent = true;
-    // const model = 'gpt-4-0613';
-    const model = this.modelContent;
-    const maxTokens = 4096;
-    const paragraphs_per_section = 3;
-    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
-    const prompt_test =
-      'Scrivi un articolo su ' +
-      this.titleResponse +
-      ' in ' +
-      this.language +
-      ' L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: ' +
-      sections.join(', ') +
-      '. Ogni sezione deve avere ' +
-      paragraphs_per_section +
-      ` paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.
-      Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.   ` +
-      ' Basati sulle informazioni seguenti: ' +
-      this.topicInfos +
-      ' Stile: ' +
-      this.writing_style +
-      '. Tono: ' +
-      this.writing_tone +
-      ` Deve essere almeno di 1000 parole. Deve essere un articolo completo.
-      Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete.
-      Non ripetere il titolo h1.
-      Ogni sezione deve iniziare con la sua sezione h2 corrispondente, usa tutte le sezioni citate sopra.
-      La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.
-      Ogni articolo deve avere il suo paragrafo di conclusione. Ogni paragrafo deve essere concluso
-      e non deve essere incompleto.`;
-    this.openAIService.getResponse(prompt_test, model, maxTokens).subscribe((response) => {
-      this.isGettingContent = false;
-      this.contentResponse = response.message;
-      this.analyzeSeoContent(this.contentResponse);
-    },
+
+    const titles = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
+
+    const outlinePrompt = `
+      Crea una scaletta per un articolo basato sui seguenti titoli e informazioni sul prodotto:
+      Titoli:
+      ${titles}
+      Informazioni sul prodotto:
+      ${this.topicInfos}
+      La scaletta deve includere i titoli e organizzare le informazioni in modo logico e coerente. Non devono esserci frasi incomplete`;
+
+    this.openAIService.getResponse(outlinePrompt, this.modelContent, 500).subscribe(
+      (response) => {
+        // Memorizza la scaletta
+        this.outline = response.message;
+        this.isGettingContent = false;
+        console.log('Scaletta creata', this.outline);
+        if(this.outline){
+          this.getContent();
+        }
+      },
       (error) => {
         console.log(error);
         this.isGettingContent = false;
-      })
+        alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
+      }
+    );
   }
+
+
+  async getContent() {
+    this.isGettingContent = true;
+    const model = this.modelContent;
+    const maxTokens = 500;
+
+    // Suddividi la scaletta in righe
+    const lines = this.outline.split('\n');
+
+    let content = '';
+    let currentTitle = '';
+    let sectionDetails = '';
+
+    // Funzione per elaborare la sezione corrente
+    const processSection = (title: string, details: string) => {
+      const sectionPrompt = `
+        Scrivi la sezione "${title}" dell'articolo su ${this.titleResponse} seguendo la scaletta:
+        ${details}
+
+        Requisiti SEO:
+        ...
+
+        Stile: ${this.writing_style}
+        Tono: ${this.writing_tone}
+      `;
+
+      this.openAIService.getResponse(sectionPrompt, model, maxTokens).subscribe(
+        (response) => {
+          const sectionContent = response.message;
+          content += '<h2>' + title + '</h2>' + sectionContent;
+        },
+        (error) => {
+          console.log(error);
+          this.isGettingContent = false;
+          alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
+        }
+      );
+    };
+
+    // Scansiona ogni riga della scaletta
+    lines.forEach((line: string, index: number) => {
+      if (line.startsWith('- ')) { // Se la riga inizia con un trattino, è parte della sezione corrente
+        sectionDetails += line + '\n';
+      } else { // Altrimenti, è un nuovo titolo
+        if (currentTitle && sectionDetails) {
+          processSection(currentTitle, sectionDetails);
+        }
+
+        currentTitle = line.trim();
+        sectionDetails = '';
+      }
+
+      // Processa l'ultima sezione se è l'ultima riga
+      if (index === lines.length - 1 && currentTitle && sectionDetails) {
+        processSection(currentTitle, sectionDetails);
+      }
+    });
+
+    this.isGettingContent = false;
+    this.contentResponse = content;
+    this.analyzeSeoContent(this.contentResponse);
+  }
+
+
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
 
@@ -340,6 +402,30 @@ export class SingleProductComponent implements OnInit {
         );
     }
   }
+  // findRepetitiveWordGroups(): string[] {
+  //   // Divide il testo in parole
+  //   const words = this.contentResponse.split(/\s+/);
+  //   const phrasesMap = new Map<string, number>();
+  //   const phraseLength = 3;
+
+  //   // Scorri attraverso le parole, creando frasi della lunghezza specificata e contandone le occorrenze
+  //   for (let i = 0; i <= words.length - phraseLength; i++) {
+  //     const phrase = words.slice(i, i + phraseLength).join(' ');
+  //     const count = phrasesMap.get(phrase) || 0;
+  //     phrasesMap.set(phrase, count + 1);
+  //   }
+
+  //   // Filtra le frasi che appaiono più di una volta
+  //   const repetitivePhrases:any[] = [];
+  //   phrasesMap.forEach((count, phrase) => {
+  //     if (count > 1) {
+  //       repetitivePhrases.push(phrase);
+  //     }
+  //   });
+  //   console.log(repetitivePhrases);
+  //   return repetitivePhrases;
+  // }
+
   wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
@@ -350,14 +436,16 @@ export class SingleProductComponent implements OnInit {
   }
   //*************SETTINGS FOR EVERY STEPS *******************//
   currentStepValue = 1;
-  modelTitle = 'gpt-3.5-turbo-0613';
+  modelTopic = 'gpt-3.5-turbo';
+  maxTokensTopic = 2048;
+  modelTitle = 'gpt-3.5-turbo';
   maxTokensTitle = 2048;
-  modelIntroduction = 'gpt-3.5-turbo-0613';
+  modelIntroduction = 'gpt-3.5-turbo';
   maxTokensIntroduction = 2048;
-  modelSections = 'gpt-3.5-turbo-0613';
+  modelSections = 'gpt-3.5-turbo';
   maxTokensSections = 2048;
-  modelContent = 'gpt-4-0613';
-  maxTokensContent = 4096;
+  modelContent = 'gpt-3.5-turbo-16k';
+  maxTokensContent = 2048;
   currentStep(currenStep: number) {
     this.currentStepValue = currenStep
   }
@@ -405,7 +493,7 @@ export class SingleProductComponent implements OnInit {
         this.modelSections = 'gpt-3.5-turbo-0613';
         break;
       case 4:
-        this.modelContent = 'gpt-4-0613';
+        this.modelContent = 'gpt-3.5-turbo-16k-0613';
         break;
     }
   }
@@ -421,11 +509,16 @@ export class SingleProductComponent implements OnInit {
         this.maxTokensSections = 2048;
         break;
       case 4:
-        this.maxTokensContent = 4096;
+        this.maxTokensContent = 2048;
         break;
     }
   }
-
+  setDefaultModelValueTOPIC() {
+    this.modelTopic = 'gpt-3.5-turbo-0613';
+  }
+  setDefaultMaxTokensValueTOPIC() {
+    this.maxTokensTopic = 2048;
+  }
   getMaxTokensValue() {
     switch (this.currentStepValue) {
       case 1:
@@ -457,7 +550,6 @@ export class SingleProductComponent implements OnInit {
         break;
     }
   }
-
 
 
 

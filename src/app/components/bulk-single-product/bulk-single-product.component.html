@@ -1,6 +1,12 @@
 <div class="container my-4">
   <div class="card mb-4">
-    <div class="card-header bg-info text-white">Bulk products</div>
+    <div class="card-header bg-info text-white">Bulk products
+      <button type="button" class="btn btn-secondary btn-sm shadow mx-3" data-mdb-toggle="modal"
+        data-mdb-target="#exampleModal">
+        <i class="fas fa-sliders"></i>
+      </button>
+
+    </div>
     <div class="card-body">
       <div class="form-group">
         <div class="form-group">
@@ -12,12 +18,15 @@
                 {{formatExcelNotValidMessage}}
               </div>
             </div>
-            <button type="button" class="btn btn-primary btn-sm mx-3 my-3" data-mdb-toggle="modal"
-              data-mdb-target="#exampleModal">
-              <i class="fas fa-sliders"></i>
-            </button>
           </div>
-          <input type="file" (change)="onFileChange($event)" />
+          <!-- <input type="file" (change)="onFileChange($event)" /> -->
+          <label class="btn btn-primary btn-sm"  >
+            Carica File
+            <input type="file" (change)="onFileChange($event)" [attr.disabled]="textareaproducts.value.length > 0 ? true : null" style="display: none;">
+          </label>
+          <span *ngIf="fileName" class="mx-2">File selezionato: {{ fileName }}</span>
+
+
         </div>
 
         <div class="d-flex align-items-center">
@@ -28,12 +37,8 @@
               {{formatJsonNotValidMessage}}
             </div>
           </div>
-          <button type="button" class="btn btn-primary btn-sm mx-3 my-3" data-mdb-toggle="modal"
-            data-mdb-target="#exampleModal">
-            <i class="fas fa-sliders"></i>
-          </button>
         </div>
-        <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="listProducts"></textarea>
+        <textarea #textareaproducts type="text" class="form-control" id="topicInfos" [(ngModel)]="listProducts"></textarea>
         <button class="btn btn-secondary my-3 btn-sm" (click)="processAll()" [disabled]="!listProducts">
           Process
         </button>
@@ -79,8 +84,11 @@
             <div class="row">
               <div class="col-11">
                 <select class="form-control" id="model" [(ngModel)]="modelTitle">
+                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+                  <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
                   <option value="gpt-3.5-turbo-0613">gpt-3.5-turbo-0613</option>
                   <option value="gpt-3.5-turbo-16k-0613">gpt-3.5-turbo-16k-0613</option>
+                  <option value="gpt-4">gpt-4</option>
                   <option value="gpt-4-0613">gpt-4-0613</option>
                 </select>
               </div>
@@ -218,7 +226,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">Save</button>
       </div>
     </div>
   </div>
