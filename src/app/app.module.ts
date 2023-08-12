@@ -19,6 +19,7 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
 import { BulkSingleProductComponent } from './components/amazon/bulk-single-product/bulk-single-product.component';
 import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { AmazonComponent } from './components/amazon/amazon.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { SettingsComponent } from './components/settings/settings.component';
     HomeComponent,
     EditorComponent,
     BulkSingleProductComponent,
-    SettingsComponent
+    SettingsComponent,
+    AmazonComponent
   ],
   imports: [
     BrowserAnimationsModule,

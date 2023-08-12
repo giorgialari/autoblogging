@@ -1,3 +1,4 @@
+import { AmazonComponent } from './components/amazon/amazon.component';
 import { BulkSingleProductComponent } from './components/amazon/bulk-single-product/bulk-single-product.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -10,11 +11,12 @@ const routes: Routes = [
   { path: 'single-product', component: SingleProductComponent},
   { path: 'bulk-product', component: BulkSingleProductComponent},
   { path: 'settings', component: SettingsComponent},
+  { path: 'amazon', component: AmazonComponent},
   { path: '', redirectTo: '/home', pathMatch: 'full' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {useHash: true})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

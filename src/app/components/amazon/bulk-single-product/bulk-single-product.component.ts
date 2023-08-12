@@ -554,8 +554,8 @@ export class BulkSingleProductComponent implements OnInit {
 
       if (!Array.isArray(products) || products.some(item => !this.isValidProduct(item))) {
         this.formatJsonNotValid = true;
-        this.formatJsonNotValidMessage = 'Formato JSON non valido';
-        throw new Error('Formato JSON non valido');
+        this.formatJsonNotValidMessage = 'JSON format not valid';
+        throw new Error('JSON format not valid');
       }
 
       const totalProducts = products.length;
@@ -575,27 +575,26 @@ export class BulkSingleProductComponent implements OnInit {
         // Call the functions in the required order
         // await this.improveTopicTitle();
         // await this.improveTopicInfo();
-        this.statusMessage = ' Sto creando il titolo';
+        this.statusMessage = ' I\'m creating the title';
         await this.getTitle();
-        this.statusMessage = ' Sto creando l\'introduzione';
+        this.statusMessage = ' I\'m creating the introduction';
         await this.getAndOptimizeIntroduction();
-        this.statusMessage = ' Sto creando le sezioni';
+        this.statusMessage = ' I\'m creating the sections';
         await this.getSections();
-        this.statusMessage = ' Sto creando il contenuto';
+        this.statusMessage = ' I\'m creating the content';
         await this.getContent();
 
         if (index === totalProducts - 1) {
-          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
+          this.statusMessage = ' All articles have been published successfully!';
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
-          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
+          this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
         }
       }
     } catch (e: any) {
       this.formatJsonNotValid = true;
       this.showOverlay = false;
-      console.error(e.message);
       this.formatJsonNotValidMessage = e.message;
-      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
+      this.notificationService.showNotification("An error occured during article generation. Please try again.");
     }
   }
 
@@ -665,8 +664,8 @@ export class BulkSingleProductComponent implements OnInit {
     try {
       if (!Array.isArray(products) || products.some(item => !this.isValidExcelProduct(item))) {
         this.formatExcelNotValid = true;
-        this.formatExcelNotValidMessage = 'Formato Excel non valido';
-        throw new Error('Formato Excel non valido');
+        this.formatExcelNotValidMessage = 'Excel format not valid';
+        throw new Error('Excel format not valid');
       }
 
       const totalProducts = products.length;
@@ -684,19 +683,19 @@ export class BulkSingleProductComponent implements OnInit {
         this.topicKeyword = item.Keyword;
 
         // Call the functions in the required order
-        this.statusMessage = ' Sto creando il titolo';
+        this.statusMessage = ' I\'m creating the title';
         await this.getTitle();
-        this.statusMessage = ' Sto creando l\'introduzione';
+        this.statusMessage = ' I\'m creating the introduction';
         await this.getAndOptimizeIntroduction();
-        this.statusMessage = ' Sto creando le sezioni';
+        this.statusMessage = ' I\'m creating the sections';
         await this.getSections();
-        this.statusMessage = ' Sto creando il contenuto';
+        this.statusMessage = ' I\'m creating the content';
         await this.getContent();
 
         if (index === totalProducts - 1) {
-          this.statusMessage = ' Tutti gli articoli sono stati pubblicati con successo!';
+          this.statusMessage = ' All articles have been published successfully!';
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
-          this.notificationService.showNotification(`Sono stati generati ${totalProducts} articoli`);
+          this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
         }
       }
     } catch (e: any) {
@@ -704,7 +703,7 @@ export class BulkSingleProductComponent implements OnInit {
       this.showOverlay = false;
       console.error(e.message);
       this.formatExcelNotValidMessage = e.message;
-      this.notificationService.showNotification("C'è stato un problema durante la generazione dell'articolo");
+      this.notificationService.showNotification("An error occured during article generation. Please try again.");
     }
   }
   isValidExcelProduct(item: any): boolean {
