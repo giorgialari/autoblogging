@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-
 const {
   Configuration,
   OpenAIApi
@@ -9,7 +7,6 @@ const {
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname, '../dist/autoblogging')));
 
 app.post('/api/openai', async (req, res) => {
   try {
@@ -47,9 +44,6 @@ app.post('/api/openai', async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/autoblogging/index.html'));
+app.listen(3000, () => {
+  console.log('Server is up and running on port 3000');
 });
-// app.listen(3000, () => {
-//   console.log('Server is up and running on port 3000');
-// });
