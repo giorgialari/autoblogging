@@ -20,9 +20,9 @@ export class SettingsComponent implements OnInit {
     });
 
     this.wpSettingsForm = this.fb.group({
-      wpUrl: [localStorage.getItem('wp_wpUrl') ],
-      status: [localStorage.getItem('wp_status') ],
-      btoa: [localStorage.getItem('wp_btoa')],
+      wpUrl: [localStorage.getItem('wp_wpUrl') || ''  ],
+      status: [localStorage.getItem('wp_status') || 'draft' ],
+      btoa: [localStorage.getItem('wp_btoa') || ''],
     });
   }
 

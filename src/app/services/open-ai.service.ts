@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import  {environment } from '../../enviroment/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OpenAIService {
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = environment.apiUrl;
   private apiKey = '';
   constructor(private http: HttpClient) {
     this.apiKey = localStorage.getItem('openAI_apiKey') || '';
