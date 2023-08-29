@@ -1,74 +1,63 @@
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <!-- Container wrapper -->
   <div class="container-fluid">
-    <!-- Toggle button -->
-    <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Collapsible wrapper -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <!-- Navbar brand -->
-      <a class="navbar-brand mt-2 mt-lg-0 mx-2" >
-        <img src="assets/logo.png" height="50" alt="Logo"
-          loading="lazy" />
-      </a>
-      <!-- Left links -->
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <!-- <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" routerLink="/home">Home</a>
-        </li> -->
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" routerLink="/amazon">Amazon</a>
-        </li>
-        <!-- <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" routerLink="/bulk-product">Bulk Products</a>
-        </li> -->
-      </ul>
-      <!-- Left links -->
-    </div>
-    <!-- Collapsible wrapper -->
-
-    <!-- Right elements -->
-    <div class="d-flex align-items-center">
-     <!-- Notifications -->
-     <div class="dropdown mt-1">
-      <a
-        class="text-reset mx-4 my-auto dropdown-toggle hidden-arrow"
-        href="#"
-        id="navbarDropdownMenuLink"
-        role="button"
-        data-mdb-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <i class="fas fa-bell  fa-lg"></i>
-        <span class="badge rounded-pill badge-notification bg-danger" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink" *ngIf="notificationCount > 0">
-        <li *ngFor="let notification of notifications; let i = index">
-          <div class="dropdown-item notification" [class.read]="notification.read" (click)="onNotificationClick(i)">{{ notification.message }}</div>
-        </li>
-      </ul>
-
-    </div>
-      <!-- Avatar -->
-      <div class="dropdown">
-        <a class="dropdown-toggle d-flex align-items-center hidden-arrow" id="navbarDropdownMenuAvatar"
-          role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-          <img src="https://api.slingacademy.com/public/sample-users/5.png" class="rounded-circle" height="25"
-            alt="Black and White Portrait of a Man" loading="lazy" />
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
-          <li routerLinkActive="active">
-            <a class="dropdown-item"  routerLink="/settings">Settings</a>
-          </li>
-        </ul>
+      <div class="d-flex flex-row">
+          <!-- Navbar brand -->
+          <a class="navbar-brand mt-lg-0">
+              <img src="assets/logo.png" height="50" alt="Logo" loading="lazy" />
+          </a>
+          <!-- Toggle button -->
+          <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <i class="fas fa-bars"></i>
+          </button>
       </div>
-    </div>
-    <!-- Right elements -->
+
+      <!-- Collapsible wrapper -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <!-- Left links -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item" routerLinkActive="active">
+                  <a class="nav-link" routerLink="/amazon">Amazon</a>
+              </li>
+          </ul>
+          <!-- Left links -->
+      </div>
+      <!-- Collapsible wrapper -->
+
+      <!-- Right elements -->
+      <div class="d-flex align-items-center">
+          <!-- Notifications -->
+          <div class="dropdown mt-1">
+              <a class="text-reset mx-4 my-auto dropdown-toggle hidden-arrow" href="#" id="navbarDropdownMenuLink"
+                  role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-bell  fa-lg"></i>
+                  <span class="badge rounded-pill badge-notification bg-danger"
+                      *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink"
+                  *ngIf="notificationCount > 0">
+                  <li *ngFor="let notification of notifications; let i = index">
+                      <div class="dropdown-item notification" [class.read]="notification.read" (click)="onNotificationClick(i)">
+                          {{ notification.message }}</div>
+                  </li>
+              </ul>
+          </div>
+          <!-- Avatar -->
+          <div class="dropdown">
+              <a class="dropdown-toggle d-flex align-items-center hidden-arrow" id="navbarDropdownMenuAvatar" role="button"
+                  data-mdb-toggle="dropdown" aria-expanded="false">
+                  <img src="https://api.slingacademy.com/public/sample-users/5.png" class="rounded-circle" height="25"
+                      alt="Black and White Portrait of a Man" loading="lazy" />
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+                  <li routerLinkActive="active">
+                   <a class="dropdown-item" routerLink="/settings">Settings</a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+      <!-- Right elements -->
   </div>
   <!-- Container wrapper -->
 </nav>
-<!-- Navbar -->
