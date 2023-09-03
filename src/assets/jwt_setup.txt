@@ -1,0 +1,85 @@
+Ecco una guida dettagliata su come configurare e utilizzare il plugin "JWT Authentication for WP-API" in un'applicazione AngularJS:
+
+### Configurazione dell'Autenticazione JWT con WordPress
+
+1. **Installazione e attivazione del plugin**:
+   - Installa e attiva il plugin "JWT Authentication for WP-API" nel tuo sito WordPress.
+
+2. **Configurazione nel file `wp-config.php`**:
+   - Naviga alla directory principale del tuo sito WordPress e apri il file `wp-config.php`.
+   - Inserisci una chiave segreta per la codifica e decodifica del token:
+     ```php
+     define('JWT_AUTH_SECRET_KEY', 'la-tua-chiave-segreta');
+     ```
+   - Opzionalmente, configura un dominio specifico:
+     ```php
+     define('JWT_AUTH_CORS_ENABLE', true);
+     ```
+
+3. **Aggiornamento del file `.htaccess`**:
+   - Assicurati che il tuo server web gestisca gli header di autorizzazione aggiungendo il seguente codice al tuo file `.htaccess`:
+   ```apache
+   SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+   ```
+
+4. **Procedura per ottenere un token**:
+   - Effettua una richiesta POST al tuo endpoint di autenticazione per ottenere un token.
+   - Conserva questo token per le richieste successive.
+
+5. **Come utilizzare il token**:
+   - Includi il token in tutte le richieste all'API di WordPress attraverso l'header:
+   ```
+   Authorization: Bearer YOUR_JWT_TOKEN_HERE
+   ```
+
+6. **Sfruttamento degli hooks disponibili**:
+   - Consulta la documentazione per scoprire gli hooks disponibili per personalizzare l'autenticazione JWT.
+   - Implementa questi hooks nel tuo tema o in un plugin personalizzato per modificare il comportamento di default.
+
+7. **Verifica della configurazione**:
+   - Testa la tua configurazione utilizzando strumenti come Postman o il tuo frontend (ad esempio, l'applicazione AngularJS menzionata nella documentazione).
+
+### Generazione di una chiave segreta sicura:
+
+1. **Utilizzo di un generatore di password online**:
+   - Cerca un generatore di password affidabile online e utilizzalo per creare una chiave segreta robusta.
+
+2. **Sfruttamento della funzione `wp_generate_password` di WordPress**:
+   ```php
+   echo wp_generate_password(64, true, true);
+   ```
+   Questa funzione genererà una chiave segreta di 64 caratteri.
+
+3. **Creazione manuale di una chiave**:
+   - Crea una chiave segreta personalizzata assicurandoti che sia lunga e complessa, ad es. `aZ9$^2Jk7*4FgH@3nLmP&1QwVrXuT%8Z`.
+   - Una volta generata, inseriscila nel `wp-config.php`:
+     ```php
+     define('JWT_AUTH_SECRET_KEY', 'la-tua-chiave-segreta-qui');
+     ```
+
+### Risoluzione dell'errore `[jwt_auth] empty_username`:
+
+1. **Controllo del formato della richiesta**.
+2. **Verifica dei dettagli dell'utente inseriti**.
+3. **Assicurati di utilizzare il metodo POST per l'endpoint corretto**.
+4. **Verifica dell'intestazione della richiesta**.
+5. **Test con un altro utente**.
+6. **Controllo della configurazione del plugin**.
+
+### Pubblicazione di un nuovo post con l'API REST di WordPress usando JWT:
+
+1. **Usa l'endpoint `/wp-json/wp/v2/posts`**.
+2. **Imposta il metodo HTTP su `POST`**.
+3. **Aggiungi il token JWT alle intestazioni**:
+  ```
+   Authorization: Bearer TUO_TOKEN_JWT
+   ```
+Content-Type: per specificare il formato dei dati.
+Impostalo su:
+Content-Type: application/x-www-form-urlencoded
+
+
+
+4. **Inserisci i dettagli del post nel corpo della richiesta**.
+5. **Se stai usando uno strumento come Postman, configura le opzioni come indicato sopra e invia la richiesta**.
+

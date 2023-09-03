@@ -26,13 +26,6 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  // wpData = {
-  //   wpUrl: 'https://reviewmodeon.com/wp-json/wp/v2',
-  //   status: 'draft',
-  //   btoa: 'r3vi3wm0d30n:fj[^1le84j24',
-  //   apiKey:'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'
-  // };
-
   saveOpenAISettings() {
     const settings = this.openAISettingsForm.value;
     localStorage.setItem('openAI_apiKey', settings.apiKey || '');

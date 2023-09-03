@@ -303,30 +303,24 @@ export class BulkSingleProductComponent implements OnInit {
 
     // Divide the content into sections based on <h2> tags
     let contentSections = this.contentResponse.split('<h2>').map(section => section.trim());
-
     // Select a random section to insert the image (but not the first one)
     let randomSectionIndex = Math.floor(Math.random() * (contentSections.length - 1)) + 1;
-
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] = `
-      <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
       <h2>${contentSections[randomSectionIndex]}</h2>
     `;
-
     // Reassemble the content
     let contentWithImage = contentSections.join('<h2>');
-
     // Assemble the complete article
     this.completeArticleResponse = `
       ${this.titleResponse}
-      <p> [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]</p>
+      <p>[content-egg-block template=customizable product="it-${this.topicASIN}" show=img]</p>
+      </p>
       ${this.introductionResponse}
-      <h3>Punti chiave:</h3>
-      [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
-      [content-egg-block template=offers_list_no_price]
+      [content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=list_no_price]
       ${contentWithImage}
-      <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
-      <p>[amazon bestseller="${this.topicKeyword}" items="5"/]</p>
+      <h3>Migliore Offerta inerente a ${this.topicKeyword}:</h3>
+      <p>[content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=item]</p>
     `
       .split('\n')
       .map(line => line.trim()) // Remove whitespace at the start and end of each line
@@ -343,11 +337,24 @@ export class BulkSingleProductComponent implements OnInit {
     if (!this.isGettingCompleteArticle) {
       // Rimuovi completamente i tag <h1> e il loro contenuto
       const cleanedContent = this.completeArticleResponse.replace(/<h1\b[^>]*>.*?<\/h1>/g, '');
+      const wpUrl = localStorage.getItem('wp_wpUrl') || '';
+      const status = localStorage.getItem('wp_status') || 'draft';
+      const btoa = localStorage.getItem('wp_btoa') || '';
+
+      const credentials = (btoa || '').split(':');
+      const username = credentials[0];
+      const password = credentials[1];
 
       try {
-        await this.wpService.publishPost(this.titleResponse, cleanedContent).toPromise();
-        this.statusMessage = ' Articolo pubblicato con successo!';
+        // Ottieni il token prima
+        const tokenResponse = await this.wpService.getToken(username, password, wpUrl).toPromise() as TokenResponse;
+        const jwtToken = tokenResponse.token;
 
+
+        // Ora pubblica il post con il token
+        await this.wpService.publishPost(this.titleResponse, cleanedContent, wpUrl, status, jwtToken).toPromise();
+
+        this.statusMessage = 'Articolo pubblicato con successo!';
       } catch (error) {
         console.error('There was an error publishing the article:', error);
         this.hasError = true;
@@ -355,6 +362,7 @@ export class BulkSingleProductComponent implements OnInit {
       }
     }
   }
+
   //*************WORD COUNT *******************//
   wordsCount: number = 0
   countWords() {
@@ -534,7 +542,7 @@ export class BulkSingleProductComponent implements OnInit {
         this.maxTokensSections = 2048;
         break;
       case 4:
-        this.maxTokensContent = 4096;
+        this.maxTokensContent = 2048;
         break;
     }
   }
@@ -715,4 +723,7 @@ export class BulkSingleProductComponent implements OnInit {
   }
 
 
+}
+interface TokenResponse {
+  token: string;
 }

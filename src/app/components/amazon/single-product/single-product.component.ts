@@ -87,7 +87,7 @@ export class SingleProductComponent implements OnInit {
     },
       (error) => {
         this.isGettingTopicTitle = false;
-         this.showError(error.error.message)
+        this.showError(error.error.message)
       }
     );
   }
@@ -110,7 +110,7 @@ export class SingleProductComponent implements OnInit {
       this.topicInfos = response.message;
     },
       (error) => {
-         this.showError(error.error.message)
+        this.showError(error.error.message)
         this.isGettingTopicInfo = false;
       }
     );
@@ -197,7 +197,7 @@ export class SingleProductComponent implements OnInit {
       this.isGettingIntroduction = false;
       this.introductionResponse = lastIntroduction;
     } catch (error: any) {
-       this.showError(error.error.message)
+      this.showError(error.error.message)
       this.isGettingIntroduction = false;
       console.error("Used introduction with a less-than-satisfactory SEO score after " + maxRetries + " attempts.");
     }
@@ -249,7 +249,7 @@ export class SingleProductComponent implements OnInit {
     },
       (error) => {
         this.isGettingSections = false;
-         this.showError(error.error.message)
+        this.showError(error.error.message)
 
       }
     );
@@ -283,6 +283,42 @@ export class SingleProductComponent implements OnInit {
       this.analyzeSeoContent(this.contentResponse);
     });
   }
+  //METODO CON AAWP
+  // getCompleteArticle() {
+  //   this.isGettingCompleteArticle = true;
+  //   // Divide the content into sections based on <h2> tags
+  //   let contentSections = this.contentResponse.split('<h2>').map(section => section.trim());
+  //   // Select a random section to insert the image (but not the first one)
+  //   let randomSectionIndex = Math.floor(Math.random() * (contentSections.length - 1)) + 1;
+  //   // Insert the image at the start of the random section
+  //   contentSections[randomSectionIndex] = `
+  //     <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
+  //     <h2>${contentSections[randomSectionIndex]}</h2>
+  //   `;
+  //   // Reassemble the content
+  //   let contentWithImage = contentSections.join('<h2>');
+  //   // Assemble the complete article
+  //   this.completeArticleResponse = `
+  //     ${this.titleResponse}
+  //     <p> [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]</p>
+  //     ${this.introductionResponse}
+  //     <h3>Punti chiave:</h3>
+  //     [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
+  //     [content-egg-block template=offers_list_no_price]
+  //     ${contentWithImage}
+  //     <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
+  //     <p>[amazon bestseller="${this.topicKeyword}" items="5"/]</p>
+  //   `
+  //     .split('\n')
+  //     .map(line => line.trim()) // Remove whitespace at the start and end of each line
+  //     .filter(line => line) // Remove empty lines
+  //     .join('\n');
+
+  //   this.isGettingCompleteArticle = false;
+  //   this.countWords();
+  //   this.calculateTotalSeoScore();
+  //   this.cdr.detectChanges();
+  // }
   getCompleteArticle() {
     this.isGettingCompleteArticle = true;
     // Divide the content into sections based on <h2> tags
@@ -291,7 +327,6 @@ export class SingleProductComponent implements OnInit {
     let randomSectionIndex = Math.floor(Math.random() * (contentSections.length - 1)) + 1;
     // Insert the image at the start of the random section
     contentSections[randomSectionIndex] = `
-      <p>[amazon fields="${this.topicASIN}" value="thumb" image="2" image_size="large" image_align="center" image_alt="${this.topicKeyword}"] </p>
       <h2>${contentSections[randomSectionIndex]}</h2>
     `;
     // Reassemble the content
@@ -299,14 +334,13 @@ export class SingleProductComponent implements OnInit {
     // Assemble the complete article
     this.completeArticleResponse = `
       ${this.titleResponse}
-      <p> [amazon fields="${this.topicASIN}" value="thumb" image="1" image_size="large" image_align="center" image_alt="${this.topicKeyword}"]</p>
+      <p>[content-egg-block template=customizable product="it-${this.topicASIN}" show=img]</p>
+      </p>
       ${this.introductionResponse}
-      <h3>Punti chiave:</h3>
-      [amazon fields="${this.topicASIN}" value="description" description_length="400" image_alt="${this.topicKeyword}"]
-      [content-egg-block template=offers_list_no_price]
+      [content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=list_no_price]
       ${contentWithImage}
-      <h3>Migliori Offerte inerenti a ${this.topicKeyword}:</h3>
-      <p>[amazon bestseller="${this.topicKeyword}" items="5"/]</p>
+      <h3>Migliore Offerta inerente a ${this.topicKeyword}:</h3>
+      <p>[content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=item]</p>
     `
       .split('\n')
       .map(line => line.trim()) // Remove whitespace at the start and end of each line
@@ -320,20 +354,31 @@ export class SingleProductComponent implements OnInit {
   }
   publishArticleOnWP() {
     if (!this.isGettingCompleteArticle) {
-      // Rimuovi completamente i tag <h1> e il loro contenuto
       const cleanedContent = this.completeArticleResponse.replace(/<h1\b[^>]*>.*?<\/h1>/g, '');
+      const wpUrl = localStorage.getItem('wp_wpUrl') || '';
+      const status = localStorage.getItem('wp_status') || 'draft';
+      const credentials = (localStorage.getItem('wp_btoa') || '').split(':');
+      const username = credentials[0];
+      const password = credentials[1];
 
-      this.wpService.publishPost(this.titleResponse, cleanedContent)
-        .subscribe((response) => {
-          this.showSuccess('Article published successfully!');
-        },
-          (error) => {
-            this.showError(error.error.message);
-            console.error(error);
-          }
-        );
+      this.wpService.getToken(username, password, wpUrl)
+        .subscribe((tokenResponse: any) => {
+          const jwtToken = tokenResponse.token;
+          this.wpService.publishPost(this.titleResponse, cleanedContent, wpUrl, status, jwtToken)
+            .subscribe((response) => {
+              this.showSuccess('Article published successfully!');
+            },
+              (error) => {
+                this.showError(error.error.message);
+                console.error(error);
+              });
+        }, (tokenError) => {
+          this.showError(tokenError.error.message);
+          console.error(tokenError);
+        });
     }
   }
+
   wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
