@@ -24,6 +24,10 @@
          <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTopicTitle" role="status" aria-hidden="true"></span>
          Improve Topic Title
        </button>
+       <button class="btn btn-secondary my-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingTopicTitle">
+        <i class="fas fa-stop"></i>
+      </button>
+
        <div class="form-group">
          <label for="topicInput">Enter the topic info here:</label>
          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="topicInfos">
@@ -33,6 +37,9 @@
              aria-hidden="true"></span>
            Improve Topic Infos
          </button>
+         <button class="btn btn-secondary my-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingTopicInfo">
+          <i class="fas fa-stop"></i>
+        </button>
        </div>
      </div>
    </div>
