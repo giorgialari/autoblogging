@@ -190,6 +190,19 @@
          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
        </div>
        <div class="modal-body">
+        <div class="mb-3" *ngIf="currentStepValue == 3">
+          <label class="form-label">Quantity Paragraph</label>
+          <div class="row">
+            <div class="col-11">
+              <input type="number" class="form-control" id="maxTokens" [(ngModel)]="qtyParagraphs">
+            </div>
+            <div class="col-1 d-flex justify-content-end align-items-center">
+              <button type="button" class="btn btn-primary btn-sm"  (click)="setDefaultQtyParagraphs()">
+               <i class="fas fa-arrow-rotate-left"></i>
+             </button>
+            </div>
+          </div>
+        </div>
          <div class="mb-3">
            <label class="form-label">Model</label>
            <div class="row">

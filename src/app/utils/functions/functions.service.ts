@@ -104,11 +104,10 @@ export class FunctionsService {
     return lastIntroduction; // default return if no satisfactory SEO score is achieved after retries
   }
 
-  getSections(topicTitle: string, topicInfos: string, language: string, writing_style: string, writing_tone: string, model: string, maxTokens: number): Observable<any> {
-    const sections_count = 10;
+  getSections(topicTitle: string, topicInfos: string, language: string, writing_style: string, writing_tone: string, model: string, maxTokens: number, quantityParagraphs: number): Observable<any> {
     const prompt_test =
       'Genera ' +
-      sections_count +
+      quantityParagraphs +
       ' titoli di sezioni per un articolo su ' +
       topicTitle +
       ' ' +

@@ -43,6 +43,7 @@ export class SingleProductComponent implements OnInit {
   isLinear = false;
   stepperOrientation!: Observable<StepperOrientation>;
   titleInfoArray: any[] = []
+  qtyParagraphs = 10;
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
@@ -154,7 +155,7 @@ export class SingleProductComponent implements OnInit {
     this.isGettingSections = true;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     this.functionService.getSections(
-      this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections
+      this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections, this.qtyParagraphs
     )
       .subscribe((response) => {
         this.isGettingSections = false;
@@ -334,6 +335,10 @@ export class SingleProductComponent implements OnInit {
         this.maxTokensContent = value;
         break;
     }
+  }
+
+  setDefaultQtyParagraphs() {
+    this.qtyParagraphs = 10;
   }
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;

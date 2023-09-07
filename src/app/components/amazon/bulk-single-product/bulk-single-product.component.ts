@@ -34,6 +34,7 @@ export class BulkSingleProductComponent implements OnInit {
   isGettingCompleteArticle = false;
   isLinear = false;
   hasError = false;
+  qtyParagraphs = 10;
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
@@ -127,7 +128,7 @@ export class BulkSingleProductComponent implements OnInit {
 
     try {
       const response = await this.functionService.getSections(
-        this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections
+        this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections, this.qtyParagraphs
       ).toPromise();
 
       this.isGettingSections = false;
@@ -290,6 +291,9 @@ export class BulkSingleProductComponent implements OnInit {
         this.maxTokensContent = 2048;
         break;
     }
+  }
+  setDefaultQtyParagraphs() {
+    this.qtyParagraphs = 10;
   }
 
   //*** PROCESS ALL   ******//
