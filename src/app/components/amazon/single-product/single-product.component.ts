@@ -43,7 +43,6 @@ export class SingleProductComponent implements OnInit {
   isLinear = false;
   stepperOrientation!: Observable<StepperOrientation>;
   titleInfoArray: any[] = []
-  private ngUnsubscribe = new Subject();
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
@@ -72,16 +71,16 @@ export class SingleProductComponent implements OnInit {
     });
   }
   stopRequest() {
-    this.ngUnsubscribe.next(true);
-    this.ngUnsubscribe.complete();
+   this.openAIService.abortRequests();
     this.isGettingTopicTitle = false;
-    this.isGettingTopicInfo =  false;
+    this.isGettingTopicInfo = false;
     this.isGettingTitle = false;
     this.isGettingSections = false;
+    this.isGettingIntroduction = false;
+    this.isGettingContent = false;
   }
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
-    this.ngUnsubscribe = new Subject();
     this.functionService.getImprovedTopic(
       this.topicTitle,
       this.language,
@@ -90,7 +89,6 @@ export class SingleProductComponent implements OnInit {
       this.modelTopic,
       this.maxTokensTopic
     )
-      .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((response) => {
         this.isGettingTopicTitle = false;
         this.topicTitle = response.message;
@@ -102,10 +100,9 @@ export class SingleProductComponent implements OnInit {
 
   improveTopicInfo() {
     this.isGettingTopicInfo = true;
-    this.ngUnsubscribe = new Subject();
     this.functionService.getImprovedInfo(
       this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelTopic, this.maxTokensTopic
-    ).pipe(takeUntil(this.ngUnsubscribe))
+    )
       .subscribe((response) => {
         this.isGettingTopicInfo = false;
         this.topicInfos = response.message;
@@ -116,18 +113,17 @@ export class SingleProductComponent implements OnInit {
   }
   getTitle() {
     this.isGettingTitle = true;
-    this.ngUnsubscribe = new Subject();
     this.functionService.getTitle(
       this.topicTitle, this.language, this.writing_style, this.writing_tone, this.modelTitle, this.maxTokensTitle
-    ).pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe((response) => {
-      this.isGettingTitle = false;
-      this.titleResponse = response.message;
-      this.analyzeSeoTitle(this.titleResponse);
-    }, (error) => {
-      this.isGettingTitle = false;
-      this.showError(error.error.message);
-    });
+    )
+      .subscribe((response) => {
+        this.isGettingTitle = false;
+        this.titleResponse = response.message;
+        this.analyzeSeoTitle(this.titleResponse);
+      }, (error) => {
+        this.isGettingTitle = false;
+        this.showError(error.error.message);
+      });
   }
   async getAndOptimizeIntroduction() {
     this.isGettingIntroduction = true;
@@ -147,40 +143,38 @@ export class SingleProductComponent implements OnInit {
         console.log('Fetch aborted');
       } else {
         console.error("Used introduction with a less-than-satisfactory SEO score after retries.");
-        this.showError(error.message);
+        this.showError(error.error.message);
       }
     } finally {
       this.isGettingIntroduction = false;
     }
-}
+  }
 
   getSections() {
     this.isGettingSections = true;
-    this.ngUnsubscribe = new Subject();
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
-
     this.functionService.getSections(
       this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections
-    ).pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe((response) => {
-      this.isGettingSections = false;
+    )
+      .subscribe((response) => {
+        this.isGettingSections = false;
 
-      let sections = response.message.split('</h2>');
-      sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
-      const keywordSectionsCount = Math.floor((sections.length - 4) * keywordInsertionRate); // Escludi i primi tre e l'ultimo
+        let sections = response.message.split('</h2>');
+        sections = sections.slice(0, -1); // Rimuovi l'ultimo elemento vuoto
+        const keywordSectionsCount = Math.floor((sections.length - 4) * keywordInsertionRate); // Escludi i primi tre e l'ultimo
 
-      const interval = Math.floor((sections.length - 4) / keywordSectionsCount);
-      for (let i = 0; i < keywordSectionsCount; i++) {
-        const index = 3 + i * interval;
-        sections[index] = sections[index].replace('<h2>', `<h2>${this.topicKeyword}: `);
-      }
+        const interval = Math.floor((sections.length - 4) / keywordSectionsCount);
+        for (let i = 0; i < keywordSectionsCount; i++) {
+          const index = 3 + i * interval;
+          sections[index] = sections[index].replace('<h2>', `<h2>${this.topicKeyword}: `);
+        }
 
-      this.analyzeSeoSections(sections);
-      this.sectionsResponse = sections.join('</h2>') + '</h2>';
-    }, (error) => {
-      this.isGettingSections = false;
-      this.showError(error.error.message);
-    });
+        this.analyzeSeoSections(sections);
+        this.sectionsResponse = sections.join('</h2>') + '</h2>';
+      }, (error) => {
+        this.isGettingSections = false;
+        this.showError(error.error.message);
+      });
   }
   getContent() {
     this.isGettingContent = true;
@@ -193,6 +187,7 @@ export class SingleProductComponent implements OnInit {
       this.analyzeSeoContent(this.contentResponse);
     }, (error) => {
       this.isGettingContent = false;
+      this.showError(error.error.message);
     });
   }
   async getCompleteArticle() {
@@ -212,8 +207,8 @@ export class SingleProductComponent implements OnInit {
     try {
       this.showSuccess(await this.functionService.publishArticleOnWP(this.isGettingCompleteArticle, this.completeArticleResponse, this.titleResponse, this.wpService));
     } catch (error: any) {
-      this.showError(error.error.message);
       console.error(error);
+      this.showError(error);
     }
   }
   wordsCount: number = 0

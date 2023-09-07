@@ -362,7 +362,7 @@ export class BulkSingleProductComponent implements OnInit {
 
   stopProcess() {
     if (confirm('Sei sicuro di voler fermare il processo e tornare indietro?')) {
-      window.location.reload();
+      this.openAIService.abortRequests();
     }
   }
 
@@ -454,8 +454,8 @@ export class BulkSingleProductComponent implements OnInit {
     } catch (e: any) {
       this.formatExcelNotValid = true;
       this.showOverlay = false;
-      console.error(e.message);
-      this.formatExcelNotValidMessage = e.message;
+      console.error(e);
+      this.formatExcelNotValidMessage = e;
       this.notificationService.showNotification("An error occured during article generation. Please try again.");
     }
   }

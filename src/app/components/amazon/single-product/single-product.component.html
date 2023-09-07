@@ -60,7 +60,9 @@
              <span class="spinner-grow spinner-grow-sm" *ngIf="isGettingTitle" role="status" aria-hidden="true"></span>
              Generate Title
            </button>
-
+           <button class="btn btn-secondary mb-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingTitle">
+            <i class="fas fa-stop"></i>
+          </button>
            <textarea class="form-control" rows="4" [(ngModel)]="titleResponse"></textarea>
          </div>
        </div>
@@ -82,6 +84,9 @@
                aria-hidden="true"></span>
              Generate Introduction
            </button>
+           <button class="btn btn-secondary  mb-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingIntroduction">
+            <i class="fas fa-stop"></i>
+          </button>
 
            <textarea class="form-control" rows="4" [(ngModel)]="introductionResponse"></textarea>
          </div>
@@ -96,6 +101,7 @@
           data-mdb-target="#exampleModal">
           <i class="fas fa-sliders"></i>
         </button>
+
          </div>
          <div class="card-body">
            <button class="btn btn-secondary mb-3 btn-sm" (click)="getSections()" [disabled]="isGettingSections">
@@ -103,6 +109,9 @@
                aria-hidden="true"></span>
              Generate Sections
            </button>
+           <button class="btn btn-secondary  mb-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingSections">
+            <i class="fas fa-stop"></i>
+          </button>
            <textarea class="form-control" rows="4" [(ngModel)]="sectionsResponse"></textarea>
          </div>
        </div>
@@ -124,6 +133,9 @@
                aria-hidden="true"></span>
              Generate Content
            </button>
+           <button class="btn btn-secondary  mb-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isGettingContent">
+            <i class="fas fa-stop"></i>
+          </button>
            <textarea class="form-control" rows="4" [(ngModel)]="contentResponse"></textarea>
          </div>
        </div>
