@@ -51,7 +51,7 @@
        <div class="card my-2" (click)="currentStep(1)">
          <div class="card-header bg-primary text-white">Title
           <button type="button" class="btn btn-secondary btn-sm shadow btn-sm mx-3" data-mdb-toggle="modal"
-          data-mdb-target="#exampleModal">
+          data-mdb-target="#exampleModal" (click)="loadDefaultData()">
           <i class="fas fa-sliders"></i>
         </button>
          </div>
@@ -223,7 +223,6 @@
                </button>
              </div>
            </div>
-
          </div>
 
          <div class="mb-3">
@@ -241,6 +240,31 @@
            </div>
          </div>
 
+         <div class ="mb-3">
+          <div class ="mb-3">
+            <label class="form-label">Prompt:</label>
+            <div class="row">
+              <div class="col-11">
+                <h6>Language</h6>
+                <select class="form-control mb-2" [(ngModel)]="selectedLanguage" (change)="addValueDefaultTitle()">
+                  <option value="english">English</option>
+                  <option value="french">French</option>
+                  <option value="deutsch">German</option>
+                  <option value="espanol">Spanish</option>
+                  <option value="italiano">Italiano</option>
+                </select>
+
+                <textarea type="number" class="form-control" id="textArea" [ngModel]="getPromptValue()"
+                  (ngModelChange)="setPromptValue($event)">
+                </textarea>
+              </div>
+              <div class="col-1 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-primary btn-sm"  (click)="setDefaultPromptValue()">
+                 <i class="fas fa-arrow-rotate-left"></i>
+               </button>
+              </div>
+            </div>
+           </div>
        </div>
        <div class="modal-footer">
          <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">Save</button>

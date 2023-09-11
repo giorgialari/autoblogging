@@ -30,6 +30,8 @@ export class SingleProductComponent implements OnInit {
   L'accensione piezoelettrica assicura che l’accensione del BBQ sia semplice e rapida e un termometro integrato nel coperchio facilita la cottura ottima del cibo.`;
   topicKeyword = 'Brigros - Barbecue a gas';
   topicASIN = 'B08Y59NM8V';
+
+
   writing_tone = 'informale';
   writing_style = 'blog post';
   language = 'Italiano';
@@ -44,6 +46,10 @@ export class SingleProductComponent implements OnInit {
   stepperOrientation!: Observable<StepperOrientation>;
   titleInfoArray: any[] = []
   qtyParagraphs = 10;
+  titlePrompt = ''
+  introductionPrompt = ''
+  sectionsPrompt = ''
+  contentPrompt = ''
 
   ngOnInit(): void { }
   constructor(private openAIService: OpenAIService,
@@ -55,8 +61,9 @@ export class SingleProductComponent implements OnInit {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
-
   }
+
+
   showSuccess(success: string) {
     Swal.fire({
       icon: 'success',
@@ -72,7 +79,7 @@ export class SingleProductComponent implements OnInit {
     });
   }
   stopRequest() {
-   this.openAIService.abortRequests();
+    this.openAIService.abortRequests();
     this.isGettingTopicTitle = false;
     this.isGettingTopicInfo = false;
     this.isGettingTitle = false;
@@ -340,6 +347,69 @@ export class SingleProductComponent implements OnInit {
   setDefaultQtyParagraphs() {
     this.qtyParagraphs = 10;
   }
+
+  getPromptValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        return this.titlePrompt;
+      case 2:
+        return this.introductionPrompt;
+      case 3:
+        return this.sectionsPrompt;
+      case 4:
+        return this.contentPrompt;
+      default:
+        return null;
+    }
+  }
+  setPromptValue(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.titlePrompt = value;
+        break;
+      case 2:
+        this.introductionPrompt = value;
+        break;
+      case 3:
+        this.sectionsPrompt = value;
+        break;
+      case 4:
+        this.contentPrompt = value;
+        break;
+    }
+  }
+
+  setDefaultPromptValue() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.titlePrompt = this.addValueDefaultTitle();
+        break;
+      case 2:
+        this.introductionPrompt = '';
+        break;
+      case 3:
+        this.sectionsPrompt = '';
+        break;
+      case 4:
+        this.contentPrompt = '';
+        break;
+    }
+  }
+
+  //*************ADD VALUE DEFAULT DURING MODAL OPEN *******************//
+  selectedLanguage: string = 'italiano';
+  loadDefaultData() {
+    this.addValueDefaultTitle();
+  }
+  addValueDefaultTitle(): string {
+    let value = this.functionService.getDefaultTitlePrompt()
+      .replace("[TOPIC]", this.topicTitle)
+      .replace("[LANGUAGE]", this.selectedLanguage)
+      .replace("[STYLE]", 'blog post')
+      .replace("[TONE]", 'informale');
+    return this.titlePrompt = value;
+  }
+
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;
   maxIntroductionScore = 30;

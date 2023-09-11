@@ -8,6 +8,56 @@ import { SeoAnalyzerService } from '../seoAnalyzer/seoanalyzer.service';
   providedIn: 'root'
 })
 export class FunctionsService {
+  topicTitle = ''
+  language = ''
+  writing_style = ''
+  writing_tone = ''
+  topicInfos = ''
+  quantityParagraphs = 0
+
+
+  defaultImprovedTopicPrompt = `Migliora il contenuto di questo titolo ${this.topicTitle} in ${this.language}. Stile: ${this.writing_style}. Tono: ${this.writing_tone}.
+   Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete.
+   Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali.
+   Deve essere impersonale e deve contenere solo le informazioni essenziali.`
+
+  defaultImprovedInfoPrompt = `Migliora il contenuto di questo testo ${this.topicInfos} in ${this.language}. Stile: ${this.writing_style}. Tono: ${this.writing_tone}.
+  Deve essere massimo 500 caratteri. Deve contenere solo informazioni essenziali e non può contenere frasi incomplete. Non deve contenere icone, emoji o caratteri speciali.
+  Deve essere impersonale e deve essere strutturato come elenco numerato.`
+
+  getDefaultTitlePrompt(): string {
+    return "Scrivi un titolo per un post del blog su [TOPIC] in [LANGUAGE]. "
+         + "Stile: [STYLE]. Tono: [TONE]. "
+         + "Deve essere compreso tra 40 e 60 caratteri. Deve essere una frase completa e breve. "
+         + "Deve essere un titolo per la recensione di un post sul blog e deve contenere \"Recensione\" e "
+         + "deve essere avvolto da un tag <h1>. Ad esempio: <h1>Recensione del film Avengers: Endgame</h1>";
+}
+
+
+
+
+  defaultIntroductionPrompt = `Scrivi una introduzione per un post del blog su ${this.topicTitle} in ${this.language}. Stile: ${this.writing_style}. Tono: ${this.writing_tone}.
+  Non possono esserci frasi incomplete. Deve invogliare il lettore ad approfondire l argomento e a leggere la recensione del prodotto,
+  non deve spingere all acquisto ma dare una idea degli argomenti trattati nell articolo. Il testo deve contenere al massimo 70 parole,
+  parla al lettore al singolare, non svelare troppe informazioni sul prodotto.`
+
+  defaultSectionsPrompt = `Genera ${this.quantityParagraphs} titoli di sezioni per un articolo su ${this.topicTitle} in ${this.language}. Stile: ${this.writing_style}. Tono: ${this.writing_tone}
+  I primi tre titoli devono essere "Caratteristiche del prodotto", "Rapporto qualità prezzo", "Pro e contro". Dopo questi, generare ulteriori titoli di sezione a tua scelta,
+  ognuno dei quali deve essere breve (60-80 caratteri). Alla fine di tutte le sezioni, aggiungi la sezione "Conclusioni". I titoli delle sezioni devono essere avvolti nel tag h2.
+  Esempio di risposta ideale:
+  <h2>Caratteristiche del prodotto</h2>
+  <h2>Rapporto qualità prezzo</h2>
+  <h2>Pro e contro</h2>
+  ...Altre sezioni...
+  <h2>Conclusioni</h2>`
+
+  defaultContentPrompt = `Scrivi un articolo su ${this.topicTitle} in ${this.language} L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>:
+  Caratteristiche del prodotto, Rapporto qualità prezzo, Pro e contro, ...Altre sezioni..., Conclusioni.
+  Ogni sezione deve avere 3 paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.
+  Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.
+  Basati sulle informazioni seguenti: ${this.topicInfos} Stile: ${this.writing_style}. Tono: ${this.writing_tone} Deve essere compreso di almeno 950 parole.
+  Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1.
+  Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.`
 
   constructor(private openAIService: OpenAIService, private wpService: WpService, private seoAnalyService: SeoAnalyzerService) { }
 
