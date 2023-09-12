@@ -43,3 +43,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .shadow {
   box-shadow: 2px 2px 2px rgba(55,94,148,.2), 2px 2px 2px rgba(255,255,255,.4) !important;
 }
+
+/* Personalizzazione generale della barra di scorrimento */
+::-webkit-scrollbar {
+  width: 5px; /* Larghezza della barra di scorrimento */
+  height: 10px;
+}
+
+/* Stile del track (la barra di scorrimento stessa) */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Colore di sfondo */
+  border-radius: 10px; /* Arrotondamento degli angoli */
+}
+
+/* Stile del thumb (la parte mobile della barra di scorrimento) */
+::-webkit-scrollbar-thumb {
+  background: #888; /* Colore di sfondo */
+  border-radius: 10px; /* Arrotondamento degli angoli */
+}
+
+/* Stile del thumb al passaggio del mouse */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Colore di sfondo al passaggio del mouse */
+}
+
+/* Per Firefox, a partire dalla versione 64 */
+* {
+  scrollbar-width: thin; /* spessore della barra di scorrimento */
+  scrollbar-color: #888 #f1f1f1; /* colore thumb e track */
+}
