@@ -57,11 +57,11 @@ export class FunctionsService {
   }
 
   getDefaultContentPrompt(): string {
-    return "Scrivi un articolo su [TOPIC] in lingua [LANGUAGE]. L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: " +
+    return "Scrivi un articolo su [TOPIC] in lingua [LANGUAGE]. Stile: [STYLE]. Tono: [TONE]. L articolo è organizzato secondo i seguenti titoli avvolti nei tag <h2></h2>: " +
       " [SECTIONS] \n" +
       "Ogni sezione deve avere [PARPERSECTIONS] paragrafi, ognuno con contenuti unici e non ripetitivi. Ogni sezione inizia con l'intestazione corrispondente.\n" +
       "Per favorire la SEO, utilizza le parole chiave in modo naturale e vario, evitando il keyword stuffing.\n" +
-      "Basati sulle informazioni seguenti: [TOPIC_INFOS] Stile: [STYLE]. Tono: [TONE] Deve essere compreso di almeno 950 parole.\n" +
+      "Basati sulle informazioni seguenti: [TOPIC_INFOS]. Deve essere compreso di almeno 950 parole.\n" +
       "Deve essere un articolo completo. Deve essere una recensione di un prodotto. Non devono esserci frasi incomplete. Non ripetere il titolo h1.\n" +
       "Ogni sezione deve iniziare con la sua intestazione h2 corrispondente. La prima riga di ogni paragrafo deve essere diversa da quella degli altri paragrafi.";
   }

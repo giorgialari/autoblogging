@@ -91,8 +91,13 @@ export class SingleProductComponent implements OnInit {
   }
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
+    let finalPrompt = this.improveTitlePrompt
+      .replace('[TOPIC]', this.topicTitle)
+      .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
+      .replace('[STYLE]', this.selectedStyleImproveTOPIC)
+      .replace('[TONE]', this.selectedToneImproveTOPIC);
     this.functionService.getImprovedTopic(
-     this.improveTitlePrompt,
+      finalPrompt,
       this.modelTopic,
       this.maxTokensTopic
     )
@@ -107,8 +112,13 @@ export class SingleProductComponent implements OnInit {
 
   improveTopicInfo() {
     this.isGettingTopicInfo = true;
+    let finalPrompt = this.improveInfoPrompt
+    .replace('[INFOS]', this.topicInfos)
+    .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
+    .replace('[STYLE]', this.selectedStyleImproveTOPIC)
+    .replace('[TONE]', this.selectedToneImproveTOPIC);
     this.functionService.getImprovedInfo(
-     this.improveInfoPrompt, this.modelTopic, this.maxTokensTopic
+      finalPrompt, this.modelTopic, this.maxTokensTopic
     )
       .subscribe((response) => {
         this.isGettingTopicInfo = false;
@@ -118,10 +128,16 @@ export class SingleProductComponent implements OnInit {
         this.showError(error.error.message);
       });
   }
+
   getTitle() {
     this.isGettingTitle = true;
+    let finalPrompt = this.titlePrompt
+    .replace('[TOPIC]', this.topicTitle)
+    .replace('[LANGUAGE]', this.selectedLanguage)
+    .replace('[STYLE]', this.selectedStyle)
+    .replace('[TONE]', this.selectedTone);
     this.functionService.getTitle(
-      this.titlePrompt, this.modelTitle, this.maxTokensTitle
+      finalPrompt, this.modelTitle, this.maxTokensTitle
     )
       .subscribe((response) => {
         this.isGettingTitle = false;
@@ -133,11 +149,17 @@ export class SingleProductComponent implements OnInit {
         this.showError(error.error.message);
       });
   }
+
   async getAndOptimizeIntroduction() {
     this.isGettingIntroduction = true;
+    let finalPrompt = this.introductionPrompt
+    .replace('[TOPIC]', this.titleResponse)
+    .replace('[LANGUAGE]', this.selectedLanguage)
+    .replace('[STYLE]', this.selectedStyle)
+    .replace('[TONE]', this.selectedTone);
     try {
       this.introductionResponse = await this.functionService.getOptimizedIntroduction(
-        this.introductionPrompt,
+        finalPrompt,
         this.modelIntroduction,
         this.maxTokensIntroduction,
         this.topicKeyword,
@@ -157,9 +179,15 @@ export class SingleProductComponent implements OnInit {
 
   getSections() {
     this.isGettingSections = true;
+    let finalPrompt = this.sectionsPrompt
+    .replace('[QUANTITY]', this.qtyParagraphs.toString())
+    .replace('[TOPIC]', this.titleResponse)
+    .replace('[LANGUAGE]', this.selectedLanguage)
+    .replace('[STYLE]', this.selectedStyle)
+    .replace('[TONE]', this.selectedTone);
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     this.functionService.getSections(
-      this.sectionsPrompt,
+      finalPrompt,
       this.modelSections,
       this.maxTokensSections,
     )
@@ -186,9 +214,18 @@ export class SingleProductComponent implements OnInit {
   }
   getContent() {
     this.isGettingContent = true;
-
+    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
+    const sectionsString = sections.join(', \n ');
+    let finalPrompt = this.contentPrompt
+    .replace('[TOPIC]', this.titleResponse)
+    .replace('[LANGUAGE]', this.selectedLanguage)
+    .replace('[SECTIONS]', sectionsString)
+    .replace('[TOPIC_INFOS]', this.topicInfos)
+    .replace('PARPERSECTIONS', '3')
+    .replace('[STYLE]', this.selectedStyle)
+    .replace('[TONE]', this.selectedTone);
     this.functionService.getContent(
-      this.contentPrompt, this.modelContent, this.maxTokensContent
+      finalPrompt, this.modelContent, this.maxTokensContent
     ).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
@@ -442,48 +479,25 @@ export class SingleProductComponent implements OnInit {
 
   addValueDefaultTitle(): string {
     let value = this.functionService.getDefaultTitlePrompt()
-      .replace('[TOPIC]', this.topicTitle)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
     return this.titlePrompt = value;
   }
 
   addDefaulIntroduction() {
     let value = this.functionService.getDefaultIntroductionPrompt()
-      .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
     return this.introductionPrompt = value;
   }
 
   addDefaultSections() {
     let value = this.functionService.getDefaultSectionsPrompt()
-      .replace('[QUANTITY]', this.qtyParagraphs.toString())
-      .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
     return this.sectionsPrompt = value;
   }
 
   addDefaultContent() {
-    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
-    const sectionsString = sections.join(', \n ');
     let value = this.functionService.getDefaultContentPrompt()
-      .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[SECTIONS]', sectionsString)
-      .replace('[TOPIC_INFOS]', this.topicInfos)
-      .replace('PARPERSECTIONS', '3')
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
     return this.contentPrompt = value;
   }
 
-
-  //########### IMPROVE TITLE #############//
+  //########### IMPROVE TOPIC #############//
   selectedLanguageImproveTOPIC: string = 'italiano';
   selectedStyleImproveTOPIC: string = 'blog post';
   selectedToneImproveTOPIC: string = 'informal';
@@ -493,18 +507,10 @@ export class SingleProductComponent implements OnInit {
 
   addDefaultImproveTitle() {
     let value = this.functionService.getDefaultImproveTitlePrompt()
-      .replace('[TOPIC]', this.topicTitle)
-      .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
-      .replace('[STYLE]', this.selectedStyleImproveTOPIC)
-      .replace('[TONE]', this.selectedToneImproveTOPIC);
     return this.improveTitlePrompt = value;
   }
   addDefaultImproveInfo() {
     let value = this.functionService.getDefaultImproveInfoPrompt()
-      .replace('[INFOS]', this.topicInfos)
-      .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
-      .replace('[STYLE]', this.selectedStyleImproveTOPIC)
-      .replace('[TONE]', this.selectedToneImproveTOPIC);
     return this.improveInfoPrompt = value;
   }
   useCorrectDefaultPromptImproveTOPIC() {
