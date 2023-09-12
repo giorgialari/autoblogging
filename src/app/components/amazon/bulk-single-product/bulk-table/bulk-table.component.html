@@ -1,0 +1,63 @@
+<div>
+  <table class="text-center w-100">
+    <thead>
+      <th>Title</th>
+      <th>Infos</th>
+      <th>ASIN</th>
+      <th>Keyword</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of inputProducts; let i = index">
+        <td class="px-1">
+          <input type="text" class="form-control" [(ngModel)]="product.title" />
+        </td>
+        <td class="px-1">
+          <input type="text" class="form-control" [(ngModel)]="product.infos" />
+        </td>
+        <td class="px-1">
+          <input type="text" class="form-control" [(ngModel)]="product.asin" />
+        </td>
+        <td class="px-1">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="product.keyword"
+          />
+        </td>
+        <td class="d-flex ms-2">
+          <button
+            *ngIf="i == inputProducts.length - 1"
+            type="button"
+            class="btn btn-secondary  btn-sm me-2"
+            [disabled]="
+              product.title == '' ||
+              product.infos == '' ||
+              product.asin == '' ||
+              product.keyword == ''
+            "
+            (click)="addToInfoProducts()"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
+          <button
+            *ngIf="i != inputProducts.length - 1 || inputProducts.length > 1"
+            type="button"
+            class="btn btn-secondary  btn-sm"
+            (click)="removeToInfoProducts(i)"
+          >
+            <i class="fas fa-minus"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button
+    [disabled]="shouldDisableButton()"
+    type="button"
+    class="btn btn-secondary  btn-sm me-2 my-2"
+    (click)="process()"
+  >
+    Process
+  </button>
+</div>

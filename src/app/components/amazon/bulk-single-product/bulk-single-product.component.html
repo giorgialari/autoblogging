@@ -13,7 +13,13 @@
     </div>
     <div class="card-body">
       <div class="form-group">
-        <div class="form-group">
+        <div>
+          <app-bulk-table
+            (productsBulkEmit)="getProductsEmitted($event)"
+          ></app-bulk-table>
+        </div>
+
+        <div class="my-4">
           <div class="d-flex align-items-center">
             <div class="my-2">
               <label for="topicInput" style="margin-right: 5px"
@@ -27,9 +33,8 @@
               </div>
             </div>
           </div>
-          <!-- <input type="file" (change)="onFileChange($event)" /> -->
           <label class="btn btn-primary btn-sm">
-            Carica File
+            Upload File
             <input
               type="file"
               (change)="onFileChange($event)"
@@ -42,33 +47,35 @@
           >
         </div>
 
-        <div class="d-flex align-items-center">
-          <div class="my-2">
-            <label for="topicInput" style="margin-right: 5px"
-              >Insert Json here:
-            </label>
-            <a href="assets/example-files/JSON_Info.pdf" target="_blank"
-              >Download valid example (PDF)</a
-            >
-            <div class="text-danger my-1" *ngIf="formatJsonNotValid">
-              {{ formatJsonNotValidMessage }}
+        <div>
+          <div class="d-flex align-items-center">
+            <div class="my-2">
+              <label for="topicInput" style="margin-right: 5px"
+                >Insert Json here:
+              </label>
+              <a href="assets/example-files/JSON_Info.pdf" target="_blank"
+                >Download valid example (PDF)</a
+              >
+              <div class="text-danger my-1" *ngIf="formatJsonNotValid">
+                {{ formatJsonNotValidMessage }}
+              </div>
             </div>
           </div>
+          <textarea
+            #textareaproducts
+            type="text"
+            class="form-control"
+            id="topicInfos"
+            [(ngModel)]="listProducts"
+          ></textarea>
+          <button
+            class="btn btn-secondary my-3 btn-sm"
+            (click)="processAll()"
+            [disabled]="!listProducts"
+          >
+            Process
+          </button>
         </div>
-        <textarea
-          #textareaproducts
-          type="text"
-          class="form-control"
-          id="topicInfos"
-          [(ngModel)]="listProducts"
-        ></textarea>
-        <button
-          class="btn btn-secondary my-3 btn-sm"
-          (click)="processAll()"
-          [disabled]="!listProducts"
-        >
-          Process
-        </button>
       </div>
     </div>
   </div>
@@ -103,7 +110,7 @@
   aria-labelledby="exampleModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog  modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">

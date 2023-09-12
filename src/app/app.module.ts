@@ -20,6 +20,7 @@ import { BulkSingleProductComponent } from './components/amazon/bulk-single-prod
 import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { AmazonComponent } from './components/amazon/amazon.component';
+import { BulkTableComponent } from './components/amazon/bulk-single-product/bulk-table/bulk-table.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { AmazonComponent } from './components/amazon/amazon.component';
     EditorComponent,
     BulkSingleProductComponent,
     SettingsComponent,
-    AmazonComponent
+    AmazonComponent,
+    BulkTableComponent
   ],
   imports: [
     BrowserAnimationsModule,

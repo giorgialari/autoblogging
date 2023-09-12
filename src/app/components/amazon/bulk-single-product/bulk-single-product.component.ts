@@ -456,9 +456,9 @@ export class BulkSingleProductComponent implements OnInit {
         if (this.hasError) {
           throw new Error('Error while processing product');
         }
-        this.currentArticleNumber = `Articolo ${index + 1}/${totalProducts}`;
+        this.currentArticleNumber = `Article ${index + 1}/${totalProducts}`;
         // Assigning the properties to your class or object's instance variables
-        this.topicTitle = item.Title; // Make sure the Excel file has these headers
+        this.topicTitle = item.Title;
         this.topicInfos = item.Infos;
         this.topicASIN = item.ASIN.replace(/\u200E/g, "");
         this.topicKeyword = item.Keyword;
@@ -495,6 +495,46 @@ export class BulkSingleProductComponent implements OnInit {
       typeof item.Keyword === 'string';
   }
 
+  //*** PROCESS ALL BY DATA INSERT BY USER  ******//
+  async getProductsEmitted(products: any[]) {
+    try {
+      const totalProducts = products.length;
+      this.showOverlay = true;
+
+      for (const [index, item] of products.entries()) {
+        if (this.hasError) {
+          throw new Error('Error while processing product');
+        }
+        this.currentArticleNumber = `Article ${index + 1}/${totalProducts}`;
+        // Assigning the properties to your class or object's instance variables
+        this.topicTitle = item.title; //
+        this.topicInfos = item.infos;
+        this.topicASIN = item.asin;
+        this.topicKeyword = item.keyword;
+
+        // Call the functions in the required order
+        this.statusMessage = ' I\'m creating the title';
+        await this.getTitle();
+        this.statusMessage = ' I\'m creating the introduction';
+        await this.getAndOptimizeIntroduction();
+        this.statusMessage = ' I\'m creating the sections';
+        await this.getSections();
+        this.statusMessage = ' I\'m creating the content';
+        await this.getContent();
+
+        if (index === totalProducts - 1) {
+          this.statusMessage = ' All articles have been published successfully!';
+          this.showOverlay = false; // Nasconde l'overlay e lo spinner
+          this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
+        }
+      }
+    } catch (e: any) {
+      this.showOverlay = false;
+      console.error(e);
+      this.formatExcelNotValidMessage = e;
+      this.notificationService.showNotification("An error occured during article generation. Please try again.");
+    }
+  }
 
   //****** PROMPT SECTIONS ******/
   improveTitlePrompt: string = '';
@@ -540,7 +580,6 @@ export class BulkSingleProductComponent implements OnInit {
     let value = this.functionService.getDefaultContentPrompt()
     return this.contentPrompt = value;
   }
-
 
   getPromptValueTitle() {
     return this.titlePrompt;
