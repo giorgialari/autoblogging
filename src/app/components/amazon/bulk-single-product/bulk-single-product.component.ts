@@ -60,7 +60,7 @@ export class BulkSingleProductComponent implements OnInit {
     this.isGettingTopicTitle = true;
     try {
       const response = await this.functionService.getImprovedTopic(
-        this.topicTitle, this.language, this.writing_style, this.writing_tone, this.modelTitle, this.maxTokensTitle
+      '', this.modelTitle, this.maxTokensTitle
       ).toPromise();
       this.isGettingTopicTitle = false;
       this.topicTitle = response.message;
@@ -74,7 +74,7 @@ export class BulkSingleProductComponent implements OnInit {
     this.isGettingTopicInfo = true;
     try {
       const response = await this.functionService.getImprovedInfo(
-        this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelTitle, this.maxTokensTitle
+        '', this.modelTitle, this.maxTokensTitle
       ).toPromise();
       this.isGettingTopicInfo = false;
       this.topicInfos = response.message;
@@ -88,7 +88,7 @@ export class BulkSingleProductComponent implements OnInit {
     this.isGettingTitle = true;
     try {
       const response = await this.functionService.getTitle(
-        this.topicTitle, this.language, this.writing_style, this.writing_tone, this.modelTitle, this.maxTokensTitle
+       '', this.modelTitle, this.maxTokensTitle
       ).toPromise();
       this.isGettingTitle = false;
       this.titleResponse = response.message;
@@ -106,11 +106,7 @@ export class BulkSingleProductComponent implements OnInit {
 
     try {
       this.introductionResponse = await this.functionService.getOptimizedIntroduction(
-        this.topicTitle,
-        this.topicInfos,
-        this.language,
-        this.writing_style,
-        this.writing_tone,
+        '',
         this.modelIntroduction,
         this.maxTokensIntroduction,
         this.topicKeyword
@@ -128,7 +124,7 @@ export class BulkSingleProductComponent implements OnInit {
 
     try {
       const response = await this.functionService.getSections(
-        this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections, this.qtyParagraphs
+        '', this.modelSections, this.maxTokensSections
       ).toPromise();
 
       this.isGettingSections = false;
@@ -157,7 +153,7 @@ export class BulkSingleProductComponent implements OnInit {
     this.isGettingContent = true;
     try {
       const response = await this.functionService.getContent(
-        this.titleResponse, this.language, this.sectionsResponse, this.topicInfos, this.writing_style, this.writing_tone, this.modelContent, this.maxTokensContent
+       '', this.modelContent, this.maxTokensContent
       ).toPromise();
       this.isGettingContent = false;
       this.contentResponse = response.message;

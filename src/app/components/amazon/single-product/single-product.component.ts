@@ -61,6 +61,8 @@ export class SingleProductComponent implements OnInit {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
+
+    this.loadDefaultData();
   }
 
 
@@ -90,10 +92,7 @@ export class SingleProductComponent implements OnInit {
   improveTopicTitle() {
     this.isGettingTopicTitle = true;
     this.functionService.getImprovedTopic(
-      this.topicTitle,
-      this.language,
-      this.writing_style,
-      this.writing_tone,
+     this.improveTitlePrompt,
       this.modelTopic,
       this.maxTokensTopic
     )
@@ -109,7 +108,7 @@ export class SingleProductComponent implements OnInit {
   improveTopicInfo() {
     this.isGettingTopicInfo = true;
     this.functionService.getImprovedInfo(
-      this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelTopic, this.maxTokensTopic
+     this.improveInfoPrompt, this.modelTopic, this.maxTokensTopic
     )
       .subscribe((response) => {
         this.isGettingTopicInfo = false;
@@ -122,11 +121,12 @@ export class SingleProductComponent implements OnInit {
   getTitle() {
     this.isGettingTitle = true;
     this.functionService.getTitle(
-      this.topicTitle, this.language, this.writing_style, this.writing_tone, this.modelTitle, this.maxTokensTitle
+      this.titlePrompt, this.modelTitle, this.maxTokensTitle
     )
       .subscribe((response) => {
         this.isGettingTitle = false;
         this.titleResponse = response.message;
+        this.addDefaulIntroduction();
         this.analyzeSeoTitle(this.titleResponse);
       }, (error) => {
         this.isGettingTitle = false;
@@ -137,15 +137,12 @@ export class SingleProductComponent implements OnInit {
     this.isGettingIntroduction = true;
     try {
       this.introductionResponse = await this.functionService.getOptimizedIntroduction(
-        this.topicTitle,
-        this.topicInfos,
-        this.language,
-        this.writing_style,
-        this.writing_tone,
+        this.introductionPrompt,
         this.modelIntroduction,
         this.maxTokensIntroduction,
         this.topicKeyword,
       );
+      this.addDefaultSections();
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Fetch aborted');
@@ -162,7 +159,9 @@ export class SingleProductComponent implements OnInit {
     this.isGettingSections = true;
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     this.functionService.getSections(
-      this.topicTitle, this.topicInfos, this.language, this.writing_style, this.writing_tone, this.modelSections, this.maxTokensSections, this.qtyParagraphs
+      this.sectionsPrompt,
+      this.modelSections,
+      this.maxTokensSections,
     )
       .subscribe((response) => {
         this.isGettingSections = false;
@@ -179,6 +178,7 @@ export class SingleProductComponent implements OnInit {
 
         this.analyzeSeoSections(sections);
         this.sectionsResponse = sections.join('</h2>') + '</h2>';
+        this.addDefaultContent();
       }, (error) => {
         this.isGettingSections = false;
         this.showError(error.error.message);
@@ -188,7 +188,7 @@ export class SingleProductComponent implements OnInit {
     this.isGettingContent = true;
 
     this.functionService.getContent(
-      this.titleResponse, this.language, this.sectionsResponse, this.topicInfos, this.writing_style, this.writing_tone, this.modelContent, this.maxTokensContent
+      this.contentPrompt, this.modelContent, this.maxTokensContent
     ).subscribe((response) => {
       this.isGettingContent = false;
       this.contentResponse = response.message;
@@ -379,37 +379,145 @@ export class SingleProductComponent implements OnInit {
     }
   }
 
+  getImprovementTitlePromptValue() {
+    return this.improveTitlePrompt;
+  }
+  setImprovementTitlePromptValue(value: string) {
+    this.improveTitlePrompt = value;
+  }
+
+  getImprovementINFOPromptValue() {
+    return this.improveInfoPrompt;
+  }
+  setImprovementtINFOPromptValue(value: string) {
+    this.improveInfoPrompt = value;
+  }
+
+
+  //*************ADD VALUE DEFAULT DURING MODAL OPEN *******************//
+  selectedLanguage: string = 'italiano';
+  selectedStyle: string = 'blog post';
+  selectedTone: string = 'informal';
+
   setDefaultPromptValue() {
     switch (this.currentStepValue) {
       case 1:
         this.titlePrompt = this.addValueDefaultTitle();
         break;
       case 2:
-        this.introductionPrompt = '';
+        this.introductionPrompt = this.addDefaulIntroduction();
         break;
       case 3:
-        this.sectionsPrompt = '';
+        this.sectionsPrompt = this.addDefaultSections();
         break;
       case 4:
-        this.contentPrompt = '';
+        this.contentPrompt = this.addDefaultContent();
+        break;
+    }
+  }
+  loadDefaultData() {
+    this.addValueDefaultTitle();
+    this.addDefaulIntroduction();
+    this.addDefaultSections();
+    this.addDefaultContent();
+    this.addDefaultImproveTitle();
+    this.addDefaultImproveInfo();
+  }
+  useCorrectDefaultPrompt() {
+    switch (this.currentStepValue) {
+      case 1:
+        this.titlePrompt = this.addValueDefaultTitle();
+        break;
+      case 2:
+        this.introductionPrompt = this.addDefaulIntroduction();
+        break;
+      case 3:
+        this.sectionsPrompt = this.addDefaultSections();
+        break;
+      case 4:
+        this.contentPrompt = this.addDefaultContent();
         break;
     }
   }
 
-  //*************ADD VALUE DEFAULT DURING MODAL OPEN *******************//
-  selectedLanguage: string = 'italiano';
-  loadDefaultData() {
-    this.addValueDefaultTitle();
-  }
   addValueDefaultTitle(): string {
     let value = this.functionService.getDefaultTitlePrompt()
-      .replace("[TOPIC]", this.topicTitle)
-      .replace("[LANGUAGE]", this.selectedLanguage)
-      .replace("[STYLE]", 'blog post')
-      .replace("[TONE]", 'informale');
+      .replace('[TOPIC]', this.topicTitle)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
     return this.titlePrompt = value;
   }
 
+  addDefaulIntroduction() {
+    let value = this.functionService.getDefaultIntroductionPrompt()
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
+    return this.introductionPrompt = value;
+  }
+
+  addDefaultSections() {
+    let value = this.functionService.getDefaultSectionsPrompt()
+      .replace('[QUANTITY]', this.qtyParagraphs.toString())
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
+    return this.sectionsPrompt = value;
+  }
+
+  addDefaultContent() {
+    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
+    const sectionsString = sections.join(', \n ');
+    let value = this.functionService.getDefaultContentPrompt()
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[SECTIONS]', sectionsString)
+      .replace('[TOPIC_INFOS]', this.topicInfos)
+      .replace('PARPERSECTIONS', '3')
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
+    return this.contentPrompt = value;
+  }
+
+
+  //########### IMPROVE TITLE #############//
+  selectedLanguageImproveTOPIC: string = 'italiano';
+  selectedStyleImproveTOPIC: string = 'blog post';
+  selectedToneImproveTOPIC: string = 'informal';
+
+  improveTitlePrompt = ''
+  improveInfoPrompt = ''
+
+  addDefaultImproveTitle() {
+    let value = this.functionService.getDefaultImproveTitlePrompt()
+      .replace('[TOPIC]', this.topicTitle)
+      .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
+      .replace('[STYLE]', this.selectedStyleImproveTOPIC)
+      .replace('[TONE]', this.selectedToneImproveTOPIC);
+    return this.improveTitlePrompt = value;
+  }
+  addDefaultImproveInfo() {
+    let value = this.functionService.getDefaultImproveInfoPrompt()
+      .replace('[INFOS]', this.topicInfos)
+      .replace('[LANGUAGE]', this.selectedLanguageImproveTOPIC)
+      .replace('[STYLE]', this.selectedStyleImproveTOPIC)
+      .replace('[TONE]', this.selectedToneImproveTOPIC);
+    return this.improveInfoPrompt = value;
+  }
+  useCorrectDefaultPromptImproveTOPIC() {
+    this.improveTitlePrompt = this.addDefaultImproveTitle();
+    this.improveInfoPrompt = this.addDefaultImproveInfo();
+  }
+  setDefaultPromptValueTITLE_TOPIC() {
+    this.improveTitlePrompt = this.addDefaultImproveTitle();
+  }
+
+  setDefaultPromptValueINFO_TOPIC() {
+    this.improveInfoPrompt = this.addDefaultImproveInfo();
+  }
   //*************SEO IMPROVMENT *******************//
   maxTitleScore = 30;
   maxIntroductionScore = 30;
