@@ -36,11 +36,16 @@ export class BulkSingleProductComponent implements OnInit {
   hasError = false;
   qtyParagraphs = 10;
 
-  ngOnInit(): void { }
+
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService, private functionService: FunctionsService, private seoAnalyzerService: SeoAnalyzerService) { }
+    private notificationService: NotificationService,
+    private functionService: FunctionsService,
+    private seoAnalyzerService: SeoAnalyzerService) { }
+  ngOnInit(): void {
+    this.loadDefaultData()
+  }
   showSuccess(success: string) {
     Swal.fire({
       icon: 'success',
@@ -56,46 +61,50 @@ export class BulkSingleProductComponent implements OnInit {
     });
   }
 
-  async improveTopicTitle() {
-    this.isGettingTopicTitle = true;
-    try {
-      const response = await this.functionService.getImprovedTopic(
-      '', this.modelTitle, this.maxTokensTitle
-      ).toPromise();
-      this.isGettingTopicTitle = false;
-      this.topicTitle = response.message;
-    } catch (error: any) {
-      this.isGettingTopicTitle = false;
-      this.showError(error.error.message)
-      console.error('There was an error getting the topic title:', error);
-    }
-  }
-  async improveTopicInfo() {
-    this.isGettingTopicInfo = true;
-    try {
-      const response = await this.functionService.getImprovedInfo(
-        '', this.modelTitle, this.maxTokensTitle
-      ).toPromise();
-      this.isGettingTopicInfo = false;
-      this.topicInfos = response.message;
-    } catch (error: any) {
-      this.isGettingTopicInfo = false;
-      this.showError(error.error.message);
-      console.error('There was an error getting the topic information:', error);
-    }
-  }
+  // async improveTopicTitle() {
+  //   this.isGettingTopicTitle = true;
+  //   try {
+  //     const response = await this.functionService.getImprovedTopic(
+  //       '', this.modelTitle, this.maxTokensTitle
+  //     ).toPromise();
+  //     this.isGettingTopicTitle = false;
+  //     this.topicTitle = response.message;
+  //   } catch (error: any) {
+  //     this.isGettingTopicTitle = false;
+  //     this.showError(error.error.message)
+  //     console.error('There was an error getting the topic title:', error);
+  //   }
+  // }
+  // async improveTopicInfo() {
+  //   this.isGettingTopicInfo = true;
+  //   try {
+  //     const response = await this.functionService.getImprovedInfo(
+  //       '', this.modelTitle, this.maxTokensTitle
+  //     ).toPromise();
+  //     this.isGettingTopicInfo = false;
+  //     this.topicInfos = response.message;
+  //   } catch (error: any) {
+  //     this.isGettingTopicInfo = false;
+  //     this.showError(error.error.message);
+  //     console.error('There was an error getting the topic information:', error);
+  //   }
+  // }
   async getTitle() {
     this.isGettingTitle = true;
+    let finalPrompt = this.titlePrompt
+      .replace('[TOPIC]', this.topicTitle)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
     try {
       const response = await this.functionService.getTitle(
-       '', this.modelTitle, this.maxTokensTitle
+        finalPrompt, this.modelTitle, this.maxTokensTitle
       ).toPromise();
       this.isGettingTitle = false;
       this.titleResponse = response.message;
       this.analyzeSeoTitle(this.titleResponse);
     } catch (error: any) {
       this.isGettingTitle = false;
-      console.error('There was an error getting the title:', error);
       this.showError(error.error.message);
       this.hasError = true;
       throw new Error('Failed to get title');
@@ -103,28 +112,38 @@ export class BulkSingleProductComponent implements OnInit {
   }
   async getAndOptimizeIntroduction() {
     this.isGettingIntroduction = true;
-
+    let finalPrompt = this.introductionPrompt
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
     try {
       this.introductionResponse = await this.functionService.getOptimizedIntroduction(
-        '',
+        finalPrompt,
         this.modelIntroduction,
         this.maxTokensIntroduction,
         this.topicKeyword
       );
     } catch (error: any) {
-      console.error("Used introduction with a less-than-satisfactory SEO score after retries.");
       this.showError(error.message);
+      throw new Error('Failed to get introduction');
+
     } finally {
       this.isGettingIntroduction = false;
     }
   }
   async getSections() {
     this.isGettingSections = true;
+    let finalPrompt = this.sectionsPrompt
+      .replace('[QUANTITY]', this.qtyParagraphs.toString())
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
-
     try {
       const response = await this.functionService.getSections(
-        '', this.modelSections, this.maxTokensSections
+        finalPrompt, this.modelSections, this.maxTokensSections
       ).toPromise();
 
       this.isGettingSections = false;
@@ -143,17 +162,27 @@ export class BulkSingleProductComponent implements OnInit {
       this.sectionsResponse = sections.join('</h2>') + '</h2>';
     } catch (error: any) {
       this.isGettingSections = false;
-      console.error('There was an error getting the sections:', error);
       this.showError(error.error.message);
       this.hasError = true;
+      throw new Error('Failed to get sections');
     }
 
   }
   async getContent() {
     this.isGettingContent = true;
+    const sections = this.sectionsResponse.split('\n').map(section => section.replace('<h2>', '').replace('</h2>', ''));
+    const sectionsString = sections.join(', \n ');
+    let finalPrompt = this.contentPrompt
+      .replace('[TOPIC]', this.titleResponse)
+      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[SECTIONS]', sectionsString)
+      .replace('[TOPIC_INFOS]', this.topicInfos)
+      .replace('PARPERSECTIONS', '3')
+      .replace('[STYLE]', this.selectedStyle)
+      .replace('[TONE]', this.selectedTone);
     try {
       const response = await this.functionService.getContent(
-       '', this.modelContent, this.maxTokensContent
+        finalPrompt, this.modelContent, this.maxTokensContent
       ).toPromise();
       this.isGettingContent = false;
       this.contentResponse = response.message;
@@ -161,10 +190,9 @@ export class BulkSingleProductComponent implements OnInit {
       this.getCompleteArticle();
     } catch (error) {
       this.isGettingContent = false;
-      console.error('There was an error getting the content:', error);
-      alert('Errore: Qualcosa è andato storto. Verifica di aver inserito l\'apiKey nelle impostazioni.');
+      this.showError('There was an error getting the content: ' + error);
       this.hasError = true;
-      throw new Error('Failed to get title');
+      throw new Error('Failed to get content');
     }
   }
   async getCompleteArticle() {
@@ -228,7 +256,7 @@ export class BulkSingleProductComponent implements OnInit {
   }
 
   analyzeSeoContent(text: string): number {
-    this.seoContentScore = this.seoAnalyzerService.analyzeSeoContent(text,this.sectionsResponse,  this.titleResponse)
+    this.seoContentScore = this.seoAnalyzerService.analyzeSeoContent(text, this.sectionsResponse, this.titleResponse)
     return this.seoContentScore;
   }
 
@@ -466,5 +494,100 @@ export class BulkSingleProductComponent implements OnInit {
       typeof item.ASIN === 'string' &&
       typeof item.Keyword === 'string';
   }
+
+
+  //****** PROMPT SECTIONS ******/
+  improveTitlePrompt: string = '';
+  improveInfoPrompt: string = '';
+  titlePrompt: string = '';
+  introductionPrompt: string = '';
+  sectionsPrompt: string = '';
+  contentPrompt: string = '';
+  selectedLanguage: string = 'italiano';
+  selectedStyle: string = 'blog post';
+  selectedTone: string = 'informal';
+  loadDefaultData() {
+    this.addValueDefaultTitle();
+    this.addDefaulIntroduction();
+    this.addDefaultSections();
+    this.addDefaultContent();
+    this.addDefaultImproveTitle();
+    this.addDefaultImproveInfo();
+  }
+  addDefaultImproveTitle() {
+    let value = this.functionService.getDefaultImproveTitlePrompt()
+    return this.improveTitlePrompt = value;
+  }
+  addDefaultImproveInfo() {
+    let value = this.functionService.getDefaultImproveInfoPrompt()
+    return this.improveInfoPrompt = value;
+  }
+  addValueDefaultTitle(): string {
+    let value = this.functionService.getDefaultTitlePrompt()
+    return this.titlePrompt = value;
+  }
+
+  addDefaulIntroduction() {
+    let value = this.functionService.getDefaultIntroductionPrompt()
+    return this.introductionPrompt = value;
+  }
+
+  addDefaultSections() {
+    let value = this.functionService.getDefaultSectionsPrompt()
+    return this.sectionsPrompt = value;
+  }
+  addDefaultContent() {
+    let value = this.functionService.getDefaultContentPrompt()
+    return this.contentPrompt = value;
+  }
+
+
+  getPromptValueTitle() {
+    return this.titlePrompt;
+  }
+  setPromptValueTitle(value: string) {
+    return this.titlePrompt = value;
+  }
+  setDefaultPromptValueTitle() {
+    return this.titlePrompt = this.addValueDefaultTitle();
+  }
+
+  getPromptValueIntroduction() {
+    return this.introductionPrompt;
+  }
+
+  setPromptValueIntroduction(value: string) {
+    return this.introductionPrompt = value;
+  }
+
+  setDefaultPromptValueIntroduction() {
+    return this.introductionPrompt = this.addDefaulIntroduction();
+  }
+
+  getPromptValueSections() {
+    return this.sectionsPrompt;
+  }
+
+  setPromptValueSections(value: string) {
+    return this.sectionsPrompt = value;
+  }
+
+  setDefaultPromptValueSections() {
+    return this.sectionsPrompt = this.addDefaultSections();
+  }
+
+  getPromptValueContent() {
+    return this.contentPrompt;
+  }
+
+  setPromptValueContent(value: string) {
+    return this.contentPrompt = value;
+  }
+
+  setDefaultPromptValueContent() {
+    return this.contentPrompt = this.addDefaultContent();
+  }
 }
+
+
 
