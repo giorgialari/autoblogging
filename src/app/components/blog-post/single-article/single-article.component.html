@@ -21,15 +21,7 @@
           [(ngModel)]="topicKeyword"
         />
       </div>
-      <div class="form-group">
-        <label for="topicInput">Enter the ASIN here:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="topicASIN"
-          [(ngModel)]="topicASIN"
-        />
-      </div>
+
       <div class="form-group">
         <label for="topicInput">Enter the topic title here:</label>
         <input
@@ -100,7 +92,6 @@
     [orientation]="(stepperOrientation | async)!"
     *ngIf="
       topicKeyword != '' &&
-      topicASIN != '' &&
       topicTitle != '' &&
       topicInfos != ''
     "

@@ -12,7 +12,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
 import { NavbarComponent } from './shared/ui/navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgCircleProgressModule } from 'ng-circle-progress';
@@ -21,6 +20,10 @@ import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { AmazonComponent } from './components/amazon/amazon.component';
 import { BulkTableComponent } from './components/amazon/bulk-single-product/bulk-table/bulk-table.component';
+import { BlogPostComponent } from './components/blog-post/blog-post.component';
+import { SingleArticleComponent } from './components/blog-post/single-article/single-article.component';
+import { BulkArticlesComponent } from './components/blog-post/bulk-articles/bulk-articles.component';
+import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
 
 
 @NgModule({
@@ -33,7 +36,10 @@ import { BulkTableComponent } from './components/amazon/bulk-single-product/bulk
     BulkSingleProductComponent,
     SettingsComponent,
     AmazonComponent,
-    BulkTableComponent
+    BulkTableComponent,
+    BlogPostComponent,
+    SingleArticleComponent,
+    BulkArticlesComponent
   ],
   imports: [
     BrowserAnimationsModule,

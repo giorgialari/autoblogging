@@ -5,13 +5,19 @@ import { RouterModule, Routes } from '@angular/router';
 import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
 import { HomeComponent } from './components/home/home.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { BlogPostComponent } from './components/blog-post/blog-post.component';
+import { SingleArticleComponent } from './components/blog-post/single-article/single-article.component';
+import { BulkArticlesComponent } from './components/blog-post/bulk-articles/bulk-articles.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent},
   { path: 'single-product', component: SingleProductComponent},
+  { path: 'single-article', component: SingleArticleComponent},
   { path: 'bulk-product', component: BulkSingleProductComponent},
+  { path: 'bulk-artticles', component: BulkArticlesComponent},
   { path: 'settings', component: SettingsComponent},
   { path: 'amazon', component: AmazonComponent},
+  { path: 'blog-post', component: BlogPostComponent},
   { path: '', redirectTo: '/home', pathMatch: 'full' }
 ];
 

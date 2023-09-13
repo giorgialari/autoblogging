@@ -1,35 +1,27 @@
-import { SeoAnalyzerService } from './../../../utils/seoAnalyzer/seoanalyzer.service';
-import { FunctionsService } from './../../../utils/functions/amazon/functions.service';
-import { WpService } from '../../../services/wp.service';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { OpenAIService } from 'src/app/services/open-ai.service';
-import { Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
-import { StepperOrientation } from '@angular/material/stepper';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { StepperOrientation } from '@angular/cdk/stepper';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { OpenAIService } from 'src/app/services/open-ai.service';
+import { WpService } from 'src/app/services/wp.service';
+import { FunctionsService } from 'src/app/utils/functions/blog-post/functions.service';
+import { SeoAnalyzerService } from 'src/app/utils/seoAnalyzer/seoanalyzer.service';
 import Swal from 'sweetalert2';
 
-
 @Component({
-  selector: 'app-single-product',
-  templateUrl: './single-product.component.html',
-  styleUrls: ['./single-product.component.scss']
+  selector: 'app-single-article',
+  templateUrl: './single-article.component.html',
+  styleUrls: ['./single-article.component.scss']
 })
-export class SingleProductComponent implements OnInit {
+export class SingleArticleComponent {
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';
   contentResponse: string = '';
   completeArticleResponse: string = '';
-  topicTitle = 'Brigros - Barbecue a gas DALLAS con rotelle potente e pratico, comodo da spostare, sistema di pulizia facile (3 fuochi)';
-  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni
-  Grigli barbecue 60 x 42 cm con opzioni di cottura infinite
-  Barbecue a gas con sistema di pulizia facile e veloce
-  bbq a gas dotato di rotelle per un facile trasporto
-  bbq gas dimensioni: prodotto (coperchio chiuso) 122 x 57 x 112 cm, peso del prodotto: 26,70 kg, imballo: 60 x 58 x 53 cm
-  L'accensione piezoelettrica assicura che l’accensione del BBQ sia semplice e rapida e un termometro integrato nel coperchio facilita la cottura ottima del cibo.`;
-  topicKeyword = 'Brigros - Barbecue a gas';
-  topicASIN = 'B08Y59NM8V';
+  topicTitle = 'Samoiedo come si alleva';
+  topicInfos = `Il Samoiedo è una razza canina di origine siberiana allevata sin dall’antichità dai pastori di renne che trovavano in questo cane un valido aiutante anche nel traino della slitta. `;
+  topicKeyword = 'Come allevare un Samoiedo';
 
 
   writing_tone = 'informale';
@@ -239,9 +231,9 @@ export class SingleProductComponent implements OnInit {
     this.isGettingCompleteArticle = true;
 
     this.completeArticleResponse = this.functionService.getCompleteArticle(
-      this.titleResponse, this.contentResponse, this.introductionResponse, this.topicASIN, this.topicKeyword,
+      this.titleResponse, this.contentResponse, this.introductionResponse, this.topicKeyword,
       this.shortcodes
-    ).replace(/\[ASIN\]/g, this.topicASIN)
+    )
     .replace(/\[KEYWORD\]/g, this.topicKeyword);
     this.isGettingCompleteArticle = false;
     this.countWords();
@@ -264,18 +256,10 @@ export class SingleProductComponent implements OnInit {
   //*************SHORTCODE HANDLE *******************//
   shortcodes: { code: string, position: string }[] = [
     {
-      code: `[content-egg-block template=customizable product="it-[ASIN]" show=img]`,
-      position: 'beforeIntroduction'
-    },
-    {
-      code: ` [content-egg module=AmazonNoApi products="it-[ASIN]" template=list_no_price]`,
-      position: 'afterIntroduction'
-    },
-    {
-      code: `<h3>Migliore Offerta inerente a [KEYWORD]:</h3>
-      <p>[content-egg module=AmazonNoApi products="it-[ASIN]" template=item]`,
-      position: 'endOfArticle'
+      code: "",
+      position: ""
     }
+
   ];
 
   addShortcode() {
@@ -289,7 +273,6 @@ export class SingleProductComponent implements OnInit {
   saveShortcode() {
     this.shortcodes = this.shortcodes.map(shortcode => {
       let newCode = shortcode.code
-        .replace('[ASIN]', this.topicASIN)
         .replace('[KEYWORD]', this.topicKeyword);
 
       return {
@@ -626,6 +609,5 @@ export class SingleProductComponent implements OnInit {
     );
     return this.totalSeoScore;
   }
-
 
 }

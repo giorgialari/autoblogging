@@ -1,5 +1,5 @@
 import { SeoAnalyzerService } from './../../../utils/seoAnalyzer/seoanalyzer.service';
-import { FunctionsService } from './../../../utils/functions/functions.service';
+import { FunctionsService } from './../../../utils/functions/amazon/functions.service';
 import { WpService } from '../../../services/wp.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
@@ -200,8 +200,9 @@ export class BulkSingleProductComponent implements OnInit {
     this.statusMessage = ' Sto componendo l\'articolo';
 
     this.completeArticleResponse = this.functionService.getCompleteArticle(
-      this.titleResponse, this.contentResponse, this.introductionResponse, this.topicASIN, this.topicKeyword
-    );
+      this.titleResponse, this.contentResponse, this.introductionResponse, this.topicASIN, this.topicKeyword, this.shortcodes
+    ).replace(/\[ASIN\]/g, this.topicASIN)
+    .replace(/\[KEYWORD\]/g, this.topicKeyword);
 
     this.isGettingCompleteArticle = false;
     this.countWords();
@@ -626,6 +627,61 @@ export class BulkSingleProductComponent implements OnInit {
   setDefaultPromptValueContent() {
     return this.contentPrompt = this.addDefaultContent();
   }
+  //*************SHORTCODE HANDLE *******************//
+  shortcodes: { code: string, position: string }[] = [
+    {
+      code: `[content-egg-block template=customizable product="it-[ASIN]" show=img]`,
+      position: 'beforeIntroduction'
+    },
+    {
+      code: ` [content-egg module=AmazonNoApi products="it-[ASIN]" template=list_no_price]`,
+      position: 'afterIntroduction'
+    },
+    {
+      code: `<h3>Migliore Offerta inerente a [KEYWORD]:</h3>
+        <p>[content-egg module=AmazonNoApi products="it-[ASIN]" template=item]`,
+      position: 'endOfArticle'
+    }
+  ];
+
+  addShortcode() {
+    this.shortcodes.push({ code: '', position: '' });
+  }
+
+  removeShortcode(index: number) {
+    this.shortcodes.splice(index, 1);
+  }
+
+  saveShortcode() {
+    this.shortcodes = this.shortcodes.map(shortcode => {
+      let newCode = shortcode.code
+        .replace('[ASIN]', this.topicASIN)
+        .replace('[KEYWORD]', this.topicKeyword);
+
+      return {
+        ...shortcode,
+        code: newCode
+      };
+    });
+  }
+
+  // setDefaultShortcodes() {
+  //   this.shortcodes = [
+  //     {
+  //       code: `[content-egg-block template=customizable product="it-${this.topicASIN}" show=img]`,
+  //       position: 'beforeIntroduction'
+  //     },
+  //     {
+  //       code: ` [content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=list_no_price]`,
+  //       position: 'afterIntroduction'
+  //     },
+  //     {
+  //       code: `<h3>Migliore Offerta inerente a ${this.topicKeyword}:</h3>
+  //       <p>[content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=item]`,
+  //       position: 'endOfArticle'
+  //     }
+  //   ];
+  // }
 }
 
 
