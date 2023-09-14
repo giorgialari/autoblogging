@@ -475,8 +475,18 @@
                 <h6>Language</h6>
                 <select
                   class="form-control mb-3"
-                  [(ngModel)]="selectedLanguage"
-                  (change)="useCorrectDefaultPrompt()"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedLanguageTitle
+                      : currentStepValue == 2
+                      ? selectedLanguageIntroduction
+                      : currentStepValue == 3
+                      ? selectedLanguageSections
+                      : currentStepValue == 4
+                      ? selectedLanguageContent
+                      : selectedLanguageTitle
+                  "
+                  (ngModelChange)="setCurrentValueLanguage($event)"
                 >
                   <option
                     *ngFor="let language of languages"
@@ -489,8 +499,18 @@
                 <h6>Style</h6>
                 <select
                   class="form-control mb-3"
-                  [(ngModel)]="selectedStyle"
-                  (change)="useCorrectDefaultPrompt()"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedStyleTitle
+                      : currentStepValue == 2
+                      ? selectedStyleIntroduction
+                      : currentStepValue == 3
+                      ? selectedStyleSections
+                      : currentStepValue == 4
+                      ? selectedStyleContent
+                      : selectedStyleTitle
+                  "
+                  (ngModelChange)="setCurrentValueStyle($event)"
                 >
                   <option *ngFor="let style of styles" value="{{ style.code }}">
                     {{ style.type }}
@@ -500,12 +520,22 @@
                 <h6>Tone</h6>
                 <select
                   class="form-control mb-3"
-                  [(ngModel)]="selectedTone"
-                  (change)="useCorrectDefaultPrompt()"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedToneTile
+                      : currentStepValue == 2
+                      ? selectedToneIntroduction
+                      : currentStepValue == 3
+                      ? selectedToneSections
+                      : currentStepValue == 4
+                      ? selectedToneContent
+                      : selectedToneTile
+                  "
+                  (ngModelChange)="setCurrentValueTone($event)"
                 >
-                <option *ngFor="let tone of tones" value="{{ tone.code }}">
-                  {{ tone.tone }}
-                </option>
+                  <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                    {{ tone.tone }}
+                  </option>
                 </select>
               </div>
 
@@ -538,6 +568,7 @@
             type="button"
             class="btn btn-secondary btn-sm"
             data-mdb-dismiss="modal"
+            (click)="saveSettings()"
           >
             Save
           </button>
@@ -553,6 +584,13 @@
               data-placement="top"
               title="Accepted placeholders: [ASIN] - [KEYWORD]"
             ></i>
+            <button
+            *ngIf="shortcodes.length == 0"
+            class="btn btn-secondary btn-sm me-2"
+            (click)="addShortcode()"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
           </label>
           <div
             *ngFor="let shortcode of shortcodes; let i = index"
@@ -637,20 +675,22 @@
               </button>
               <button
                 class="btn btn-danger btn-sm"
-                (click)="removeShortcode(i)"
+                (click)="removeShortcode(shortcode.id)"
               >
                 <i class="fas fa-minus"></i>
               </button>
             </div>
           </div>
-          <button
-            class="btn btn-secondary btn-sm me-2"
-            data-mdb-dismiss="modal"
-            aria-label="Close"
-            (click)="saveShortcode()"
-          >
-            Save
-          </button>
+          <div class="d-flex justify-content-end">
+            <button
+              class="btn btn-secondary btn-sm me-2"
+              data-mdb-dismiss="modal"
+              aria-label="Close"
+              (click)="saveShortcode()"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </ng-template>
     </div>
@@ -816,6 +856,7 @@
           type="button"
           class="btn btn-secondary btn-sm"
           data-mdb-dismiss="modal"
+          (click)="saveSettingsTOPIC()"
         >
           Save
         </button>

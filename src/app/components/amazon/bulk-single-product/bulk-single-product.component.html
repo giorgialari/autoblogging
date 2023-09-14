@@ -130,46 +130,27 @@
           <div class="col-11">
             <h5 class="form-label">Prompt Settings</h5>
             <h6>Language</h6>
-            <select
-              class="form-control mb-3"
-              [(ngModel)]="selectedLanguage"
-              (change)="loadDefaultData()"
-            >
-              <option value="english">English</option>
-              <option value="french">French</option>
-              <option value="german">German</option>
-              <option value="espanol">Spanish</option>
-              <option value="italiano">Italiano</option>
+            <select class="form-control mb-3" [(ngModel)]="selectedLanguage">
+              <option
+                *ngFor="let language of languages"
+                value="{{ language.code }}"
+              >
+                {{ language.language }}
+              </option>
             </select>
 
             <h6>Style</h6>
-            <select
-              class="form-control mb-3"
-              [(ngModel)]="selectedStyle"
-              (change)="loadDefaultData()"
-            >
-              <option value="blog post">Blog post</option>
-              <option value="article">Article</option>
-              <option value="product description">Product description</option>
-              <option value="product review">Product review</option>
-              <option value="product comparison">Product comparison</option>
-              <option value="product pros and cons">
-                Product pros and cons
+            <select class="form-control mb-3" [(ngModel)]="selectedStyle">
+              <option *ngFor="let style of styles" value="{{ style.code }}">
+                {{ style.type }}
               </option>
             </select>
 
             <h6>Tone</h6>
-            <select
-              class="form-control mb-3"
-              [(ngModel)]="selectedTone"
-              (change)="loadDefaultData()"
-            >
-              <option value="neutral">Neutral</option>
-              <option value="friendly">Friendly</option>
-              <option value="formal">Formal</option>
-              <option value="informal">Informal</option>
-              <option value="funny">Funny</option>
-              <option value="professional">Professional</option>
+            <select class="form-control mb-3" [(ngModel)]="selectedTone">
+              <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                {{ tone.tone }}
+              </option>
             </select>
           </div>
           <h5 class="form-label">Title</h5>
@@ -182,9 +163,12 @@
                   id="model"
                   [(ngModel)]="modelTitle"
                 >
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                  <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                  <option value="gpt-4">gpt-4</option>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
                 </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
@@ -258,9 +242,12 @@
                   id="model"
                   [(ngModel)]="modelIntroduction"
                 >
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                  <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                  <option value="gpt-4">gpt-4</option>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
                 </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
@@ -358,9 +345,12 @@
                   id="model"
                   [(ngModel)]="modelSections"
                 >
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                  <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                  <option value="gpt-4">gpt-4</option>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
                 </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
@@ -434,9 +424,12 @@
                   id="model"
                   [(ngModel)]="modelContent"
                 >
-                  <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                  <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                  <option value="gpt-4">gpt-4</option>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
                 </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
@@ -499,7 +492,22 @@
         </div>
 
         <div class="mb-2">
-          <h5 class="form-label">Insert custom shortcode</h5>
+          <h5 class="form-label">
+            Insert custom shortcode
+            <i
+              class="fas fa-circle-info mx-2"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Accepted placeholders: [KEYWORD]"
+            ></i>
+            <button
+              *ngIf="shortcodes.length == 0"
+              class="btn btn-secondary btn-sm me-2"
+              (click)="addShortcode()"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
+          </h5>
 
           <div
             *ngFor="let shortcode of shortcodes; let i = index"
@@ -584,7 +592,7 @@
               </button>
               <button
                 class="btn btn-danger btn-sm"
-                (click)="removeShortcode(i)"
+                (click)="removeShortcode(shortcode.id)"
               >
                 <i class="fas fa-minus"></i>
               </button>
@@ -597,7 +605,7 @@
           type="button"
           class="btn btn-secondary btn-sm"
           data-mdb-dismiss="modal"
-          (click)="saveShortcode()"
+          (click)="saveSettings(); saveShortcode()"
         >
           Save
         </button>

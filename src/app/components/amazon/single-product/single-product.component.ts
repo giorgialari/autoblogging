@@ -1,7 +1,7 @@
 import { SeoAnalyzerService } from './../../../utils/seoAnalyzer/seoanalyzer.service';
 import { FunctionsService } from './../../../utils/functions/amazon/functions.service';
 import { WpService } from '../../../services/wp.service';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { OpenAIService } from 'src/app/services/open-ai.service';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -32,10 +32,6 @@ export class SingleProductComponent implements OnInit {
   topicKeyword = 'Brigros - Barbecue a gas';
   topicASIN = 'B08Y59NM8V';
 
-
-  writing_tone = 'informale';
-  writing_style = 'blog post';
-  language = 'Italiano';
   isGettingTitle = false;
   isGettingIntroduction = false;
   isGettingSections = false;
@@ -43,20 +39,78 @@ export class SingleProductComponent implements OnInit {
   isGettingTopicTitle = false;
   isGettingTopicInfo = false;
   isGettingCompleteArticle = false;
-  isLinear = false;
+
   stepperOrientation!: Observable<StepperOrientation>;
   titleInfoArray: any[] = []
-  qtyParagraphs = 10;
+
+  qtyParagraphs = 0;
   titlePrompt = ''
   introductionPrompt = ''
   sectionsPrompt = ''
   contentPrompt = ''
 
+  currentStepValue = 1;
+  modelTopic = '';
+  maxTokensTopic = 0;
+  modelTitle = '';
+  maxTokensTitle = 0;
+  modelIntroduction = '';
+  maxTokensIntroduction = 0;
+  modelSections = '';
+  maxTokensSections = 0;
+  modelContent = '';
+  maxTokensContent = 0;
+  wordsCount: number = 0
+
+  improveTitlePrompt = ''
+  improveInfoPrompt = ''
+
+  selectedLanguageTitle: string = '';
+  selectedLanguageIntroduction: string = '';
+  selectedLanguageSections: string = '';
+  selectedLanguageContent: string = '';
+
+  selectedStyleTitle: string = '';
+  selectedStyleIntroduction: string = '';
+  selectedStyleSections: string = '';
+  selectedStyleContent: string = '';
+
+  selectedToneTile: string = '';
+  selectedToneIntroduction: string = '';
+  selectedToneSections: string = '';
+  selectedToneContent: string = '';
+
+  selectedLanguageImproveTOPIC: string = '';
+  selectedStyleImproveTOPIC: string = '';
+  selectedToneImproveTOPIC: string = '';
+
+  maxTitleScore = 30;
+  maxIntroductionScore = 30;
+  maxSectionsScore = 20;
+  maxContentScore = 20;
+  seoTitleScore: number = 0;
+  seoIntroductionScore: number = 0;
+  seoSectionsScore: number = 0;
+  seoContentScore: number = 0;
+  totalSeoScore: number = 0;
+
+
+  models: any[] = [];
+  languages: any[] = [];
+  styles: any[] = [];
+  tones: any[] = [];
+  prompt: any[] = [];
+  shortcodes: { id: number, code: string, position: string, section: string }[] = [
+    {
+      id: 0,
+      code: "",
+      position: "",
+      section: "single_product"
+    }
+  ];
+
   ngOnInit(): void {
-    this.getModels();
-    this.getLanguages();
-    this.getStyles();
-    this.getTones();
+
   }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
@@ -69,15 +123,20 @@ export class SingleProductComponent implements OnInit {
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
 
-    this.loadDefaultData();
+    this.getModels();
+    this.getLanguages();
+    this.getStyles();
+    this.getTones();
+    this.getPromptSection();
+    this.getShortcodes();
+
   }
 
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    $event.returnValue = '';
+  }
   //**** DB CONNECTION *****/
-  models: any[] = [];
-  languages: any[] = [];
-  styles: any[] = [];
-  tones: any[] = []
-
   getModels() {
     this.dbService.get('/models').subscribe((response) => {
       this.models = response;
@@ -109,9 +168,27 @@ export class SingleProductComponent implements OnInit {
       console.log(error);
     });
   }
+
+  getPromptSection() {
+    this.dbService.get('/prompt_section_product').subscribe((response) => {
+      this.prompt = response;
+      this.loadDefaultData()
+
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getShortcodes() {
+    this.dbService.get('/shortcodes').subscribe((response) => {
+      this.shortcodes = response.filter(
+        (shortcode: any) => shortcode.section === 'single_product'
+      )
+    }, (error) => {
+      console.log(error);
+    });
+  }
   //**** ###END### DB CONNECTION *****/
-
-
   showSuccess(success: string) {
     Swal.fire({
       icon: 'success',
@@ -179,9 +256,9 @@ export class SingleProductComponent implements OnInit {
     this.isGettingTitle = true;
     let finalPrompt = this.titlePrompt
       .replace('[TOPIC]', this.topicTitle)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
+      .replace('[LANGUAGE]', this.prompt.filter((item: any) => item.name === 'title')[0].language)
+      .replace('[STYLE]', this.prompt.filter((item: any) => item.name === 'title')[0].style)
+      .replace('[TONE]', this.prompt.filter((item: any) => item.name === 'title')[0].tone);
     this.functionService.getTitle(
       finalPrompt, this.modelTitle, this.maxTokensTitle
     )
@@ -200,9 +277,9 @@ export class SingleProductComponent implements OnInit {
     this.isGettingIntroduction = true;
     let finalPrompt = this.introductionPrompt
       .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
+      .replace('[LANGUAGE]', this.prompt.filter((item: any) => item.name === 'introduction')[0].language)
+      .replace('[STYLE]', this.prompt.filter((item: any) => item.name === 'introduction')[0].style)
+      .replace('[TONE]', this.prompt.filter((item: any) => item.name === 'introduction')[0].tone);
     try {
       this.introductionResponse = await this.functionService.getOptimizedIntroduction(
         finalPrompt,
@@ -228,9 +305,9 @@ export class SingleProductComponent implements OnInit {
     let finalPrompt = this.sectionsPrompt
       .replace('[QUANTITY]', this.qtyParagraphs.toString())
       .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
+      .replace('[LANGUAGE]', this.prompt.filter((item: any) => item.name === 'sections')[0].language)
+      .replace('[STYLE]', this.prompt.filter((item: any) => item.name === 'sections')[0].style)
+      .replace('[TONE]', this.prompt.filter((item: any) => item.name === 'sections')[0].tone);
     const keywordInsertionRate = 0.5; // 50% degli h2 conterrà la parola chiave
     this.functionService.getSections(
       finalPrompt,
@@ -264,12 +341,12 @@ export class SingleProductComponent implements OnInit {
     const sectionsString = sections.join(', \n ');
     let finalPrompt = this.contentPrompt
       .replace('[TOPIC]', this.titleResponse)
-      .replace('[LANGUAGE]', this.selectedLanguage)
+      .replace('[LANGUAGE]', this.prompt.filter((item: any) => item.name === 'content')[0].language)
       .replace('[SECTIONS]', sectionsString)
       .replace('[TOPIC_INFOS]', this.topicInfos)
       .replace('PARPERSECTIONS', '3')
-      .replace('[STYLE]', this.selectedStyle)
-      .replace('[TONE]', this.selectedTone);
+      .replace('[STYLE]', this.prompt.filter((item: any) => item.name === 'content')[0].style)
+      .replace('[TONE]', this.prompt.filter((item: any) => item.name === 'content')[0].tone);
     this.functionService.getContent(
       finalPrompt, this.modelContent, this.maxTokensContent
     ).subscribe((response) => {
@@ -288,7 +365,7 @@ export class SingleProductComponent implements OnInit {
       this.titleResponse, this.contentResponse, this.introductionResponse, this.topicASIN, this.topicKeyword,
       this.shortcodes
     ).replace(/\[ASIN\]/g, this.topicASIN)
-    .replace(/\[KEYWORD\]/g, this.topicKeyword);
+      .replace(/\[KEYWORD\]/g, this.topicKeyword);
     this.isGettingCompleteArticle = false;
     this.countWords();
     this.calculateTotalSeoScore();
@@ -308,63 +385,30 @@ export class SingleProductComponent implements OnInit {
   }
 
   //*************SHORTCODE HANDLE *******************//
-  shortcodes: { code: string, position: string }[] = [
-    {
-      code: `[content-egg-block template=customizable product="it-[ASIN]" show=img]`,
-      position: 'beforeIntroduction'
-    },
-    {
-      code: ` [content-egg module=AmazonNoApi products="it-[ASIN]" template=list_no_price]`,
-      position: 'afterIntroduction'
-    },
-    {
-      code: `<h3>Migliore Offerta inerente a [KEYWORD]:</h3>
-      <p>[content-egg module=AmazonNoApi products="it-[ASIN]" template=item]`,
-      position: 'endOfArticle'
-    }
-  ];
 
   addShortcode() {
-    this.shortcodes.push({ code: '', position: '' });
-  }
-
-  removeShortcode(index: number) {
-    this.shortcodes.splice(index, 1);
-  }
-
-  saveShortcode() {
-    this.shortcodes = this.shortcodes.map(shortcode => {
-      let newCode = shortcode.code
-        .replace('[ASIN]', this.topicASIN)
-        .replace('[KEYWORD]', this.topicKeyword);
-
-      return {
-        ...shortcode,
-        code: newCode
-      };
+    this.saveShortcode();
+    const newShortcode = { code: '', position: '', section: 'single_product' };
+    this.dbService.post('/shortcodes', newShortcode).subscribe(response => {
+      this.getShortcodes();
     });
   }
 
-  // setDefaultShortcodes() {
-  //   this.shortcodes = [
-  //     {
-  //       code: `[content-egg-block template=customizable product="it-${this.topicASIN}" show=img]`,
-  //       position: 'beforeIntroduction'
-  //     },
-  //     {
-  //       code: ` [content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=list_no_price]`,
-  //       position: 'afterIntroduction'
-  //     },
-  //     {
-  //       code: `<h3>Migliore Offerta inerente a ${this.topicKeyword}:</h3>
-  //       <p>[content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=item]`,
-  //       position: 'endOfArticle'
-  //     }
-  //   ];
-  // }
+
+  removeShortcode(id: number) {
+    if (confirm('Are you sure to delete this shortcode?')){
+      this.saveShortcode();
+      this.dbService.delete('/shortcodes', id).subscribe(response => {
+        this.getShortcodes();
+      });
+    }
+  }
+
+  saveShortcode() {
+    this.dbService.put('/shortcodes', this.shortcodes).subscribe();
+  }
 
   //*************COUNT WORDS *******************//
-  wordsCount: number = 0
   countWords() {
     if (this.completeArticleResponse) {
       this.wordsCount = this.completeArticleResponse.split(/\s+/).length;
@@ -373,17 +417,7 @@ export class SingleProductComponent implements OnInit {
     }
   }
   //*************SETTINGS FOR EVERY STEPS *******************//
-  currentStepValue = 1;
-  modelTopic = 'gpt-3.5-turbo';
-  maxTokensTopic = 2048;
-  modelTitle = 'gpt-3.5-turbo';
-  maxTokensTitle = 2048;
-  modelIntroduction = 'gpt-3.5-turbo';
-  maxTokensIntroduction = 2048;
-  modelSections = 'gpt-3.5-turbo';
-  maxTokensSections = 2048;
-  modelContent = 'gpt-4';
-  maxTokensContent = 2048;
+
   currentStep(currenStep: number) {
     this.currentStepValue = currenStep
   }
@@ -422,40 +456,40 @@ export class SingleProductComponent implements OnInit {
   setDefaultModelValue() {
     switch (this.currentStepValue) {
       case 1:
-        this.modelTitle = 'gpt-3.5';
+        this.modelTitle = this.prompt.filter((item: any) => item.name === 'title')[0].model;
         break;
       case 2:
-        this.modelIntroduction = 'gpt-3.5-turbo';
+        this.modelIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].model;
         break;
       case 3:
-        this.modelSections = 'gpt-3.5-turbo';
+        this.modelSections = this.prompt.filter((item: any) => item.name === 'sections')[0].model;
         break;
       case 4:
-        this.modelContent = 'gpt-3.5-turbo-16k';
+        this.modelContent = this.prompt.filter((item: any) => item.name === 'content')[0].model;
         break;
     }
   }
   setDefaultMaxTokensValue() {
     switch (this.currentStepValue) {
       case 1:
-        this.maxTokensTitle = 2048;
+        this.maxTokensTitle = this.prompt.filter((item: any) => item.name === 'title')[0].max_tokens;
         break;
       case 2:
-        this.maxTokensIntroduction = 2048;
+        this.maxTokensIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].max_tokens;
         break;
       case 3:
-        this.maxTokensSections = 2048;
+        this.maxTokensSections = this.prompt.filter((item: any) => item.name === 'sections')[0].max_tokens;
         break;
       case 4:
-        this.maxTokensContent = 2048;
+        this.maxTokensContent = this.prompt.filter((item: any) => item.name === 'content')[0].max_tokens;
         break;
     }
   }
   setDefaultModelValueTOPIC() {
-    this.modelTopic = 'gpt-3.5-turbo';
+    this.modelTopic = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].model;
   }
   setDefaultMaxTokensValueTOPIC() {
-    this.maxTokensTopic = 2048;
+    this.maxTokensTopic = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].max_tokens;
   }
   getMaxTokensValue() {
     switch (this.currentStepValue) {
@@ -490,7 +524,7 @@ export class SingleProductComponent implements OnInit {
   }
 
   setDefaultQtyParagraphs() {
-    this.qtyParagraphs = 10;
+    this.qtyParagraphs = this.prompt.filter((item: any) => item.name === 'sections')[0].qtyParagraphs;
   }
 
   getPromptValue() {
@@ -538,12 +572,86 @@ export class SingleProductComponent implements OnInit {
     this.improveInfoPrompt = value;
   }
 
+  setCurrentValueLanguage(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.selectedLanguageTitle = value;
+        break;
+      case 2:
+        this.selectedLanguageIntroduction = value;
+        break;
+      case 3:
+        this.selectedLanguageSections = value;
+        break;
+      case 4:
+        this.selectedLanguageContent = value;
+        break;
+    }
+  }
+
+  setCurrentValueStyle(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.selectedStyleTitle = value;
+        break;
+      case 2:
+        this.selectedStyleIntroduction = value;
+        break;
+      case 3:
+        this.selectedStyleSections = value;
+        break;
+      case 4:
+        this.selectedStyleContent = value;
+        break;
+    }
+  }
+
+  setCurrentValueTone(value: string) {
+    switch (this.currentStepValue) {
+      case 1:
+        this.selectedToneTile = value;
+        break;
+      case 2:
+        this.selectedToneIntroduction = value;
+        break;
+      case 3:
+        this.selectedToneSections = value;
+        break;
+      case 4:
+        this.selectedToneContent = value;
+        break;
+    }
+  }
+  saveSettings() {
+    this.dbService.put('/prompt_section_product', {
+      model: this.getModelValue(),
+      max_tokens: this.getMaxTokensValue(),
+      language: this.currentStepValue == 1 ? this.selectedLanguageTitle :
+        this.currentStepValue == 2 ? this.selectedLanguageIntroduction :
+          this.currentStepValue == 3 ? this.selectedLanguageSections :
+            this.selectedLanguageContent,
+      style: this.currentStepValue == 1 ? this.selectedStyleTitle :
+        this.currentStepValue == 2 ? this.selectedStyleIntroduction :
+          this.currentStepValue == 3 ? this.selectedStyleSections :
+            this.selectedStyleContent,
+      tone: this.currentStepValue == 1 ? this.selectedToneTile :
+        this.currentStepValue == 2 ? this.selectedToneIntroduction :
+          this.currentStepValue == 3 ? this.selectedToneSections
+            : this.selectedToneContent,
+      default_prompt: this.getPromptValue(),
+      name: this.currentStepValue == 1 ? 'title' :
+        this.currentStepValue == 2 ? 'introduction' :
+          this.currentStepValue == 3 ? 'sections' : 'content'
+    }).subscribe((response) => {
+      console.log(response);
+      this.getPromptSection();
+    }, (error) => {
+      console.log(error);
+    });
+
+  }
 
   //*************ADD VALUE DEFAULT DURING MODAL OPEN *******************//
-  selectedLanguage: string = 'italiano';
-  selectedStyle: string = 'blog post';
-  selectedTone: string = 'informal';
-
   setDefaultPromptValue() {
     switch (this.currentStepValue) {
       case 1:
@@ -567,58 +675,68 @@ export class SingleProductComponent implements OnInit {
     this.addDefaultContent();
     this.addDefaultImproveTitle();
     this.addDefaultImproveInfo();
-  }
-  useCorrectDefaultPrompt() {
-    switch (this.currentStepValue) {
-      case 1:
-        this.titlePrompt = this.addValueDefaultTitle();
-        break;
-      case 2:
-        this.introductionPrompt = this.addDefaulIntroduction();
-        break;
-      case 3:
-        this.sectionsPrompt = this.addDefaultSections();
-        break;
-      case 4:
-        this.contentPrompt = this.addDefaultContent();
-        break;
-    }
+
+    this.modelTopic = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].model;
+    this.maxTokensTopic = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].max_tokens;
+    this.modelTitle = this.prompt.filter((item: any) => item.name === 'title')[0].model;
+    this.maxTokensTitle = this.prompt.filter((item: any) => item.name === 'title')[0].max_tokens;
+    this.modelIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].model;
+    this.maxTokensIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].max_tokens;
+    this.modelSections = this.prompt.filter((item: any) => item.name === 'sections')[0].model;
+    this.maxTokensSections = this.prompt.filter((item: any) => item.name === 'sections')[0].max_tokens;
+    this.modelContent = this.prompt.filter((item: any) => item.name === 'content')[0].model;
+    this.maxTokensContent = this.prompt.filter((item: any) => item.name === 'content')[0].max_tokens;
+
+    this.qtyParagraphs = this.prompt.filter((item: any) => item.name === 'sections')[0].qtyParagraph;
+
+    this.selectedLanguageTitle = this.prompt.filter((item: any) => item.name === 'title')[0].language;
+    this.selectedLanguageIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].language;
+    this.selectedLanguageSections = this.prompt.filter((item: any) => item.name === 'sections')[0].language;
+    this.selectedLanguageContent = this.prompt.filter((item: any) => item.name === 'content')[0].language;
+
+    this.selectedStyleTitle = this.prompt.filter((item: any) => item.name === 'title')[0].style;
+    this.selectedStyleIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].style;
+    this.selectedStyleSections = this.prompt.filter((item: any) => item.name === 'sections')[0].style;
+    this.selectedStyleContent = this.prompt.filter((item: any) => item.name === 'content')[0].style;
+
+    this.selectedToneTile = this.prompt.filter((item: any) => item.name === 'title')[0].tone;
+    this.selectedToneIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].tone;
+    this.selectedToneSections = this.prompt.filter((item: any) => item.name === 'sections')[0].tone;
+    this.selectedToneContent = this.prompt.filter((item: any) => item.name === 'content')[0].tone;
+
+    this.selectedLanguageImproveTOPIC = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].language;
+    this.selectedStyleImproveTOPIC = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].style;
+    this.selectedToneImproveTOPIC = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].tone;
   }
 
   addValueDefaultTitle(): string {
-    let value = this.functionService.getDefaultTitlePrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'title')[0].default_prompt
     return this.titlePrompt = value;
   }
 
   addDefaulIntroduction() {
-    let value = this.functionService.getDefaultIntroductionPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'introduction')[0].default_prompt
     return this.introductionPrompt = value;
   }
 
   addDefaultSections() {
-    let value = this.functionService.getDefaultSectionsPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'sections')[0].default_prompt
     return this.sectionsPrompt = value;
   }
 
   addDefaultContent() {
-    let value = this.functionService.getDefaultContentPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'content')[0].default_prompt
     return this.contentPrompt = value;
   }
 
   //########### IMPROVE TOPIC #############//
-  selectedLanguageImproveTOPIC: string = 'italiano';
-  selectedStyleImproveTOPIC: string = 'blog post';
-  selectedToneImproveTOPIC: string = 'informal';
-
-  improveTitlePrompt = ''
-  improveInfoPrompt = ''
 
   addDefaultImproveTitle() {
-    let value = this.functionService.getDefaultImproveTitlePrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'topicTitle')[0].default_prompt
     return this.improveTitlePrompt = value;
   }
   addDefaultImproveInfo() {
-    let value = this.functionService.getDefaultImproveInfoPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'topicInfos')[0].default_prompt
     return this.improveInfoPrompt = value;
   }
   useCorrectDefaultPromptImproveTOPIC() {
@@ -632,17 +750,38 @@ export class SingleProductComponent implements OnInit {
   setDefaultPromptValueINFO_TOPIC() {
     this.improveInfoPrompt = this.addDefaultImproveInfo();
   }
-  //*************SEO IMPROVMENT *******************//
-  maxTitleScore = 30;
-  maxIntroductionScore = 30;
-  maxSectionsScore = 20;
-  maxContentScore = 20;
-  seoTitleScore: number = 0;
-  seoIntroductionScore: number = 0;
-  seoSectionsScore: number = 0;
-  seoContentScore: number = 0;
-  totalSeoScore: number = 0;
 
+  saveSettingsTOPIC() {
+    this.dbService.put('/prompt_section_product', {
+      model: this.modelTopic,
+      max_tokens: this.maxTokensTopic,
+      language: this.selectedLanguageImproveTOPIC,
+      style: this.selectedStyleImproveTOPIC,
+      tone: this.selectedToneImproveTOPIC,
+      default_prompt: this.getImprovementTitlePromptValue(),
+      name: 'topicTitle'
+    }).subscribe((response) => {
+      console.log(response);
+    }, (error) => {
+      console.log(error);
+    });
+
+    this.dbService.put('/prompt_section_product', {
+      model: this.modelTopic,
+      max_tokens: this.maxTokensTopic,
+      language: this.selectedLanguageImproveTOPIC,
+      style: this.selectedStyleImproveTOPIC,
+      tone: this.selectedToneImproveTOPIC,
+      default_prompt: this.getImprovementINFOPromptValue(),
+      name: 'topicInfos'
+    }).subscribe((response) => {
+      console.log(response);
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  //*************SEO IMPROVMENT *******************//
   analyzeSeoTitle(text: string): number {
     this.seoTitleScore = this.seoAnalyzerService.analyzeSeoTitle(text, this.topicKeyword);
     return this.seoTitleScore;
@@ -672,6 +811,5 @@ export class SingleProductComponent implements OnInit {
     );
     return this.totalSeoScore;
   }
-
-
+  //*************END SEO IMPROVMENT *******************//
 }

@@ -465,48 +465,69 @@
               <div class="col-11">
                 <h6>Language</h6>
                 <select
-                  class="form-control mb-3"
-                  [(ngModel)]="selectedLanguage"
-                  (change)="useCorrectDefaultPrompt()"
+                class="form-control mb-3"
+                [ngModel]="
+                  currentStepValue == 1
+                    ? selectedLanguageTitle
+                    : currentStepValue == 2
+                    ? selectedLanguageIntroduction
+                    : currentStepValue == 3
+                    ? selectedLanguageSections
+                    : currentStepValue == 4
+                    ? selectedLanguageContent
+                    : selectedLanguageTitle
+                "
+                (ngModelChange)="setCurrentValueLanguage($event)"
+              >
+                <option
+                  *ngFor="let language of languages"
+                  value="{{ language.code }}"
                 >
-                  <option value="english">English</option>
-                  <option value="french">French</option>
-                  <option value="german">German</option>
-                  <option value="espanol">Spanish</option>
-                  <option value="italiano">Italiano</option>
-                </select>
+                  {{ language.language }}
+                </option>
+              </select>
 
                 <h6>Style</h6>
                 <select
-                  class="form-control mb-3"
-                  [(ngModel)]="selectedStyle"
-                  (change)="useCorrectDefaultPrompt()"
-                >
-                  <option value="blog post">Blog post</option>
-                  <option value="article">Article</option>
-                  <option value="product description">
-                    Product description
-                  </option>
-                  <option value="product review">Product review</option>
-                  <option value="product comparison">Product comparison</option>
-                  <option value="product pros and cons">
-                    Product pros and cons
-                  </option>
-                </select>
+                class="form-control mb-3"
+                [ngModel]="
+                  currentStepValue == 1
+                    ? selectedStyleTitle
+                    : currentStepValue == 2
+                    ? selectedStyleIntroduction
+                    : currentStepValue == 3
+                    ? selectedStyleSections
+                    : currentStepValue == 4
+                    ? selectedStyleContent
+                    : selectedStyleTitle
+                "
+                (ngModelChange)="setCurrentValueStyle($event)"
+              >
+                <option *ngFor="let style of styles" value="{{ style.code }}">
+                  {{ style.type }}
+                </option>
+              </select>
 
                 <h6>Tone</h6>
                 <select
-                  class="form-control mb-3"
-                  [(ngModel)]="selectedTone"
-                  (change)="useCorrectDefaultPrompt()"
-                >
-                  <option value="neutral">Neutral</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                  <option value="informal">Informal</option>
-                  <option value="funny">Funny</option>
-                  <option value="professional">Professional</option>
-                </select>
+                class="form-control mb-3"
+                [ngModel]="
+                  currentStepValue == 1
+                    ? selectedToneTile
+                    : currentStepValue == 2
+                    ? selectedToneIntroduction
+                    : currentStepValue == 3
+                    ? selectedToneSections
+                    : currentStepValue == 4
+                    ? selectedToneContent
+                    : selectedToneTile
+                "
+                (ngModelChange)="setCurrentValueTone($event)"
+              >
+                <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                  {{ tone.tone }}
+                </option>
+              </select>
               </div>
 
               <div class="col-11">
@@ -538,6 +559,7 @@
             type="button"
             class="btn btn-secondary btn-sm"
             data-mdb-dismiss="modal"
+            (click)="saveSettings()"
           >
             Save
           </button>
@@ -553,6 +575,13 @@
               data-placement="top"
               title="Accepted placeholders: [ASIN] - [KEYWORD]"
             ></i>
+            <button
+            *ngIf="shortcodes.length == 0"
+            class="btn btn-secondary btn-sm me-2"
+            (click)="addShortcode()"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
           </label>
           <div
             *ngFor="let shortcode of shortcodes; let i = index"
@@ -636,21 +665,23 @@
                 <i class="fas fa-plus"></i>
               </button>
               <button
-                class="btn btn-danger btn-sm"
-                (click)="removeShortcode(i)"
-              >
+              class="btn btn-danger btn-sm"
+              (click)="removeShortcode(shortcode.id)"
+            >
                 <i class="fas fa-minus"></i>
               </button>
             </div>
           </div>
-          <button
-            class="btn btn-secondary btn-sm me-2"
-            data-mdb-dismiss="modal"
-            aria-label="Close"
-            (click)="saveShortcode()"
-          >
-            Save
-          </button>
+          <div class="d-flex justify-content-end">
+            <button
+              class="btn btn-secondary btn-sm me-2"
+              data-mdb-dismiss="modal"
+              aria-label="Close"
+              (click)="saveShortcode()"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </ng-template>
     </div>
@@ -681,9 +712,9 @@
           <div class="row">
             <div class="col-11">
               <select class="form-control" id="model" [(ngModel)]="modelTopic">
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                <option value="gpt-4">gpt-4</option>
+                <option *ngFor="let model of models" value="{{ model.model }}">
+                  {{ model.model }}
+                </option>
               </select>
             </div>
             <div class="col-1 d-flex justify-content-end align-items-center">
@@ -728,34 +759,28 @@
               <div class="col-11">
                 <h6>Language</h6>
                 <select
-                  class="form-control mb-3"
-                  [(ngModel)]="selectedLanguageImproveTOPIC"
-                  (change)="useCorrectDefaultPromptImproveTOPIC()"
+                class="form-control mb-3"
+                [(ngModel)]="selectedLanguageImproveTOPIC"
+                (change)="useCorrectDefaultPromptImproveTOPIC()"
+              >
+                <option
+                  *ngFor="let language of languages"
+                  value="{{ language.code }}"
                 >
-                  <option value="english">English</option>
-                  <option value="french">French</option>
-                  <option value="german">German</option>
-                  <option value="espanol">Spanish</option>
-                  <option value="italiano">Italiano</option>
-                </select>
+                  {{ language.language }}
+                </option>
+              </select>
 
                 <h6>Style</h6>
                 <select
-                  class="form-control mb-3"
-                  [(ngModel)]="selectedStyleImproveTOPIC"
-                  (change)="useCorrectDefaultPromptImproveTOPIC()"
-                >
-                  <option value="blog post">Blog post</option>
-                  <option value="article">Article</option>
-                  <option value="product description">
-                    Product description
-                  </option>
-                  <option value="product review">Product review</option>
-                  <option value="product comparison">Product comparison</option>
-                  <option value="product pros and cons">
-                    Product pros and cons
-                  </option>
-                </select>
+                class="form-control mb-3"
+                [(ngModel)]="selectedStyleImproveTOPIC"
+                (change)="useCorrectDefaultPromptImproveTOPIC()"
+              >
+                <option *ngFor="let style of styles" value="{{ style.code }}">
+                  {{ style.type }}
+                </option>
+              </select>
 
                 <h6>Tone</h6>
                 <select
@@ -763,12 +788,9 @@
                   [(ngModel)]="selectedToneImproveTOPIC"
                   (change)="useCorrectDefaultPromptImproveTOPIC()"
                 >
-                  <option value="neutral">Neutral</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                  <option value="informal">Informal</option>
-                  <option value="funny">Funny</option>
-                  <option value="professional">Professional</option>
+                  <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                    {{ tone.tone }}
+                  </option>
                 </select>
               </div>
 
@@ -826,6 +848,7 @@
           type="button"
           class="btn btn-secondary btn-sm"
           data-mdb-dismiss="modal"
+          (click)="saveSettingsTOPIC()"
         >
           Save
         </button>

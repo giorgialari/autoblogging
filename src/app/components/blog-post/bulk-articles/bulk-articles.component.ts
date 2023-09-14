@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { DbService } from 'src/app/services/db.service';
 import { NotificationService } from 'src/app/services/notifications/notifications.service';
 import { OpenAIService } from 'src/app/services/open-ai.service';
 import { WpService } from 'src/app/services/wp.service';
@@ -34,7 +35,22 @@ export class BulkArticlesComponent {
   isGettingCompleteArticle = false;
   isLinear = false;
   hasError = false;
-  qtyParagraphs = 10;
+  qtyParagraphs = 0;
+
+  modelTitle = '';
+  maxTokensTitle = 0;
+  modelIntroduction = '';
+  maxTokensIntroduction = 0;
+  modelSections = '';
+  maxTokensSections = 0;
+  modelContent = '';
+  maxTokensContent = 0;
+
+  models: any[] = [];
+  languages: any[] = [];
+  styles: any[] = [];
+  tones: any[] = [];
+  prompt: any[] = [];
 
 
   constructor(private openAIService: OpenAIService,
@@ -42,10 +58,74 @@ export class BulkArticlesComponent {
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
     private functionService: FunctionsService,
-    private seoAnalyzerService: SeoAnalyzerService) { }
+    private seoAnalyzerService: SeoAnalyzerService,
+    private dbService: DbService) {
+      this.getModels();
+      this.getLanguages();
+      this.getStyles();
+      this.getTones();
+      this.getPromptSection();
+      this.getShortcodes();
+     }
   ngOnInit(): void {
     this.loadDefaultData()
   }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    $event.returnValue = '';
+  }
+  //**** DB CONNECTION *****/
+  getModels() {
+    this.dbService.get('/models').subscribe((response) => {
+      this.models = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getLanguages() {
+    return this.dbService.get('/languages').subscribe((response) => {
+      this.languages = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getStyles() {
+    return this.dbService.get('/styles').subscribe((response) => {
+      this.styles = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getTones() {
+    return this.dbService.get('/tones').subscribe((response) => {
+      this.tones = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getPromptSection() {
+    this.dbService.get('/prompt_section_bulk_blog_post').subscribe((response) => {
+      this.prompt = response;
+      this.loadDefaultData()
+
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getShortcodes() {
+    this.dbService.get('/shortcodes').subscribe((response) => {
+      this.shortcodes = response.filter((item: any) => item.section === 'bulk_blog_post');
+    }, (error) => {
+      console.log(error);
+    });
+  }
+  //**** ###END### DB CONNECTION *****/
   showSuccess(success: string) {
     Swal.fire({
       icon: 'success',
@@ -65,34 +145,6 @@ export class BulkArticlesComponent {
   }
 
 
-  // async improveTopicTitle() {
-  //   this.isGettingTopicTitle = true;
-  //   try {
-  //     const response = await this.functionService.getImprovedTopic(
-  //       '', this.modelTitle, this.maxTokensTitle
-  //     ).toPromise();
-  //     this.isGettingTopicTitle = false;
-  //     this.topicTitle = response.message;
-  //   } catch (error: any) {
-  //     this.isGettingTopicTitle = false;
-  //     this.showError(error.error.message)
-  //     console.error('There was an error getting the topic title:', error);
-  //   }
-  // }
-  // async improveTopicInfo() {
-  //   this.isGettingTopicInfo = true;
-  //   try {
-  //     const response = await this.functionService.getImprovedInfo(
-  //       '', this.modelTitle, this.maxTokensTitle
-  //     ).toPromise();
-  //     this.isGettingTopicInfo = false;
-  //     this.topicInfos = response.message;
-  //   } catch (error: any) {
-  //     this.isGettingTopicInfo = false;
-  //     this.showError(error.error.message);
-  //     console.error('There was an error getting the topic information:', error);
-  //   }
-  // }
   async getTitle() {
     this.isGettingTitle = true;
     let finalPrompt = this.titlePrompt
@@ -280,49 +332,40 @@ export class BulkArticlesComponent {
     return this.totalSeoScore;
   }
   //*************SETTINGS FOR EVERY ARTICLES *******************//
-  modelTitle = 'gpt-3.5-turbo';
-  maxTokensTitle = 2048;
-  modelIntroduction = 'gpt-3.5-turbo';
-  maxTokensIntroduction = 2048;
-  modelSections = 'gpt-3.5-turbo';
-  maxTokensSections = 2048;
-  modelContent = 'gpt-4';
-  maxTokensContent = 2048;
-
   setDefaultModelValue(currentStepValue: number) {
     switch (currentStepValue) {
       case 1:
-        this.modelTitle = 'gpt-3.5-turbo';
+        this.modelTitle = this.prompt.filter((item: any) => item.name === 'title')[0].model;
         break;
       case 2:
-        this.modelIntroduction = 'gpt-3.5-turbo';
+        this.modelIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].model;
         break;
       case 3:
-        this.modelSections = 'gpt-3.5-turbo';
+        this.modelSections = this.prompt.filter((item: any) => item.name === 'sections')[0].model;
         break;
       case 4:
-        this.modelContent = 'gpt-4';
+        this.modelContent = this.prompt.filter((item: any) => item.name === 'content')[0].model;
         break;
     }
   }
   setDefaultMaxTokensValue(currentStepValue: number) {
     switch (currentStepValue) {
       case 1:
-        this.maxTokensTitle = 2048;
+        this.maxTokensTitle = this.prompt.filter((item: any) => item.name === 'title')[0].max_tokens;
         break;
       case 2:
-        this.maxTokensIntroduction = 2048;
+        this.maxTokensIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].max_tokens;
         break;
       case 3:
-        this.maxTokensSections = 2048;
+        this.maxTokensSections = this.prompt.filter((item: any) => item.name === 'sections')[0].max_tokens;
         break;
       case 4:
-        this.maxTokensContent = 2048;
+        this.maxTokensContent = this.prompt.filter((item: any) => item.name === 'content')[0].max_tokens;
         break;
     }
   }
   setDefaultQtyParagraphs() {
-    this.qtyParagraphs = 10;
+    this.qtyParagraphs = this.prompt.filter((item: any) => item.name === 'sections')[0].qtyParagraph;
   }
 
   //*** PROCESS ALL BY XLXS  ******//
@@ -490,35 +533,42 @@ export class BulkArticlesComponent {
     this.addDefaulIntroduction();
     this.addDefaultSections();
     this.addDefaultContent();
-    this.addDefaultImproveTitle();
-    this.addDefaultImproveInfo();
+
+    this.modelTitle = this.prompt.filter((item: any) => item.name === 'title')[0].model;
+    this.maxTokensTitle = this.prompt.filter((item: any) => item.name === 'title')[0].max_tokens;
+    this.modelIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].model;
+    this.maxTokensIntroduction = this.prompt.filter((item: any) => item.name === 'introduction')[0].max_tokens;
+    this.modelSections = this.prompt.filter((item: any) => item.name === 'sections')[0].model;
+    this.maxTokensSections = this.prompt.filter((item: any) => item.name === 'sections')[0].max_tokens;
+    this.modelContent = this.prompt.filter((item: any) => item.name === 'content')[0].model;
+    this.maxTokensContent = this.prompt.filter((item: any) => item.name === 'content')[0].max_tokens;
+
+    this.qtyParagraphs = this.prompt.filter((item: any) => item.name === 'sections')[0].qtyParagraph;
+
+    this.selectedLanguage = this.prompt.filter((item: any) => item.name === 'title')[0].language;
+    this.selectedStyle = this.prompt.filter((item: any) => item.name === 'title')[0].style;
+    this.selectedTone = this.prompt.filter((item: any) => item.name === 'title')[0].tone;
   }
-  addDefaultImproveTitle() {
-    let value = this.functionService.getDefaultImproveTitlePrompt()
-    return this.improveTitlePrompt = value;
-  }
-  addDefaultImproveInfo() {
-    let value = this.functionService.getDefaultImproveInfoPrompt()
-    return this.improveInfoPrompt = value;
-  }
+
   addValueDefaultTitle(): string {
-    let value = this.functionService.getDefaultTitlePrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'title')[0].default_prompt;
     return this.titlePrompt = value;
   }
 
   addDefaulIntroduction() {
-    let value = this.functionService.getDefaultIntroductionPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'introduction')[0].default_prompt;
     return this.introductionPrompt = value;
   }
 
   addDefaultSections() {
-    let value = this.functionService.getDefaultSectionsPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'sections')[0].default_prompt;
     return this.sectionsPrompt = value;
   }
   addDefaultContent() {
-    let value = this.functionService.getDefaultContentPrompt()
+    let value = this.prompt.filter((item: any) => item.name === 'content')[0].default_prompt;
     return this.contentPrompt = value;
   }
+
 
   getPromptValueTitle() {
     return this.titlePrompt;
@@ -565,49 +615,88 @@ export class BulkArticlesComponent {
   setDefaultPromptValueContent() {
     return this.contentPrompt = this.addDefaultContent();
   }
+
+  saveSettings() {
+    const prompt_settings = [
+      {
+        model: this.modelTitle,
+        max_tokens: this.maxTokensTitle,
+        default_prompt: this.titlePrompt,
+        qtyParagraph: null,
+        language: this.selectedLanguage,
+        style: this.selectedStyle,
+        tone: this.selectedTone,
+        name: 'title'
+      },
+      {
+        model: this.modelIntroduction,
+        max_tokens: this.maxTokensIntroduction,
+        default_prompt: this.introductionPrompt,
+        qtyParagraph: null,
+        language: this.selectedLanguage,
+        style: this.selectedStyle,
+        tone: this.selectedTone,
+        name: 'introduction'
+      },
+      {
+        model: this.modelSections,
+        max_tokens: this.maxTokensSections,
+        default_prompt: this.sectionsPrompt,
+        qtyParagraph: this.qtyParagraphs,
+        language: this.selectedLanguage,
+        style: this.selectedStyle,
+        tone: this.selectedTone,
+        name: 'sections'
+      },
+      {
+        model: this.modelContent,
+        max_tokens: this.maxTokensContent,
+        default_prompt: this.contentPrompt,
+        qtyParagraph: null,
+        language: this.selectedLanguage,
+        style: this.selectedStyle,
+        tone: this.selectedTone,
+        name: 'content'
+      }
+    ]
+    this.dbService.put('/prompt_section_bulk_blog_post', prompt_settings).subscribe((response) => {
+      console.log(response);
+      this.getPromptSection();
+    }, (error) => {
+      console.log(error);
+    });
+
+  }
   //*************SHORTCODE HANDLE *******************//
-  shortcodes: { code: string, position: string }[] = [
+  shortcodes: { id: number, code: string, position: string, section: string }[] = [
     {
-      code: ``,
-      position: ''
+      id: 0,
+      code: "",
+      position: "",
+      section: "bulk_blog_post"
     }
   ];
-
   addShortcode() {
-    this.shortcodes.push({ code: '', position: '' });
-  }
-
-  removeShortcode(index: number) {
-    this.shortcodes.splice(index, 1);
-  }
-
-  saveShortcode() {
-    this.shortcodes = this.shortcodes.map(shortcode => {
-      let newCode = shortcode.code
-        .replace('[KEYWORD]', this.topicKeyword);
-
-      return {
-        ...shortcode,
-        code: newCode
-      };
+    this.saveShortcode();
+    const newShortcode = { code: '', position: '', section: 'bulk_blog_post' };
+    this.dbService.post('/shortcodes', newShortcode).subscribe(response => {
+      this.getShortcodes();
     });
   }
 
-  // setDefaultShortcodes() {
-  //   this.shortcodes = [
-  //     {
-  //       code: `[content-egg-block template=customizable product="it-${this.topicASIN}" show=img]`,
-  //       position: 'beforeIntroduction'
-  //     },
-  //     {
-  //       code: ` [content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=list_no_price]`,
-  //       position: 'afterIntroduction'
-  //     },
-  //     {
-  //       code: `<h3>Migliore Offerta inerente a ${this.topicKeyword}:</h3>
-  //       <p>[content-egg module=AmazonNoApi products="it-${this.topicASIN}" template=item]`,
-  //       position: 'endOfArticle'
-  //     }
-  //   ];
-  // }
+
+  removeShortcode(id: number) {
+    if (confirm('Are you sure to delete this shortcode?')) {
+      this.saveShortcode();
+      this.dbService.delete('/shortcodes', id).subscribe(response => {
+        this.getShortcodes();
+      });
+    }
+  }
+
+  saveShortcode() {
+    this.dbService.put('/shortcodes', this.shortcodes).subscribe();
+  }
+
+
 }
