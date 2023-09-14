@@ -426,9 +426,9 @@
                 [ngModel]="getModelValue()"
                 (ngModelChange)="setModelValue($event)"
               >
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                <option value="gpt-4">gpt-4</option>
+                <option *ngFor="let model of models" value="{{ model.model }}">
+                  {{ model.model }}
+                </option>
               </select>
             </div>
             <div class="col-1 d-flex justify-content-end align-items-center">
@@ -478,11 +478,12 @@
                   [(ngModel)]="selectedLanguage"
                   (change)="useCorrectDefaultPrompt()"
                 >
-                  <option value="english">English</option>
-                  <option value="french">French</option>
-                  <option value="german">German</option>
-                  <option value="espanol">Spanish</option>
-                  <option value="italiano">Italiano</option>
+                  <option
+                    *ngFor="let language of languages"
+                    value="{{ language.code }}"
+                  >
+                    {{ language.language }}
+                  </option>
                 </select>
 
                 <h6>Style</h6>
@@ -491,15 +492,8 @@
                   [(ngModel)]="selectedStyle"
                   (change)="useCorrectDefaultPrompt()"
                 >
-                  <option value="blog post">Blog post</option>
-                  <option value="article">Article</option>
-                  <option value="product description">
-                    Product description
-                  </option>
-                  <option value="product review">Product review</option>
-                  <option value="product comparison">Product comparison</option>
-                  <option value="product pros and cons">
-                    Product pros and cons
+                  <option *ngFor="let style of styles" value="{{ style.code }}">
+                    {{ style.type }}
                   </option>
                 </select>
 
@@ -509,12 +503,9 @@
                   [(ngModel)]="selectedTone"
                   (change)="useCorrectDefaultPrompt()"
                 >
-                  <option value="neutral">Neutral</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                  <option value="informal">Informal</option>
-                  <option value="funny">Funny</option>
-                  <option value="professional">Professional</option>
+                <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                  {{ tone.tone }}
+                </option>
                 </select>
               </div>
 
@@ -690,9 +681,9 @@
           <div class="row">
             <div class="col-11">
               <select class="form-control" id="model" [(ngModel)]="modelTopic">
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-                <option value="gpt-4">gpt-4</option>
+                <option *ngFor="let model of models" value="{{ model.model }}">
+                  {{ model.model }}
+                </option>
               </select>
             </div>
             <div class="col-1 d-flex justify-content-end align-items-center">
@@ -741,11 +732,12 @@
                   [(ngModel)]="selectedLanguageImproveTOPIC"
                   (change)="useCorrectDefaultPromptImproveTOPIC()"
                 >
-                  <option value="english">English</option>
-                  <option value="french">French</option>
-                  <option value="german">German</option>
-                  <option value="espanol">Spanish</option>
-                  <option value="italiano">Italiano</option>
+                  <option
+                    *ngFor="let language of languages"
+                    value="{{ language.code }}"
+                  >
+                    {{ language.language }}
+                  </option>
                 </select>
 
                 <h6>Style</h6>
@@ -754,30 +746,19 @@
                   [(ngModel)]="selectedStyleImproveTOPIC"
                   (change)="useCorrectDefaultPromptImproveTOPIC()"
                 >
-                  <option value="blog post">Blog post</option>
-                  <option value="article">Article</option>
-                  <option value="product description">
-                    Product description
-                  </option>
-                  <option value="product review">Product review</option>
-                  <option value="product comparison">Product comparison</option>
-                  <option value="product pros and cons">
-                    Product pros and cons
+                  <option *ngFor="let style of styles" value="{{ style.code }}">
+                    {{ style.type }}
                   </option>
                 </select>
-
                 <h6>Tone</h6>
                 <select
                   class="form-control mb-3"
                   [(ngModel)]="selectedToneImproveTOPIC"
                   (change)="useCorrectDefaultPromptImproveTOPIC()"
                 >
-                  <option value="neutral">Neutral</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                  <option value="informal">Informal</option>
-                  <option value="funny">Funny</option>
-                  <option value="professional">Professional</option>
+                  <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                    {{ tone.tone }}
+                  </option>
                 </select>
               </div>
 

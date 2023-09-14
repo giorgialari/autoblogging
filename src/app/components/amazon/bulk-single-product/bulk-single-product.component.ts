@@ -60,6 +60,10 @@ export class BulkSingleProductComponent implements OnInit {
       text: error
     });
   }
+  sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
 
   // async improveTopicTitle() {
   //   this.isGettingTopicTitle = true;
@@ -371,6 +375,7 @@ export class BulkSingleProductComponent implements OnInit {
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
           this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
         }
+        await this.sleep(5000); // 5 secondi di pausa tra un articolo e l'altro
       }
     } catch (e: any) {
       this.formatJsonNotValid = true;
@@ -444,16 +449,17 @@ export class BulkSingleProductComponent implements OnInit {
   }
   async processExcel(products: any[]) {
     try {
-      if (!Array.isArray(products) || products.some(item => !this.isValidExcelProduct(item))) {
+      let validProducts = products.filter(item => item.Title !== undefined && item.Infos !== undefined && item.Keyword);
+      if (!Array.isArray(validProducts) || validProducts.some(item => !this.isValidExcelProduct(item))) {
         this.formatExcelNotValid = true;
         this.formatExcelNotValidMessage = 'Excel format not valid';
         throw new Error('Excel format not valid');
       }
 
-      const totalProducts = products.length;
+      const totalProducts = validProducts.length;
       this.showOverlay = true;
 
-      for (const [index, item] of products.entries()) {
+      for (const [index, item] of validProducts.entries()) {
         if (this.hasError) {
           throw new Error('Error while processing product');
         }
@@ -479,6 +485,7 @@ export class BulkSingleProductComponent implements OnInit {
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
           this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
         }
+        await this.sleep(5000);  // 5 secondi di pausa tra un articolo e l'altro
       }
     } catch (e: any) {
       this.formatExcelNotValid = true;
@@ -528,6 +535,7 @@ export class BulkSingleProductComponent implements OnInit {
           this.showOverlay = false; // Nasconde l'overlay e lo spinner
           this.notificationService.showNotification(`${totalProducts} articles have been published successfully!`);
         }
+        await this.sleep(5000); // 5 secondi di pausa tra un articolo e l'altro
       }
     } catch (e: any) {
       this.showOverlay = false;

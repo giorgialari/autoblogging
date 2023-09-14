@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { OpenAIService } from 'src/app/services/open-ai.service';
 import { SeoAnalyzerService } from '../../seoAnalyzer/seoanalyzer.service';
+import { DbService } from 'src/app/services/db.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +15,10 @@ export class FunctionsService {
   writing_tone = ''
   topicInfos = ''
   quantityParagraphs = 0
-
+  prompt: any[] = []
 
   getDefaultImproveTitlePrompt(): string {
+    this.getPromptSection();
     return "Migliora il contenuto di questo titolo [TOPIC] in lingua [LANGUAGE]. Stile: [STYLE]. Tono: [TONE]. Deve essere compreso tra 80 e 100 caratteri. Deve essere una frase completa e breve, non può contenere frasi incomplete. Deve contenere solo informazioni essenziali. Non deve contenere icone, emoji o caratteri speciali. Deve essere impersonale e deve contenere solo le informazioni essenziali.";
   }
 
@@ -63,7 +65,20 @@ export class FunctionsService {
   }
 
 
-  constructor(private openAIService: OpenAIService, private wpService: WpService, private seoAnalyService: SeoAnalyzerService) { }
+  constructor(private openAIService: OpenAIService,
+    private wpService: WpService,
+    private seoAnalyService: SeoAnalyzerService,
+    private dbService: DbService) {
+
+  }
+
+  getPromptSection() {
+    this.dbService.get('/prompt_section_product').subscribe((response) => {
+      this.prompt = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
 
   getImprovedTopic(prompt: string,
     model: string,
@@ -141,7 +156,7 @@ export class FunctionsService {
       .join('\n');
   }
 
-  getCompleteArticle(titleResponse: string, contentResponse: string, introductionResponse: string,  topicKeyword: string, shortcodes: { code: string, position: string }[]): string {
+  getCompleteArticle(titleResponse: string, contentResponse: string, introductionResponse: string, topicKeyword: string, shortcodes: { code: string, position: string }[]): string {
     contentResponse = this.wrapParagraphsWithPTags(contentResponse);
 
     const insertShortcodes = (content: string, tag: string, position: number, code: string, before: boolean = true) => {

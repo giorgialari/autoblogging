@@ -24,6 +24,10 @@ import { BlogPostComponent } from './components/blog-post/blog-post.component';
 import { SingleArticleComponent } from './components/blog-post/single-article/single-article.component';
 import { BulkArticlesComponent } from './components/blog-post/bulk-articles/bulk-articles.component';
 import { SingleProductComponent } from './components/amazon/single-product/single-product.component';
+import { BulkTableArticlesComponent } from './components/blog-post/bulk-articles/bulk-table/bulk-table.component';
+import { PillarComponent } from './components/pillar/pillar.component';
+import { SinglePillarArticleComponent } from './components/pillar/single-pillar-article/single-pillar-article.component';
+import { BulkPillarArticlesComponent } from './components/pillar/bulk-pillar-articles/bulk-pillar-articles.component';
 
 
 @NgModule({
@@ -39,7 +43,11 @@ import { SingleProductComponent } from './components/amazon/single-product/singl
     BulkTableComponent,
     BlogPostComponent,
     SingleArticleComponent,
-    BulkArticlesComponent
+    BulkArticlesComponent,
+    BulkTableArticlesComponent,
+    PillarComponent,
+    SinglePillarArticleComponent,
+    BulkPillarArticlesComponent
   ],
   imports: [
     BrowserAnimationsModule,

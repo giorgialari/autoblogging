@@ -25,7 +25,9 @@
               <label for="topicInput" style="margin-right: 5px"
                 >Insert Excel here:
               </label>
-              <a href="assets/example-files/test_excel.xlsx" target="_blank"
+              <a
+                href="assets/example-files/test_excel_products.xlsx"
+                target="_blank"
                 >Download valid example (XLSX)</a
               >
               <div class="text-danger my-1" *ngIf="formatExcelNotValid">
@@ -500,102 +502,94 @@
           <h5 class="form-label">Insert custom shortcode</h5>
 
           <div
-          *ngFor="let shortcode of shortcodes; let i = index"
-          class="d-flex justify-content-between mb-2"
-        >
-          <div class="col-10 d-flex flex-row">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Enter shortcode"
-              [(ngModel)]="shortcode.code"
-            />
-            <select class="form-control" [(ngModel)]="shortcode.position">
-              <optgroup label="Introduction">
-                <option value="beforeIntroduction">
-                  Before introduction
-                </option>
-                <option value="afterIntroduction">After introduction</option>
-              </optgroup>
-              <optgroup label="Article">
-                <option value="beginningOfArticle">
-                  Beginning of article
-                </option>
-                <option value="randomInTheContent">
-                  Random in the content
-                </option>
-                <option value="endOfArticle">After article</option>
-              </optgroup>
-              <optgroup label="Paragraphs">
-                <option value="beforeFirstP">Before 1° Paragraph</option>
-                <option value="afterFirstP">After 1° Paragraph</option>
-                <option value="afterSecondP">After 2° Paragraph</option>
-                <option value="afterThirdP">After 3° Paragraph</option>
-                <option value="afterFourthP">After 4° Paragraph</option>
-                <option value="afterFifthP">After 5° Paragraph</option>
-                <option value="afterSixthP">After 6° Paragraph</option>
-                <option value="afterSeventhP">After 7° Paragraph</option>
-                <option value="afterEighthP">After 8° Paragraph</option>
-                <option value="afterNinthP">After 9° Paragraph</option>
-                <option value="afterTenthP">After 10° Paragraph</option>
-                <option value="afterEleventhP">After 11° Paragraph</option>
-                <option value="afterTwelfthP">After 12° Paragraph</option>
-                <option value="afterThirteenthP">After 13° Paragraph</option>
-                <option value="afterFourteenthP">After 14° Paragraph</option>
-                <option value="afterFifteenthP">After 15° Paragraph</option>
-                <option value="afterSixteenthP">After 16° Paragraph</option>
-                <option value="afterSeventeenthP">After 17° Paragraph</option>
-                <option value="afterEighteenthP">After 18° Paragraph</option>
-                <option value="afterNineteenthP">After 19° Paragraph</option>
-                <option value="afterTwentiethP">After 20° Paragraph</option>
-              </optgroup>
-              <optgroup label="H2 Tags">
-                <option value="beforeFirstH2">Before 1° H2</option>
-                <option value="afterFirstH2">After 1° H2</option>
-                <option value="beforeSecondH2">Before 2° H2</option>
-                <option value="afterSecondH2">After 2° H2</option>
-                <option value="beforeThirdH2">Before 3° H2</option>
-                <option value="afterThirdH2">After 3° H2</option>
-                <option value="beforeFourthH2">Before 4° H2</option>
-                <option value="afterFourthH2">After 4° H2</option>
-                <option value="beforeFifthH2">Before 5° H2</option>
-                <option value="afterFifthH2">After 5° H2</option>
-                <option value="beforeSixthH2">Before 6° H2</option>
-                <option value="afterSixthH2">After 6° H2</option>
-                <option value="beforeSeventhH2">Before 7° H2</option>
-                <option value="afterSeventhH2">After 7° H2</option>
-                <option value="beforeEighthH2">Before 8° H2</option>
-                <option value="afterEighthH2">After 8° H2</option>
-                <option value="beforeNinthH2">Before 9° H2</option>
-                <option value="afterNinthH2">After 9° H2</option>
-                <option value="beforeTenthH2">Before 10° H2</option>
-                <option value="afterTenthH2">After 10° H2</option>
-              </optgroup>
-            </select>
+            *ngFor="let shortcode of shortcodes; let i = index"
+            class="d-flex justify-content-between mb-2"
+          >
+            <div class="col-10 d-flex flex-row">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter shortcode"
+                [(ngModel)]="shortcode.code"
+              />
+              <select class="form-control" [(ngModel)]="shortcode.position">
+                <optgroup label="Introduction">
+                  <option value="beforeIntroduction">
+                    Before introduction
+                  </option>
+                  <option value="afterIntroduction">After introduction</option>
+                </optgroup>
+                <optgroup label="Article">
+                  <option value="beginningOfArticle">
+                    Beginning of article
+                  </option>
+                  <option value="randomInTheContent">
+                    Random in the content
+                  </option>
+                  <option value="endOfArticle">After article</option>
+                </optgroup>
+                <optgroup label="Paragraphs">
+                  <option value="beforeFirstP">Before 1° Paragraph</option>
+                  <option value="afterFirstP">After 1° Paragraph</option>
+                  <option value="afterSecondP">After 2° Paragraph</option>
+                  <option value="afterThirdP">After 3° Paragraph</option>
+                  <option value="afterFourthP">After 4° Paragraph</option>
+                  <option value="afterFifthP">After 5° Paragraph</option>
+                  <option value="afterSixthP">After 6° Paragraph</option>
+                  <option value="afterSeventhP">After 7° Paragraph</option>
+                  <option value="afterEighthP">After 8° Paragraph</option>
+                  <option value="afterNinthP">After 9° Paragraph</option>
+                  <option value="afterTenthP">After 10° Paragraph</option>
+                  <option value="afterEleventhP">After 11° Paragraph</option>
+                  <option value="afterTwelfthP">After 12° Paragraph</option>
+                  <option value="afterThirteenthP">After 13° Paragraph</option>
+                  <option value="afterFourteenthP">After 14° Paragraph</option>
+                  <option value="afterFifteenthP">After 15° Paragraph</option>
+                  <option value="afterSixteenthP">After 16° Paragraph</option>
+                  <option value="afterSeventeenthP">After 17° Paragraph</option>
+                  <option value="afterEighteenthP">After 18° Paragraph</option>
+                  <option value="afterNineteenthP">After 19° Paragraph</option>
+                  <option value="afterTwentiethP">After 20° Paragraph</option>
+                </optgroup>
+                <optgroup label="H2 Tags">
+                  <option value="beforeFirstH2">Before 1° H2</option>
+                  <option value="afterFirstH2">After 1° H2</option>
+                  <option value="beforeSecondH2">Before 2° H2</option>
+                  <option value="afterSecondH2">After 2° H2</option>
+                  <option value="beforeThirdH2">Before 3° H2</option>
+                  <option value="afterThirdH2">After 3° H2</option>
+                  <option value="beforeFourthH2">Before 4° H2</option>
+                  <option value="afterFourthH2">After 4° H2</option>
+                  <option value="beforeFifthH2">Before 5° H2</option>
+                  <option value="afterFifthH2">After 5° H2</option>
+                  <option value="beforeSixthH2">Before 6° H2</option>
+                  <option value="afterSixthH2">After 6° H2</option>
+                  <option value="beforeSeventhH2">Before 7° H2</option>
+                  <option value="afterSeventhH2">After 7° H2</option>
+                  <option value="beforeEighthH2">Before 8° H2</option>
+                  <option value="afterEighthH2">After 8° H2</option>
+                  <option value="beforeNinthH2">Before 9° H2</option>
+                  <option value="afterNinthH2">After 9° H2</option>
+                  <option value="beforeTenthH2">Before 10° H2</option>
+                  <option value="afterTenthH2">After 10° H2</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="col-2 mx-1 my-auto">
+              <button
+                class="btn btn-secondary btn-sm me-2"
+                (click)="addShortcode()"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="removeShortcode(i)"
+              >
+                <i class="fas fa-minus"></i>
+              </button>
+            </div>
           </div>
-          <div class="col-2 mx-1 my-auto">
-            <button
-              class="btn btn-secondary btn-sm me-2"
-              (click)="addShortcode()"
-            >
-              <i class="fas fa-plus"></i>
-            </button>
-            <button
-              class="btn btn-danger btn-sm"
-              (click)="removeShortcode(i)"
-            >
-              <i class="fas fa-minus"></i>
-            </button>
-          </div>
-        </div>
-        <button
-          class="btn btn-secondary btn-sm me-2"
-          data-mdb-dismiss="modal"
-          aria-label="Close"
-          (click)="saveShortcode()"
-        >
-          Save
-        </button>
         </div>
       </div>
       <div class="modal-footer">
@@ -603,6 +597,7 @@
           type="button"
           class="btn btn-secondary btn-sm"
           data-mdb-dismiss="modal"
+          (click)="saveShortcode()"
         >
           Save
         </button>

@@ -8,6 +8,7 @@ import { map, takeUntil } from 'rxjs/operators';
 import { StepperOrientation } from '@angular/material/stepper';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import Swal from 'sweetalert2';
+import { DbService } from 'src/app/services/db.service';
 
 
 @Component({
@@ -51,19 +52,64 @@ export class SingleProductComponent implements OnInit {
   sectionsPrompt = ''
   contentPrompt = ''
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getModels();
+    this.getLanguages();
+    this.getStyles();
+    this.getTones();
+  }
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
     private cdr: ChangeDetectorRef,
     breakpointObserver: BreakpointObserver,
     private functionService: FunctionsService,
-    private seoAnalyzerService: SeoAnalyzerService) {
+    private seoAnalyzerService: SeoAnalyzerService,
+    private dbService: DbService) {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
 
     this.loadDefaultData();
   }
+
+  //**** DB CONNECTION *****/
+  models: any[] = [];
+  languages: any[] = [];
+  styles: any[] = [];
+  tones: any[] = []
+
+  getModels() {
+    this.dbService.get('/models').subscribe((response) => {
+      this.models = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getLanguages() {
+    return this.dbService.get('/languages').subscribe((response) => {
+      this.languages = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getStyles() {
+    return this.dbService.get('/styles').subscribe((response) => {
+      this.styles = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+
+  getTones() {
+    return this.dbService.get('/tones').subscribe((response) => {
+      this.tones = response;
+    }, (error) => {
+      console.log(error);
+    });
+  }
+  //**** ###END### DB CONNECTION *****/
 
 
   showSuccess(success: string) {
