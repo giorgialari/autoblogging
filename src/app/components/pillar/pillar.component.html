@@ -76,6 +76,26 @@
   </button>
 </div>
 
+<div class="overlay" *ngIf="showOverlay">
+  <div class="overlay-content d-flex justify-content-center align-items-center">
+    <div class="card bg-white" style="width: 18rem">
+      <div class="card-body">
+        <div
+          class="spinner-border text-primary"
+          role="status"
+          *ngIf="showOverlay"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="mt-2 font-weight-bold">Article {{ currentArticleNumber }} / {{blocks.length}} </div>
+        <div class="mt-2">{{ statusMessage }}</div>
+        <button class="btn btn-danger mt-3 btn-sm" (click)="stopRequest()">
+          Stop all
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ############ MODALE #############-->
 <div class="modal fade" id="modaleSettings" *ngIf="selectedBlock" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">

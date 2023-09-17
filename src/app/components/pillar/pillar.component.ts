@@ -182,6 +182,10 @@ export class PillarComponent {
     rows: [],
     settings: this.defaultSettings
   };
+  showOverlay: boolean = false;
+  currentArticleNumber: number = 0;
+  statusMessage = '';
+
   isDownload: boolean = false;
   isPublish: boolean = false;
   printOrPublish() {
@@ -350,12 +354,14 @@ export class PillarComponent {
 
   async generateSequentially(): Promise<string[]> {
     this.isProcessing = true;
+    this.showOverlay = true;
     const articles = [];
 
     for (const block of this.blocks) {
       let article = ''; // Un singolo articolo che verrà costruito blocco per blocco
-
+      this.currentArticleNumber = this.blocks.indexOf(block) + 1;
       // 1. Creazione del titolo della guida
+      this.statusMessage = `Generating title for ${block.topicTitle}...`;
       const titlePrompt = block.settings.promptTextTitle
         .replace('[TOPIC]', block.topicTitle)
         .replace('[LANGUAGE]', block.settings.selectedLanguage)
@@ -364,7 +370,9 @@ export class PillarComponent {
       const titleResponse = await this.openAIService.getResponse(titlePrompt, block.settings.modelTitle, block.settings.maxTokensTitle).toPromise();
       article += `<h1>${titleResponse.message}</h1>\n\n`;
 
+
       // 2. Creazione dell'introduzione alla guida
+      this.statusMessage = `Generating introduction for ${block.topicTitle}...`;
       const introductionPrompt = block.settings.promptTextIntroduction
         .replace('[TOPIC]', block.topicTitle)
         .replace('[LANGUAGE]', block.settings.selectedLanguage)
@@ -374,6 +382,7 @@ export class PillarComponent {
       article += `${introductionResponse.message}\n\n`;
 
       // 3. Creazione delle sezioni con le descrizioni dei prodotti
+      this.statusMessage = `Generating sections for ${block.topicTitle}...`;
       const secionsGen = [];
       for (const row of block.rows) {
         const rowPromptBase = block.isAmazonProduct
@@ -393,6 +402,7 @@ export class PillarComponent {
         article += `<h2>${row.title}</h2>\n${rowResponse.message}\n\n`;
       }
       // 4. Creazione delle conclusioni e consigli su come scegliere e utilizzare i prodotti
+      this.statusMessage = `Generating conclusion for ${block.topicTitle}...`;
       const contentPromptBase = block.settings.promptTextContent;
       const allSectionGen = secionsGen.join(' ');
       const contentPrompt = contentPromptBase
@@ -426,8 +436,7 @@ export class PillarComponent {
     from(this.generateSequentially())
       .subscribe(allArticles => {
         this.isProcessing = false;
-        // Qui, `allArticles` conterrà tutti gli articoli generati in ordine sequenziale
-        console.log('Tutti gli articoli:', allArticles);
+        this.showOverlay = false;
       });
   }
 
@@ -439,6 +448,7 @@ export class PillarComponent {
   stopRequest() {
     this.openAIService.abortRequests();
     this.isProcessing = false;
+    this.showOverlay = false;
   }
   openModal(block: any) {
     this.selectedBlock = block;
