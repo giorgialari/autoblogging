@@ -309,6 +309,54 @@ app.put("/prompt_section_bulk_blog_post", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// CRUD PROMPT SECTION - PILLAR PAGE
+app.get("/prompt_pillar_section", async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [results] = await connection.query(
+      "SELECT * FROM prompt_pillar_section"
+    );
+    connection.release();
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put("/prompt_pillar_section", async (req, res) => {
+  try {
+    const prompt_pillar_section = req.body;
+
+    const connection = await pool.getConnection();
+
+    for (const prompt of prompt_pillar_section) {
+      const query = `
+      UPDATE prompt_pillar_section
+      SET model = ?, max_tokens = ?,
+      default_prompt = ?, qtyParagraph = ?,
+      language = ?, style = ?, tone = ?
+      WHERE name = ?
+    `;
+      await connection.query(query, [
+        prompt.model,
+        prompt.max_tokens,
+        prompt.default_prompt,
+        prompt.qtyParagraph,
+        prompt.language,
+        prompt.style,
+        prompt.tone,
+        prompt.name,
+      ]);
+    }
+
+    connection.release();
+
+    res.json({ message: "Dati aggiornati con successo!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server in esecuzione su http://localhost:${PORT}`);

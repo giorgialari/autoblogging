@@ -101,14 +101,14 @@ export class PillarComponent {
     shortcodes: []
   };
 
-  constructor(private openAIService: OpenAIService,  private dbService: DbService) {
+  constructor(private openAIService: OpenAIService, private dbService: DbService) {
     this.getModels();
     this.getLanguages();
     this.getStyles();
     this.getTones();
     this.getPromptSection();
     this.getShortcodes();
-   }
+  }
   //**** DB CONNECTION *****/
   getModels() {
     this.dbService.get('/models').subscribe((response) => {
@@ -153,7 +153,7 @@ export class PillarComponent {
 
   setDefaultSettings(promptData: any) {
     promptData.forEach((data: { name: any; language: string; style: string; tone: string; model: string; max_tokens: number; default_prompt: string; qtyParagraph: number; }) => {
-      switch(data.name) {
+      switch (data.name) {
         case 'title':
           this.defaultSettings.selectedLanguage = data.language;
           this.defaultSettings.selectedStyle = data.style;
@@ -201,7 +201,7 @@ export class PillarComponent {
           productInfo: '',
         }
       ],
-      settings: {...this.defaultSettings}
+      settings: { ...this.defaultSettings }
     });
   }
 
@@ -225,7 +225,6 @@ export class PillarComponent {
     }
   }
 
-  //TODO - METODO DA SISTEMAERE
   async generateSequentially(): Promise<string[]> {
     this.isProcessing = true;
     const articles = [];
@@ -233,27 +232,58 @@ export class PillarComponent {
     for (const block of this.blocks) {
       let article = ''; // Un singolo articolo che verrà costruito blocco per blocco
 
-      const titlePrompt = `Crea un titolo e un'introduzione per una guida all'acquisto su ${block.topicTitle}.`;
-      const titleResponse = await this.openAIService.getResponse(titlePrompt, 'gpt-3.5-turbo', 150).toPromise();
-      article += titleResponse.message + '\n\n';  // Aggiungi la risposta al contenuto dell'articolo
+      // 1. Creazione del titolo della guida
+      const titlePrompt = block.settings.promptTextTitle
+        .replace('[TOPIC]', block.topicTitle)
+        .replace('[LANGUAGE]', block.settings.selectedLanguage)
+        .replace('[STYLE]', block.settings.selectedStyle)
+        .replace('[TONE]', block.settings.selectedTone);
+      const titleResponse = await this.openAIService.getResponse(titlePrompt, block.settings.modelTitle, block.settings.maxTokensTitle).toPromise();
+      article += `<h1>${titleResponse.message}</h1>\n\n`;
 
+      // 2. Creazione dell'introduzione alla guida
+      const introductionPrompt = block.settings.promptTextIntroduction
+        .replace('[TOPIC]', block.topicTitle)
+        .replace('[LANGUAGE]', block.settings.selectedLanguage)
+        .replace('[STYLE]', block.settings.selectedStyle)
+        .replace('[TONE]', block.settings.selectedTone);
+      const introductionResponse = await this.openAIService.getResponse(introductionPrompt, block.settings.modelIntroduction, block.settings.maxTokensIntroduction).toPromise();
+      article += `${introductionResponse.message}\n\n`;
+
+      // 3. Creazione delle sezioni con le descrizioni dei prodotti
       for (const product of block.rows) {
-        const productPrompt = block.isAmazonProduct
-          ? `Scrivi una breve recensione di circa 100-150 parole su ${product.productTitle} con l'ASIN ${product.asin}. Dettagli: ${product.productInfo}.`
-          : `Scrivi una breve recensione di circa 100-150 parole su ${product.productTitle}. Dettagli: ${product.productInfo}.`;
-        const productResponse = await this.openAIService.getResponse(productPrompt, 'gpt-3.5-turbo', 150).toPromise();
-        article += productResponse.message + '\n\n';  // Aggiungi la risposta al contenuto dell'articolo
+        const productPromptBase = block.isAmazonProduct
+          ? block.settings.promptTextSections
+          : block.settings.promptTextContent;
+        const productPrompt = productPromptBase
+          .replace('[PRODUCT_TITLE]', product.productTitle)
+          .replace('[ASIN]', product.asin)
+          .replace('[PRODUCT_INFO]', product.productInfo)
+          .replace('[LANGUAGE]', block.settings.selectedLanguage)
+          .replace('[STYLE]', block.settings.selectedStyle)
+          .replace('[TONE]', block.settings.selectedTone);
+        const productResponseModel = block.isAmazonProduct ? block.settings.modelSections : block.settings.modelContent;
+        const productResponseMaxTokens = block.isAmazonProduct ? block.settings.maxTokensSections : block.settings.maxTokensContent;
+        const productResponse = await this.openAIService.getResponse(productPrompt, productResponseModel, productResponseMaxTokens).toPromise();
+        article += `<h2>${product.productTitle}</h2>\n${productResponse.message}\n\n`;
       }
 
-      const sectionsPrompt = `Spiega quale prodotto scegliere tra i prodotti menzionati nel blocco ${block.topicTitle}, come utilizzarli al meglio e le conclusioni.`;
-      const sectionsResponse = await this.openAIService.getResponse(sectionsPrompt, 'gpt-3.5-turbo', 450).toPromise();
-      article += sectionsResponse.message;  // Aggiungi la risposta al contenuto dell'articolo
+      // 4. Creazione delle conclusioni e consigli su come scegliere e utilizzare i prodotti
+      const sectionsPromptBase = block.settings.promptTextSections;
+      const sectionsPrompt = sectionsPromptBase
+        .replace('[TOPIC]', block.topicTitle)
+        .replace('[LANGUAGE]', block.settings.selectedLanguage)
+        .replace('[STYLE]', block.settings.selectedStyle)
+        .replace('[TONE]', block.settings.selectedTone);
+      const sectionsResponse = await this.openAIService.getResponse(sectionsPrompt, block.settings.modelSections, block.settings.maxTokensSections).toPromise();
+      article += `<h2>Conclusioni</h2>\n${sectionsResponse.message}`;
 
-      articles.push(article);  // Aggiungi l'articolo completato all'array degli articoli
+      articles.push(article);
     }
 
     return articles;
   }
+
 
   generateMultipleArticles(): void {
     from(this.generateSequentially())
@@ -268,12 +298,13 @@ export class PillarComponent {
     this.openAIService.abortRequests();
     this.isProcessing = false;
   }
-  openModal(block:any) {
+  openModal(block: any) {
     this.selectedBlock = block;
-    this.settings = {...block.settings};
+    block.settings = { ...this.defaultSettings };
+    this.settings = { ...this.defaultSettings };
   }
 
-  saveForThisArticle(){
+  saveForThisArticle() {
     this.selectedBlock.settings = this.settings;
   }
 
@@ -325,6 +356,7 @@ export class PillarComponent {
 
     this.dbService.put('/prompt_pillar_section', prompt_settings).subscribe((response) => {
       console.log(response);
+      this.defaultSettings = { ...this.selectedBlock.settings };
       this.getPromptSection(); // Ricarica le impostazioni predefinite
     }, (error) => {
       console.log(error);

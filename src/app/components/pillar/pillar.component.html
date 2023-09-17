@@ -206,11 +206,8 @@
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea
-              class="form-control"
-              [ngModel]="settings.promptTextTitle"
-              (ngModelChange)="settings.promptTextTitle = $event"
-            ></textarea>
+            <textarea class="form-control"
+            [(ngModel)]="settings.promptTextTitle"></textarea>
           </div>
         </div>
 
@@ -243,8 +240,7 @@
             <label class="form-label">Prompt text</label>
             <textarea
               class="form-control"
-              [ngModel]="settings.promptTextIntroduction"
-              (ngModelChange)="settings.promptTextIntroduction = $event"
+              [(ngModel)]="settings.promptTextIntroduction"
             ></textarea>
           </div>
         </div>
@@ -283,8 +279,7 @@
             <label class="form-label">Prompt text</label>
             <textarea
               class="form-control"
-              [ngModel]="settings.promptTextSections"
-              (ngModelChange)="settings.promptTextSections = $event"
+              [(ngModel)]="settings.promptTextSections"
             ></textarea>
           </div>
         </div>
@@ -315,8 +310,7 @@
             <label class="form-label">Prompt text</label>
             <textarea
               class="form-control"
-              [ngModel]="settings.promptTextContent"
-              (ngModelChange)="settings.promptTextContent = $event"
+              [(ngModel)]="settings.promptTextContent"
             ></textarea>
           </div>
         </div>
