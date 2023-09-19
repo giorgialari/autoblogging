@@ -9,6 +9,8 @@ import { BlogPostComponent } from './components/blog-post/blog-post.component';
 import { SingleArticleComponent } from './components/blog-post/single-article/single-article.component';
 import { BulkArticlesComponent } from './components/blog-post/bulk-articles/bulk-articles.component';
 import { PillarComponent } from './components/pillar/pillar.component';
+import { BulkPillarArticlesComponent } from './components/pillar/bulk-pillar-articles/bulk-pillar-articles.component';
+import { SinglePillarArticleComponent } from './components/pillar/single-pillar-article/single-pillar-article.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent},
@@ -16,7 +18,10 @@ const routes: Routes = [
   { path: 'single-article', component: SingleArticleComponent},
   { path: 'bulk-product', component: BulkSingleProductComponent},
   { path: 'bulk-articles', component: BulkArticlesComponent},
+
   { path: 'pillar-article', component: PillarComponent},
+  { path: 'single-pillar-article', component: SinglePillarArticleComponent},
+  { path: 'bulk-pillar-article', component: BulkPillarArticlesComponent},
 
   { path: 'settings', component: SettingsComponent},
   { path: 'amazon', component: AmazonComponent},

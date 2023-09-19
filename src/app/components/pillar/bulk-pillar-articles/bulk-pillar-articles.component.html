@@ -1,1 +1,361 @@
-<p>bulk-pillar-articles works!</p>
+<div class="container my-4">
+  <div class="card mb-4" *ngFor="let block of blocks; let blockIndex = index">
+    <div class="card-header bg-info text-white">
+      Article {{ blockIndex + 1 }}
+      <button type="button" class="btn btn-secondary btn-sm shadow btn-sm mx-3" data-mdb-toggle="modal"
+        data-mdb-target="#modaleSettings" (click)="openModal(block)">
+        <i class="fas fa-sliders"></i>
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked=""
+          [(ngModel)]="block.isAmazonProduct" />
+        <label class="form-check-label" for="flexCheckChecked">
+          Amazon Product
+        </label>
+      </div>
+
+      <div class="d-flex flex-row justify-content-between">
+        <div class="form-group col-11">
+          <label for="topicInput">Topic Title:</label>
+          <input type="text" class="form-control" id="topicTitle" [(ngModel)]="block.topicTitle" />
+        </div>
+        <div class="col-1 d-flex flex-row align-items-center ms-3 mt-3">
+          <button class="btn btn-secondary btn-sm me-2" (click)="addBlock()">
+            <i class="fas fa-plus"></i>
+          </button>
+          <!-- Pulsante per rimuovere il blocco (visibile solo dal secondo blocco in poi) -->
+          <button class="btn btn-danger btn-sm" *ngIf="blockIndex > 0" (click)="removeBlock(blockIndex)">
+            <i class="fas fa-minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex flex-row justify-content-between mx-4 my-4"
+        *ngFor="let row of block.rows; let rowIndex = index">
+        <div class="form-group col-3">
+          <label for="topicInput">Enter the ASIN here:</label>
+          <input type="text" class="form-control" id="topicASIN" [disabled]="!block.isAmazonProduct"
+            [(ngModel)]="row.asin" />
+        </div>
+        <div class="form-group col-3">
+          <label for="topicInput">Enter the title of product here:</label>
+          <input type="text" class="form-control" id="titleProduct" [(ngModel)]="row.title" />
+        </div>
+        <div class="form-group col-4">
+          <label for="topicInput">Enter the infos of product here:</label>
+          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="row.details"></textarea>
+        </div>
+
+        <div class="col-1 d-flex flex-row align-items-center mt-3">
+          <button class="btn btn-secondary btn-sm me-2" (click)="addRow(block)">
+            <i class="fas fa-plus"></i>
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="removeRow(block, rowIndex)">
+            <i class="fas fa-minus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pulsante per aggiungere una nuova riga se tutte le righe sono state eliminate -->
+      <div class="text-center" *ngIf="block.rows.length === 0">
+        <button class="btn btn-secondary btn-sm my-4" (click)="addRow(block)">
+          Add new row
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-secondary btn-sm my-4" (click)="printOrPublish()">
+    <span class="spinner-grow spinner-grow-sm" *ngIf="isProcessing" role="status" aria-hidden="true"></span>
+    Process
+  </button>
+  <button class="btn btn-secondary my-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isProcessing">
+    <i class="fas fa-stop"></i>
+  </button>
+</div>
+
+<div class="overlay" *ngIf="showOverlay">
+  <div class="overlay-content d-flex justify-content-center align-items-center">
+    <div class="card bg-white" style="width: 18rem">
+      <div class="card-body">
+        <div
+          class="spinner-border text-primary"
+          role="status"
+          *ngIf="showOverlay"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="mt-2 font-weight-bold">Article {{ currentArticleNumber }} / {{blocks.length}} </div>
+        <div class="mt-2">{{ statusMessage }}</div>
+        <button class="btn btn-danger mt-3 btn-sm" (click)="stopRequest()">
+          Stop all
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ############ MODALE #############-->
+<div class="modal fade" id="modaleSettings" *ngIf="selectedBlock" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          Settings for Bulk Section
+        </h5>
+        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Prompt Settings -->
+        <div class="mb-2">
+          <h5 class="form-label">Prompt Settings</h5>
+          <!-- Language -->
+          <div class="mb-3">
+            <label class="form-label">Language</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedLanguage">
+              <option *ngFor="let language of languages" value="{{ language.code }}">
+                {{ language.language }}
+              </option>
+            </select>
+          </div>
+          <!-- Style -->
+          <div class="mb-3">
+            <label class="form-label">Style</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedStyle">
+              <option *ngFor="let style of styles" value="{{ style.code }}">
+                {{ style.type }}
+              </option>
+            </select>
+          </div>
+          <!-- Tone -->
+          <div class="mb-3">
+            <label class="form-label">Tone</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedTone">
+              <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                {{ tone.tone }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Title Settings -->
+        <div class="mb-2">
+          <h5 class="form-label">Title</h5>
+          <!-- Model -->
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelTitle">
+              <option *ngFor="let model of models" value="{{ model.model }}">
+                {{ model.model }}
+              </option>
+            </select>
+          </div>
+          <!-- Max Tokens -->
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensTitle" />
+          </div>
+          <!-- Prompt text -->
+          <div class="mb-3">
+            <label class="form-label">Prompt text</label>
+            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextTitle"></textarea>
+          </div>
+        </div>
+
+        <!-- Introduction Settings -->
+        <div class="mb-2">
+          <h5 class="form-label">Introduction</h5>
+          <!-- Model -->
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelIntroduction">
+              <option *ngFor="let model of models" value="{{ model.model }}">
+                {{ model.model }}
+              </option>
+            </select>
+          </div>
+          <!-- Max Tokens -->
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensIntroduction" />
+          </div>
+          <!-- Prompt text -->
+          <div class="mb-3">
+            <label class="form-label">Prompt text</label>
+            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextIntroduction"></textarea>
+          </div>
+        </div>
+
+        <!-- Sections Settings -->
+        <div class="mb-2">
+          <h5 class="form-label">Sections</h5>
+          <!-- Model -->
+          <div class="mb-3">
+            <!-- Max Tokens -->
+            <div class="mb-3">
+              <label class="form-label">Paragraph</label>
+              <input type="number" class="form-control" [ngModel]="
+              selectedBlock.isAmazonProduct ?
+              selectedBlock.settings.qtyParagraphs :
+              selectedBlock.settings.qtyParagraphsNoAMZ
+              "
+              (ngModelChange)="onQtyParagraphsChange($event)"/>
+            </div>
+            <label class="form-label">Model</label>
+            <select class="form-control"
+              [ngModel]="selectedBlock.isAmazonProduct ?
+               selectedBlock.settings.modelSections :
+               selectedBlock.settings.modelSectionsNoAMZ "
+               (ngModelChange)="onModelChange($event)">
+              <option *ngFor="let model of models" value="{{ model.model }}">
+                {{ model.model }}
+              </option>
+            </select>
+          </div>
+          <!-- Max Tokens -->
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <input type="number" class="form-control" [ngModel]="selectedBlock.isAmazonProduct ?
+            selectedBlock.settings.maxTokensSections :
+            selectedBlock.settings.maxTokensSectionsNoAMZ"
+            (ngModelChange)="onMaxTokensChange($event)"/>
+          </div>
+          <!-- Prompt text -->
+          <div class="mb-3" *ngIf="selectedBlock.isAmazonProduct; else noAmazonProduct">
+            <label class="form-label">Prompt text (Amazon Product)</label>
+            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextSections"></textarea>
+          </div>
+
+          <ng-template #noAmazonProduct>
+            <div class="mb-3">
+              <label class="form-label">Prompt text (NO Amazon Product)</label>
+              <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextSectionsNoAMZ"></textarea>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Content Settings -->
+        <div class="mb-2">
+          <h5 class="form-label">Content</h5>
+          <!-- Model -->
+          <div class="mb-3">
+            <label class="form-label">Model</label>
+            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelContent">
+              <option *ngFor="let model of models" value="{{ model.model }}">
+                {{ model.model }}
+              </option>
+            </select>
+          </div>
+          <!-- Max Tokens -->
+          <div class="mb-3">
+            <label class="form-label">Max Tokens</label>
+            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensContent" />
+          </div>
+          <!-- Prompt text -->
+          <div class="mb-3">
+            <label class="form-label">Prompt text</label>
+            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextContent"></textarea>
+          </div>
+        </div>
+
+        <!-- Custom Shortcode -->
+        <div class="mb-2">
+          <h5 class="form-label">
+            Insert custom shortcode
+            <i class="fas fa-circle-info mx-2" data-toggle="tooltip" data-placement="top"
+              title="Accepted placeholders: [KEYWORD]"></i>
+            <button *ngIf="shortcodes.length == 0" class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+              <i class="fas fa-plus"></i>
+            </button>
+          </h5>
+
+          <div *ngFor="let shortcode of shortcodes; let i = index" class="d-flex justify-content-between mb-2">
+            <div class="col-10 d-flex flex-row">
+              <input type="text" class="form-control" placeholder="Enter shortcode" [(ngModel)]="shortcode.code" />
+              <select class="form-control" [(ngModel)]="shortcode.position">
+                <optgroup label="Introduction">
+                  <option value="beforeIntroduction">
+                    Before introduction
+                  </option>
+                  <option value="afterIntroduction">After introduction</option>
+                </optgroup>
+                <optgroup label="Article">
+                  <option value="beginningOfArticle">
+                    Beginning of article
+                  </option>
+                  <option value="randomInTheContent">
+                    Random in the content
+                  </option>
+                  <option value="endOfArticle">After article</option>
+                </optgroup>
+                <optgroup label="Paragraphs">
+                  <option value="beforeFirstP">Before 1° Paragraph</option>
+                  <option value="afterFirstP">After 1° Paragraph</option>
+                  <option value="afterSecondP">After 2° Paragraph</option>
+                  <option value="afterThirdP">After 3° Paragraph</option>
+                  <option value="afterFourthP">After 4° Paragraph</option>
+                  <option value="afterFifthP">After 5° Paragraph</option>
+                  <option value="afterSixthP">After 6° Paragraph</option>
+                  <option value="afterSeventhP">After 7° Paragraph</option>
+                  <option value="afterEighthP">After 8° Paragraph</option>
+                  <option value="afterNinthP">After 9° Paragraph</option>
+                  <option value="afterTenthP">After 10° Paragraph</option>
+                  <option value="afterEleventhP">After 11° Paragraph</option>
+                  <option value="afterTwelfthP">After 12° Paragraph</option>
+                  <option value="afterThirteenthP">After 13° Paragraph</option>
+                  <option value="afterFourteenthP">After 14° Paragraph</option>
+                  <option value="afterFifteenthP">After 15° Paragraph</option>
+                  <option value="afterSixteenthP">After 16° Paragraph</option>
+                  <option value="afterSeventeenthP">After 17° Paragraph</option>
+                  <option value="afterEighteenthP">After 18° Paragraph</option>
+                  <option value="afterNineteenthP">After 19° Paragraph</option>
+                  <option value="afterTwentiethP">After 20° Paragraph</option>
+                </optgroup>
+                <optgroup label="H2 Tags">
+                  <option value="beforeFirstH2">Before 1° H2</option>
+                  <option value="afterFirstH2">After 1° H2</option>
+                  <option value="beforeSecondH2">Before 2° H2</option>
+                  <option value="afterSecondH2">After 2° H2</option>
+                  <option value="beforeThirdH2">Before 3° H2</option>
+                  <option value="afterThirdH2">After 3° H2</option>
+                  <option value="beforeFourthH2">Before 4° H2</option>
+                  <option value="afterFourthH2">After 4° H2</option>
+                  <option value="beforeFifthH2">Before 5° H2</option>
+                  <option value="afterFifthH2">After 5° H2</option>
+                  <option value="beforeSixthH2">Before 6° H2</option>
+                  <option value="afterSixthH2">After 6° H2</option>
+                  <option value="beforeSeventhH2">Before 7° H2</option>
+                  <option value="afterSeventhH2">After 7° H2</option>
+                  <option value="beforeEighthH2">Before 8° H2</option>
+                  <option value="afterEighthH2">After 8° H2</option>
+                  <option value="beforeNinthH2">Before 9° H2</option>
+                  <option value="afterNinthH2">After 9° H2</option>
+                  <option value="beforeTenthH2">Before 10° H2</option>
+                  <option value="afterTenthH2">After 10° H2</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="col-2 mx-1 my-auto">
+              <button class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="removeShortcode(shortcode.id)">
+                <i class="fas fa-minus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">
+          Save for this article
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal"
+          (click)="saveAsDefaultSettings(); saveShortcode()">
+          Save as default
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
