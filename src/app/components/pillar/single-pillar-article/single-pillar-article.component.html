@@ -1,12 +1,16 @@
 <div class="container my-4">
   <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      Article
-    </div>
+    <div class="card-header bg-info text-white">Article</div>
     <div class="card-body">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked=""
-          [(ngModel)]="block.isAmazonProduct" />
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheckChecked"
+          checked=""
+          [(ngModel)]="block.isAmazonProduct"
+        />
         <label class="form-check-label" for="flexCheckChecked">
           Amazon Product
         </label>
@@ -15,31 +19,56 @@
       <div class="d-flex flex-row justify-content-between">
         <div class="form-group col-11">
           <label for="topicInput">Topic Title:</label>
-          <input type="text" class="form-control" id="topicTitle" [(ngModel)]="block.topicTitle" />
+          <input
+            type="text"
+            class="form-control"
+            id="topicTitle"
+            [(ngModel)]="block.topicTitle"
+          />
         </div>
       </div>
 
-      <div class="d-flex flex-row justify-content-between mx-4 my-4"
-        *ngFor="let row of block.rows; let rowIndex = index">
+      <div
+        class="d-flex flex-row justify-content-between mx-4 my-4"
+        *ngFor="let row of block.rows; let rowIndex = index"
+      >
         <div class="form-group col-3">
           <label for="topicInput">Enter the ASIN here:</label>
-          <input type="text" class="form-control" id="topicASIN" [disabled]="!block.isAmazonProduct"
-            [(ngModel)]="row.asin" />
+          <input
+            type="text"
+            class="form-control"
+            id="topicASIN"
+            [disabled]="!block.isAmazonProduct"
+            [(ngModel)]="row.asin"
+          />
         </div>
         <div class="form-group col-3">
           <label for="topicInput">Enter the title of product here:</label>
-          <input type="text" class="form-control" id="titleProduct" [(ngModel)]="row.title" />
+          <input
+            type="text"
+            class="form-control"
+            id="titleProduct"
+            [(ngModel)]="row.title"
+          />
         </div>
         <div class="form-group col-4">
           <label for="topicInput">Enter the infos of product here:</label>
-          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="row.details"></textarea>
+          <textarea
+            type="text"
+            class="form-control"
+            id="topicInfos"
+            [(ngModel)]="row.details"
+          ></textarea>
         </div>
 
         <div class="col-1 d-flex flex-row align-items-center mt-3">
           <button class="btn btn-secondary btn-sm me-2" (click)="addRow(block)">
             <i class="fas fa-plus"></i>
           </button>
-          <button class="btn btn-danger btn-sm" (click)="removeRow(block, rowIndex)">
+          <button
+            class="btn btn-danger btn-sm"
+            (click)="removeRow(block, rowIndex)"
+          >
             <i class="fas fa-minus"></i>
           </button>
         </div>
@@ -317,10 +346,13 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">
-          Settings
-        </h5>
-        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body">
         <!-- Prompt Settings -->
@@ -329,9 +361,15 @@
           <!-- Language -->
           <div class="mb-3">
             <label class="form-label">Language</label>
-            <select class="form-control" [ngModel]="getSelectedLanguage()"
-            (ngModelChange)="selectedLanguageChange($event)">
-              <option *ngFor="let language of languages" value="{{ language.code }}">
+            <select
+              class="form-control"
+              [ngModel]="getSelectedLanguage()"
+              (ngModelChange)="selectedLanguageChange($event)"
+            >
+              <option
+                *ngFor="let language of languages"
+                value="{{ language.code }}"
+              >
                 {{ language.language }}
               </option>
             </select>
@@ -339,8 +377,11 @@
           <!-- Style -->
           <div class="mb-3">
             <label class="form-label">Style</label>
-            <select class="form-control" [ngModel]="getSelectedStyle()"
-            (ngModelChange)="selectedStyleChange($event)">
+            <select
+              class="form-control"
+              [ngModel]="getSelectedStyle()"
+              (ngModelChange)="selectedStyleChange($event)"
+            >
               <option *ngFor="let style of styles" value="{{ style.code }}">
                 {{ style.type }}
               </option>
@@ -349,8 +390,11 @@
           <!-- Tone -->
           <div class="mb-3">
             <label class="form-label">Tone</label>
-            <select class="form-control" [ngModel]="getSelectedTone()"
-            (ngModelChange)="selectedToneChange($event)">
+            <select
+              class="form-control"
+              [ngModel]="getSelectedTone()"
+              (ngModelChange)="selectedToneChange($event)"
+            >
               <option *ngFor="let tone of tones" value="{{ tone.code }}">
                 {{ tone.tone }}
               </option>
@@ -364,7 +408,10 @@
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="block.settings.modelTitle">
+            <select
+              class="form-control"
+              [(ngModel)]="block.settings.modelTitle"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -373,22 +420,32 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="block.settings.maxTokensTitle" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="block.settings.maxTokensTitle"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="block.settings.promptTextTitle"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="block.settings.promptTextTitle"
+            ></textarea>
           </div>
         </div>
 
         <!-- Introduction Settings -->
-        <div class="mb-2"  *ngIf="currentStepValue == 2">
+        <div class="mb-2" *ngIf="currentStepValue == 2">
           <h5 class="form-label">Introduction</h5>
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="block.settings.modelIntroduction">
+            <select
+              class="form-control"
+              [(ngModel)]="block.settings.modelIntroduction"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -397,36 +454,38 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="block.settings.maxTokensIntroduction" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="block.settings.maxTokensIntroduction"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="block.settings.promptTextIntroduction"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="block.settings.promptTextIntroduction"
+            ></textarea>
           </div>
         </div>
 
         <!-- Sections Settings -->
-        <div class="mb-2"  *ngIf="currentStepValue == 3">
+        <div
+          class="mb-2"
+          *ngIf="
+            currentStepValue == 3 && block.isAmazonProduct;
+            else noAmazonProduct
+          "
+        >
           <h5 class="form-label">Sections</h5>
           <!-- Model -->
           <div class="mb-3">
-            <!-- Max Tokens -->
-            <div class="mb-3">
-              <label class="form-label">Paragraph</label>
-              <input type="number" class="form-control" [ngModel]="
-              block.isAmazonProduct ?
-              block.settings.qtyParagraphs :
-              block.settings.qtyParagraphsNoAMZ
-              "
-              (ngModelChange)="onQtyParagraphsChange($event)"/>
-            </div>
             <label class="form-label">Model</label>
-            <select class="form-control"
-              [ngModel]="block.isAmazonProduct ?
-               block.settings.modelSections :
-               block.settings.modelSectionsNoAMZ "
-               (ngModelChange)="onModelChange($event)">
+            <select
+              class="form-control"
+              [(ngModel)]="block.settings.modelSections"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -435,32 +494,67 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [ngModel]="block.isAmazonProduct ?
-            block.settings.maxTokensSections :
-            block.settings.maxTokensSectionsNoAMZ"
-            (ngModelChange)="onMaxTokensChange($event)"/>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="block.settings.maxTokensSections"
+            />
           </div>
           <!-- Prompt text -->
-          <div class="mb-3" *ngIf="block.isAmazonProduct; else noAmazonProduct">
+          <div class="mb-3">
             <label class="form-label">Prompt text (Amazon Product)</label>
-            <textarea class="form-control" [(ngModel)]="block.settings.promptTextSections"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="block.settings.promptTextSections"
+            ></textarea>
           </div>
-
-          <ng-template #noAmazonProduct>
-            <div class="mb-3">
-              <label class="form-label">Prompt text (NO Amazon Product)</label>
-              <textarea class="form-control" [(ngModel)]="block.settings.promptTextSectionsNoAMZ"></textarea>
-            </div>
-          </ng-template>
         </div>
 
+        <ng-template #noAmazonProduct>
+          <div class="mb-2">
+            <h5 class="form-label">Sections (No Amazon)</h5>
+            <!-- Model -->
+            <div class="mb-3">
+              <label class="form-label">Model</label>
+              <select
+                class="form-control"
+                [(ngModel)]="block.settings.modelSectionsNoAMZ"
+              >
+                <option *ngFor="let model of models" value="{{ model.model }}">
+                  {{ model.model }}
+                </option>
+              </select>
+            </div>
+            <!-- Max Tokens -->
+            <div class="mb-3">
+              <label class="form-label">Max Tokens</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="block.settings.maxTokensSectionsNoAMZ"
+              />
+            </div>
+            <!-- Prompt text -->>
+            <div class="mb-3">
+              <label class="form-label">Prompt text (NO Amazon Product)</label>
+              <textarea
+                class="form-control"
+                [(ngModel)]="block.settings.promptTextSectionsNoAMZ"
+              ></textarea>
+            </div>
+          </div>
+        </ng-template>
+
         <!-- Content Settings -->
-        <div class="mb-2"  *ngIf="currentStepValue == 4">
+        <div class="mb-2" *ngIf="currentStepValue == 4">
           <h5 class="form-label">Content</h5>
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="block.settings.modelContent">
+            <select
+              class="form-control"
+              [(ngModel)]="block.settings.modelContent"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -469,29 +563,52 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="block.settings.maxTokensContent" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="block.settings.maxTokensContent"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="block.settings.promptTextContent"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="block.settings.promptTextContent"
+            ></textarea>
           </div>
         </div>
 
         <!-- Custom Shortcode -->
-        <div class="mb-2"  *ngIf="currentStepValue == 5">
+        <div class="mb-2" *ngIf="currentStepValue == 5">
           <h5 class="form-label">
             Insert custom shortcode
-            <i class="fas fa-circle-info mx-2" data-toggle="tooltip" data-placement="top"
-              title="Accepted placeholders: [KEYWORD]"></i>
-            <button *ngIf="shortcodes.length == 0" class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+            <i
+              class="fas fa-circle-info mx-2"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Accepted placeholders: [KEYWORD]"
+            ></i>
+            <button
+              *ngIf="shortcodes.length == 0"
+              class="btn btn-secondary btn-sm me-2"
+              (click)="addShortcode()"
+            >
               <i class="fas fa-plus"></i>
             </button>
           </h5>
 
-          <div *ngFor="let shortcode of shortcodes; let i = index" class="d-flex justify-content-between mb-2">
+          <div
+            *ngFor="let shortcode of shortcodes; let i = index"
+            class="d-flex justify-content-between mb-2"
+          >
             <div class="col-10 d-flex flex-row">
-              <input type="text" class="form-control" placeholder="Enter shortcode" [(ngModel)]="shortcode.code" />
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter shortcode"
+                [(ngModel)]="shortcode.code"
+              />
               <select class="form-control" [(ngModel)]="shortcode.position">
                 <optgroup label="Introduction">
                   <option value="beforeIntroduction">
@@ -500,9 +617,6 @@
                   <option value="afterIntroduction">After introduction</option>
                 </optgroup>
                 <optgroup label="Article">
-                  <option value="beginningOfArticle">
-                    Beginning of article
-                  </option>
                   <option value="randomInTheContent">
                     Random in the content
                   </option>
@@ -556,10 +670,16 @@
               </select>
             </div>
             <div class="col-2 mx-1 my-auto">
-              <button class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+              <button
+                class="btn btn-secondary btn-sm me-2"
+                (click)="addShortcode()"
+              >
                 <i class="fas fa-plus"></i>
               </button>
-              <button class="btn btn-danger btn-sm" (click)="removeShortcode(shortcode.id)">
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="removeShortcode(shortcode.id)"
+              >
                 <i class="fas fa-minus"></i>
               </button>
             </div>
@@ -567,15 +687,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">
-          Save for this article
-        </button>
-        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal"
-          (click)="saveAsDefaultSettings(); saveShortcode()">
-          Save as default
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-mdb-dismiss="modal"
+          (click)="saveAsDefaultSettings(); saveShortcode()"
+        >
+          Save
         </button>
       </div>
     </div>
   </div>
 </div>
-

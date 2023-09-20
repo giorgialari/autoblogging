@@ -193,15 +193,6 @@
           <!-- Model -->
           <div class="mb-3">
             <!-- Max Tokens -->
-            <div class="mb-3">
-              <label class="form-label">Paragraph</label>
-              <input type="number" class="form-control" [ngModel]="
-              selectedBlock.isAmazonProduct ?
-              selectedBlock.settings.qtyParagraphs :
-              selectedBlock.settings.qtyParagraphsNoAMZ
-              "
-              (ngModelChange)="onQtyParagraphsChange($event)"/>
-            </div>
             <label class="form-label">Model</label>
             <select class="form-control"
               [ngModel]="selectedBlock.isAmazonProduct ?
@@ -281,9 +272,6 @@
                   <option value="afterIntroduction">After introduction</option>
                 </optgroup>
                 <optgroup label="Article">
-                  <option value="beginningOfArticle">
-                    Beginning of article
-                  </option>
                   <option value="randomInTheContent">
                     Random in the content
                   </option>

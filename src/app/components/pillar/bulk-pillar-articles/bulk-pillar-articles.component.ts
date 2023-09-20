@@ -310,7 +310,7 @@ export class BulkPillarArticlesComponent {
 
   getShortcodes() {
     this.dbService.get('/shortcodes').subscribe((response) => {
-      this.shortcodes = response.filter((item: any) => item.section === 'pillar_section');
+      this.shortcodes = response.filter((item: any) => item.section === 'pillar_bulk_section');
     }, (error) => {
       console.log(error);
     });
@@ -401,9 +401,9 @@ export class BulkPillarArticlesComponent {
         article += `<h2>${row.title}</h2>\n${rowResponse.message}\n\n`;
       }
       // 4. Creazione delle conclusioni e consigli su come scegliere e utilizzare i prodotti
-      this.statusMessage = `Generating conclusion for ${block.topicTitle}...`;
+      this.statusMessage = `Generating content for ${block.topicTitle}...`;
       const contentPromptBase = block.settings.promptTextContent;
-      const allSectionGen = secionsGen.join(' ');
+      const allSectionGen = secionsGen.join('\n\n');
       const contentPrompt = contentPromptBase
         .replace('[TOPIC]', block.topicTitle)
         .replace('[LANGUAGE]', block.settings.selectedLanguage)
@@ -413,16 +413,197 @@ export class BulkPillarArticlesComponent {
       const contentResponse = await this.openAIService.getResponse(contentPrompt, block.settings.modelContent, block.settings.maxTokensContent).toPromise();
       article += `${contentResponse.message}`;
 
-      articles.push(article);
+      const insertShortcodes = (content: string, tag: string, position: number, code: string, before: boolean = true) => {
+        const openingTag = `<${tag}>`;
+        const closingTag = `</${tag}>`;
+        const regex = new RegExp(`${openingTag}(.*?)${closingTag}`, 'g');
+        let match;
+        let count = 0;
+        let newContent = '';
+        let lastIndex = 0;
+
+        // Controlliamo il numero totale di occorrenze
+        const totalMatches = (content.match(regex) || []).length;
+        if (position >= totalMatches) return content; // Se non abbiamo abbastanza occorrenze, restituisci il contenuto originale
+
+        while ((match = regex.exec(content)) !== null) {
+          if (count === position) {
+            if (before) {
+              newContent += content.slice(lastIndex, match.index) + code;
+              lastIndex = match.index;
+            } else {
+              newContent += content.slice(lastIndex, regex.lastIndex) + code;
+              lastIndex = regex.lastIndex;
+            }
+          }
+          count++;
+        }
+
+        newContent += content.slice(lastIndex);
+        return newContent;
+      };
+
+      let wrappedIntroduction = introductionResponse.message;
+      const mergeSectionsContent = allSectionGen + contentResponse.message;
+      let wrappedContent =  this.functionService.wrapParagraphsWithPTags(mergeSectionsContent);
+      this.shortcodes.forEach(shortcode => {
+        switch (shortcode.position) {
+          case 'beforeIntroduction':
+            wrappedIntroduction = shortcode.code + wrappedIntroduction;
+            break;
+          case 'afterIntroduction':
+            wrappedIntroduction = wrappedIntroduction + shortcode.code;
+            break;
+
+          case 'beforeFirstP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 0, shortcode.code);
+            break;
+
+          case 'afterFirstP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 0, shortcode.code, false);
+            break;
+          case 'afterSecondP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 1, shortcode.code, false);
+            break;
+          case 'afterThirdP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 2, shortcode.code, false);
+            break;
+          case 'afterFourthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 3, shortcode.code, false);
+            break;
+          case 'afterFifthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 4, shortcode.code, false);
+            break;
+          case 'afterSixthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 5, shortcode.code, false);
+            break;
+          case 'afterSeventhP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 6, shortcode.code, false);
+            break;
+          case 'afterEighthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 7, shortcode.code, false);
+            break;
+          case 'afterNinthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 8, shortcode.code, false);
+            break;
+          case 'afterTenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 9, shortcode.code, false);
+            break;
+          case 'afterEleventhP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 10, shortcode.code, false);
+            break;
+          case 'afterTwelfthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 11, shortcode.code, false);
+            break;
+          case 'afterThirteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 12, shortcode.code, false);
+            break;
+          case 'afterFourteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 13, shortcode.code, false);
+            break;
+          case 'afterFifteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 14, shortcode.code, false);
+            break;
+          case 'afterSixteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 15, shortcode.code, false);
+            break;
+          case 'afterSeventeenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 16, shortcode.code, false);
+            break;
+          case 'afterEighteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 17, shortcode.code, false);
+            break;
+          case 'afterNineteenthP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 18, shortcode.code, false);
+            break;
+          case 'afterTwentiethP':
+            wrappedContent = insertShortcodes(wrappedContent, 'p', 19, shortcode.code, false);
+            break;
+
+          case 'beforeFirstH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 0, shortcode.code);
+            break;
+
+          case 'afterFirstH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 0, shortcode.code, false);
+            break;
+          case 'beforeSecondH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 1, shortcode.code);
+            break;
+          case 'afterSecondH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 1, shortcode.code, false);
+            break;
+          case 'beforeThirdH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 2, shortcode.code);
+            break;
+          case 'afterThirdH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 2, shortcode.code, false);
+            break;
+          case 'beforeFourthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 3, shortcode.code);
+            break;
+          case 'afterFourthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 3, shortcode.code, false);
+            break;
+          case 'beforeFifthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 4, shortcode.code);
+            break;
+          case 'afterFifthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 4, shortcode.code, false);
+            break;
+          case 'beforeSixthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 5, shortcode.code);
+            break;
+          case 'afterSixthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 5, shortcode.code, false);
+            break;
+          case 'beforeSeventhH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 6, shortcode.code);
+            break;
+          case 'afterSeventhH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 6, shortcode.code, false);
+            break;
+          case 'beforeEighthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 7, shortcode.code);
+            break;
+          case 'afterEighthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 7, shortcode.code, false);
+            break;
+          case 'beforeNinthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 8, shortcode.code);
+            break;
+          case 'afterNinthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 8, shortcode.code, false);
+            break;
+          case 'beforeTenthH2':
+            wrappedContent = insertShortcodes(wrappedContent, 'h2', 9, shortcode.code);
+            break;
+
+          case 'randomInTheContent':
+            const paragraphs = wrappedContent.split('<p>');
+            const randomIndex = Math.floor(Math.random() * paragraphs.length);
+            paragraphs[randomIndex] = shortcode.code + paragraphs[randomIndex];
+            wrappedContent = paragraphs.join('<p>');
+            break;
+
+          case 'endOfArticle':
+            wrappedContent = wrappedContent + shortcode.code;
+            break;
+
+        }
+      });
+
+      let completeArticleResponse = "<h1>" + titleResponse.message + "</h1>" + wrappedIntroduction + wrappedContent;
+      articles.push(completeArticleResponse);
 
       if (this.isPublish) {
         await this.functionService.publishArticleOnWP(
           false,
-          article,
+          completeArticleResponse,
           titleResponse.message,
           this.wpService);
       } else if (this.isDownload) {
-        this.downloadAsTxt(article);
+        this.downloadAsTxt(completeArticleResponse);
       }
 
     }
@@ -452,13 +633,7 @@ export class BulkPillarArticlesComponent {
   openModal(block: any) {
     this.selectedBlock = block;
   }
-  onQtyParagraphsChange(newValue: any) {
-    if (this.selectedBlock.isAmazonProduct) {
-      this.selectedBlock.settings.qtyParagraph = newValue;
-    } else {
-      this.selectedBlock.settings.qtyParagraphsNoAMZ = newValue;
-    }
-  }
+
   onModelChange(newValue: any) {
     if (this.selectedBlock.isAmazonProduct) {
       this.selectedBlock.settings.modelSections = newValue;
@@ -541,7 +716,7 @@ export class BulkPillarArticlesComponent {
 
   addShortcode() {
     this.saveShortcode();
-    const newShortcode = { code: '', position: '', section: 'pillar_section' };
+    const newShortcode = { code: '', position: '', section: 'pillar_bulk_section' };
     this.dbService.post('/shortcodes', newShortcode).subscribe(response => {
       this.getShortcodes();
     });

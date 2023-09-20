@@ -279,8 +279,7 @@ export class FunctionsService {
           break;
 
 
-        // Add more cases as needed
-      }
+     }
     });
 
 
