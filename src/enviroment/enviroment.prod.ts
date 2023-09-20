@@ -5,6 +5,6 @@ export const environment = {
   // wp_status: 'draft',
   // wp_btoa: 'r3vi3wm0d30n:fj[^1le84j24',
   apiUrl: 'https://karlai-api.onrender.com',
-  apiDbUrl: 'http://localhost:3000'
+  apiDbUrl: 'https://karlai-db.onrender.com'
 
 };
