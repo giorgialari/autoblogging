@@ -7,6 +7,7 @@ import { FunctionsService } from 'src/app/utils/functions/blog-post/functions.se
 import { SeoAnalyzerService } from 'src/app/utils/seoAnalyzer/seoanalyzer.service';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 
 @Component({
@@ -53,6 +54,8 @@ export class BulkArticlesComponent {
   prompt: any[] = [];
 
 
+  isDownload: boolean = false;
+  isPublish: boolean = false;
   constructor(private openAIService: OpenAIService,
     private wpService: WpService,
     private cdr: ChangeDetectorRef,
@@ -60,17 +63,41 @@ export class BulkArticlesComponent {
     private functionService: FunctionsService,
     private seoAnalyzerService: SeoAnalyzerService,
     private dbService: DbService) {
-      this.getModels();
-      this.getLanguages();
-      this.getStyles();
-      this.getTones();
-      this.getPromptSection();
-      this.getShortcodes();
-     }
+    this.getModels();
+    this.getLanguages();
+    this.getStyles();
+    this.getTones();
+    this.getPromptSection();
+    this.getShortcodes();
+  }
   ngOnInit(): void {
     this.loadDefaultData()
   }
+  saveOrPublish(product: any[]) {
+    Swal.fire({
+      title: 'Do you want to save or publish on WP?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Save on PC',
+      denyButtonText: `Publish on WP`,
+      denyButtonColor: 'lightblue',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        // Swal.fire('Saved!', '', 'success')
+        this.isDownload = true;
+        this.isPublish = false;
+        this.getProductsEmitted(product);
 
+
+      } else if (result.isDenied) {
+        // Swal.fire('Changes are not saved', '', 'info')
+        this.isPublish = true;
+        this.isDownload = false;
+        this.getProductsEmitted(product);
+      }
+    })
+  }
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
     $event.returnValue = '';
@@ -264,7 +291,15 @@ export class BulkArticlesComponent {
     this.countWords();
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
-    this.publishArticleOnWP();
+    if (this.isPublish) {
+      this.publishArticleOnWP();
+    } else if (this.isDownload) {
+      this.downloadAsTxt(this.completeArticleResponse);
+    }
+  }
+  downloadAsTxt(article: string) {
+    const blob = new Blob([article], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, 'articolo.txt');
   }
   async publishArticleOnWP() {
     try {
@@ -387,30 +422,53 @@ export class BulkArticlesComponent {
     if (file) {
       this.fileName = file.name;
     }
-    if (confirm('Sei sicuro di voler caricare questo file?')) {
-      /* wire up file reader */
-      const target: DataTransfer = <DataTransfer>(evt.target);
-      if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+    Swal.fire({
+      title: 'Do you want to save or publish on WP?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Save on PC',
+      denyButtonText: `Publish on WP`,
+      denyButtonColor: 'lightblue',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        // Swal.fire('Saved!', '', 'success')
+        this.isDownload = true;
+        this.isPublish = false;
+        this.uploadExcel(evt);
 
-      const reader: FileReader = new FileReader();
+      } else if (result.isDenied) {
+        // Swal.fire('Changes are not saved', '', 'info')
+        this.isPublish = true;
+        this.isDownload = false;
+        this.uploadExcel(evt);
 
-      reader.onload = (e: any) => {
-        /* read workbook */
-        const bstr: string = e.target.result;
-        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+      }
+    })
+  }
+  uploadExcel(evt: any) {
+    /* wire up file reader */
+    const target: DataTransfer = <DataTransfer>(evt.target);
+    if (target.files.length !== 1) throw new Error('Cannot use multiple files');
 
-        /* grab first sheet */
-        const wsname: string = wb.SheetNames[0];
-        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+    const reader: FileReader = new FileReader();
 
-        /* save data */
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        this.processExcelData(data);
+    reader.onload = (e: any) => {
+      /* read workbook */
+      const bstr: string = e.target.result;
+      const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
 
-      };
+      /* grab first sheet */
+      const wsname: string = wb.SheetNames[0];
+      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-      reader.readAsBinaryString(target.files[0]);
-    }
+      /* save data */
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      this.processExcelData(data);
+
+    };
+
+    reader.readAsBinaryString(target.files[0]);
   }
 
   processExcelData(data: any[]) {

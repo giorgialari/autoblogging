@@ -15,7 +15,7 @@
       <div class="form-group">
         <div>
           <app-bulk-table
-            (productsBulkEmit)="getProductsEmitted($event)"
+            (productsBulkEmit)="saveOrPublish($event)"
           ></app-bulk-table>
         </div>
 
@@ -72,7 +72,7 @@
           ></textarea>
           <button
             class="btn btn-secondary my-3 btn-sm"
-            (click)="processAll()"
+            (click)="saveOrPublish()"
             [disabled]="!listProducts"
           >
             Process

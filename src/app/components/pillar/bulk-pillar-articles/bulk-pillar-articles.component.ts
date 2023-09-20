@@ -187,7 +187,7 @@ export class BulkPillarArticlesComponent {
 
   isDownload: boolean = false;
   isPublish: boolean = false;
-  printOrPublish() {
+  saveOrPublish() {
     Swal.fire({
       title: 'Do you want to save or publish on WP?',
       showDenyButton: true,

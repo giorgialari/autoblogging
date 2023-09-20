@@ -6,6 +6,7 @@ import { OpenAIService } from 'src/app/services/open-ai.service';
 import { NotificationService } from 'src/app/services/notifications/notifications.service';
 import * as XLSX from 'xlsx';
 import Swal from 'sweetalert2';
+import { saveAs } from 'file-saver';
 import { DbService } from 'src/app/services/db.service';
 
 @Component({
@@ -46,6 +47,9 @@ export class BulkSingleProductComponent implements OnInit {
   modelContent = '';
   maxTokensContent = 0;
 
+  isDownload: boolean = false;
+  isPublish: boolean = false;
+
   models: any[] = [];
   languages: any[] = [];
   styles: any[] = [];
@@ -69,7 +73,38 @@ export class BulkSingleProductComponent implements OnInit {
   ngOnInit(): void {
     this.loadDefaultData()
   }
+  saveOrPublish(product?: any[]) {
+    Swal.fire({
+      title: 'Do you want to save or publish on WP?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Save on PC',
+      denyButtonText: `Publish on WP`,
+      denyButtonColor: 'lightblue',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        // Swal.fire('Saved!', '', 'success')
+        this.isDownload = true;
+        this.isPublish = false;
+        if (product) {
+          this.getProductsEmitted(product);
+        } else {
+          this.processAll()
+        }
 
+      } else if (result.isDenied) {
+        // Swal.fire('Changes are not saved', '', 'info')
+        this.isPublish = true;
+        this.isDownload = false;
+        if (product) {
+          this.getProductsEmitted(product);
+        } else {
+          this.processAll()
+        }
+      }
+    })
+  }
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
     $event.returnValue = '';
@@ -262,7 +297,16 @@ export class BulkSingleProductComponent implements OnInit {
     this.countWords();
     this.calculateTotalSeoScore();
     this.cdr.detectChanges();
-    this.publishArticleOnWP();
+    if (this.isPublish) {
+      this.publishArticleOnWP();
+    } else if (this.isDownload) {
+      this.downloadAsTxt(this.completeArticleResponse);
+    }
+
+  }
+  downloadAsTxt(article: string) {
+    const blob = new Blob([article], { type: 'text/plain;charset=utf-8' });
+    saveAs(blob, 'articolo.txt');
   }
   async publishArticleOnWP() {
     try {
@@ -453,32 +497,58 @@ export class BulkSingleProductComponent implements OnInit {
     if (file) {
       this.fileName = file.name;
     }
-    if (confirm('Sei sicuro di voler caricare questo file?')) {
-      /* wire up file reader */
-      const target: DataTransfer = <DataTransfer>(evt.target);
-      if (target.files.length !== 1) throw new Error('Cannot use multiple files');
 
-      const reader: FileReader = new FileReader();
+    Swal.fire({
+      title: 'Do you want to save or publish on WP?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Save on PC',
+      denyButtonText: `Publish on WP`,
+      denyButtonColor: 'lightblue',
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        // Swal.fire('Saved!', '', 'success')
+        this.isDownload = true;
+        this.isPublish = false;
+        this.uploadExcel(evt);
 
-      reader.onload = (e: any) => {
-        /* read workbook */
-        const bstr: string = e.target.result;
-        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
 
-        /* grab first sheet */
-        const wsname: string = wb.SheetNames[0];
-        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+      } else if (result.isDenied) {
+        // Swal.fire('Changes are not saved', '', 'info')
+        this.isPublish = true;
+        this.isDownload = false;
+        this.uploadExcel(evt);
 
-        /* save data */
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        this.processExcelData(data);
+      }
+    })
 
-      };
-
-      reader.readAsBinaryString(target.files[0]);
-    }
   }
 
+  uploadExcel(evt: any) {
+    /* wire up file reader */
+    const target: DataTransfer = <DataTransfer>(evt.target);
+    if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+
+    const reader: FileReader = new FileReader();
+
+    reader.onload = (e: any) => {
+      /* read workbook */
+      const bstr: string = e.target.result;
+      const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+
+      /* grab first sheet */
+      const wsname: string = wb.SheetNames[0];
+      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+      /* save data */
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      this.processExcelData(data);
+
+    };
+
+    reader.readAsBinaryString(target.files[0]);
+  }
   processExcelData(data: any[]) {
     const headers = data[0]; // Assuming first row is header
     const products = data.slice(1).map(row => ({
