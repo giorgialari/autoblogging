@@ -2,15 +2,26 @@
   <div class="card mb-4" *ngFor="let block of blocks; let blockIndex = index">
     <div class="card-header bg-info text-white">
       Article {{ blockIndex + 1 }}
-      <button type="button" class="btn btn-secondary btn-sm shadow btn-sm mx-3" data-mdb-toggle="modal"
-        data-mdb-target="#modaleSettings" (click)="openModal(block)">
+      <button
+        type="button"
+        class="btn btn-primary btn-sm shadow btn-sm mx-3"
+        data-mdb-toggle="modal"
+        data-mdb-target="#modaleSettings"
+        (click)="openModal(block)"
+      >
         <i class="fas fa-sliders"></i>
       </button>
     </div>
     <div class="card-body">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked=""
-          [(ngModel)]="block.isAmazonProduct" />
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheckChecked"
+          checked=""
+          [(ngModel)]="block.isAmazonProduct"
+        />
         <label class="form-check-label" for="flexCheckChecked">
           Amazon Product
         </label>
@@ -19,59 +30,102 @@
       <div class="d-flex flex-row justify-content-between">
         <div class="form-group col-11">
           <label for="topicInput">Topic Title:</label>
-          <input type="text" class="form-control" id="topicTitle" [(ngModel)]="block.topicTitle" />
+          <input
+            type="text"
+            class="form-control"
+            id="topicTitle"
+            [(ngModel)]="block.topicTitle"
+          />
         </div>
         <div class="col-1 d-flex flex-row align-items-center ms-3 mt-3">
-          <button class="btn btn-secondary btn-sm me-2" (click)="addBlock()">
+          <button class="btn btn-primary btn-sm me-2" (click)="addBlock()">
             <i class="fas fa-plus"></i>
           </button>
           <!-- Pulsante per rimuovere il blocco (visibile solo dal secondo blocco in poi) -->
-          <button class="btn btn-danger btn-sm" *ngIf="blockIndex > 0" (click)="removeBlock(blockIndex)">
+          <button
+            class="btn btn-danger btn-sm"
+            *ngIf="blockIndex > 0"
+            (click)="removeBlock(blockIndex)"
+          >
             <i class="fas fa-minus"></i>
           </button>
         </div>
       </div>
 
-      <div class="d-flex flex-row justify-content-between mx-4 my-4"
-        *ngFor="let row of block.rows; let rowIndex = index">
-        <div class="form-group col-3">
-          <label for="topicInput">Enter the ASIN here:</label>
-          <input type="text" class="form-control" id="topicASIN" [disabled]="!block.isAmazonProduct"
-            [(ngModel)]="row.asin" />
-        </div>
-        <div class="form-group col-3">
-          <label for="topicInput">Enter the title of product here:</label>
-          <input type="text" class="form-control" id="titleProduct" [(ngModel)]="row.title" />
-        </div>
-        <div class="form-group col-4">
-          <label for="topicInput">Enter the infos of product here:</label>
-          <textarea type="text" class="form-control" id="topicInfos" [(ngModel)]="row.details"></textarea>
-        </div>
-
-        <div class="col-1 d-flex flex-row align-items-center mt-3">
-          <button class="btn btn-secondary btn-sm me-2" (click)="addRow(block)">
-            <i class="fas fa-plus"></i>
-          </button>
-          <button class="btn btn-danger btn-sm" (click)="removeRow(block, rowIndex)">
-            <i class="fas fa-minus"></i>
-          </button>
+      <div
+        class="mx-4 my-4"
+        *ngFor="let row of block.rows; let rowIndex = index"
+      >
+        <div class="d-flex flex-row justify-content-between">
+          <div>
+            <div class="d-flex flex-row justify-content-between">
+              <div class="form-group me-1">
+                <label for="topicInput">Enter the ASIN here:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="topicASIN"
+                  [disabled]="!block.isAmazonProduct"
+                  [(ngModel)]="row.asin"
+                />
+              </div>
+              <div class="form-group">
+                <label for="topicInput">Enter the title of product here:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="titleProduct"
+                  [(ngModel)]="row.title"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="topicInput">Enter the infos of product here:</label>
+              <textarea
+                type="text"
+                class="form-control"
+                id="topicInfos"
+                [(ngModel)]="row.details"
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-1 d-flex flex-row align-items-center mt-3">
+            <button class="btn btn-primary btn-sm me-2" (click)="addRow(block)">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              (click)="removeRow(block, rowIndex)"
+            >
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Pulsante per aggiungere una nuova riga se tutte le righe sono state eliminate -->
       <div class="text-center" *ngIf="block.rows.length === 0">
-        <button class="btn btn-secondary btn-sm my-4" (click)="addRow(block)">
+        <button class="btn btn-primary btn-sm my-4" (click)="addRow(block)">
           Add new row
         </button>
       </div>
     </div>
   </div>
 
-  <button class="btn btn-secondary btn-sm my-4" (click)="saveOrPublish()">
-    <span class="spinner-grow spinner-grow-sm" *ngIf="isProcessing" role="status" aria-hidden="true"></span>
+  <button class="btn btn-primary btn-sm my-4" (click)="saveOrPublish()">
+    <span
+      class="spinner-grow spinner-grow-sm"
+      *ngIf="isProcessing"
+      role="status"
+      aria-hidden="true"
+    ></span>
     Process
   </button>
-  <button class="btn btn-secondary my-3 mx-2 btn-sm" (click)="stopRequest()" [disabled]="!isProcessing">
+  <button
+    class="btn btn-primary my-3 mx-2 btn-sm"
+    (click)="stopRequest()"
+    [disabled]="!isProcessing"
+  >
     <i class="fas fa-stop"></i>
   </button>
 </div>
@@ -87,7 +141,9 @@
         >
           <span class="visually-hidden">Loading...</span>
         </div>
-        <div class="mt-2 font-weight-bold">Article {{ currentArticleNumber }} / {{blocks.length}} </div>
+        <div class="mt-2 font-weight-bold">
+          Article {{ currentArticleNumber }} / {{ blocks.length }}
+        </div>
         <div class="mt-2">{{ statusMessage }}</div>
         <button class="btn btn-danger mt-3 btn-sm" (click)="stopRequest()">
           Stop all
@@ -97,14 +153,25 @@
   </div>
 </div>
 <!-- ############ MODALE #############-->
-<div class="modal fade" id="modaleSettings" *ngIf="selectedBlock" tabindex="-1" aria-hidden="true">
+<div
+  class="modal fade"
+  id="modaleSettings"
+  *ngIf="selectedBlock"
+  tabindex="-1"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">
           Settings for Bulk Section
         </h5>
-        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-mdb-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body">
         <!-- Prompt Settings -->
@@ -113,8 +180,14 @@
           <!-- Language -->
           <div class="mb-3">
             <label class="form-label">Language</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedLanguage">
-              <option *ngFor="let language of languages" value="{{ language.code }}">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.selectedLanguage"
+            >
+              <option
+                *ngFor="let language of languages"
+                value="{{ language.code }}"
+              >
                 {{ language.language }}
               </option>
             </select>
@@ -122,7 +195,10 @@
           <!-- Style -->
           <div class="mb-3">
             <label class="form-label">Style</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedStyle">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.selectedStyle"
+            >
               <option *ngFor="let style of styles" value="{{ style.code }}">
                 {{ style.type }}
               </option>
@@ -131,7 +207,10 @@
           <!-- Tone -->
           <div class="mb-3">
             <label class="form-label">Tone</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.selectedTone">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.selectedTone"
+            >
               <option *ngFor="let tone of tones" value="{{ tone.code }}">
                 {{ tone.tone }}
               </option>
@@ -145,7 +224,10 @@
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelTitle">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.modelTitle"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -154,12 +236,19 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensTitle" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.maxTokensTitle"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextTitle"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.promptTextTitle"
+            ></textarea>
           </div>
         </div>
 
@@ -169,7 +258,10 @@
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelIntroduction">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.modelIntroduction"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -178,12 +270,19 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensIntroduction" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.maxTokensIntroduction"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextIntroduction"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.promptTextIntroduction"
+            ></textarea>
           </div>
         </div>
 
@@ -194,11 +293,15 @@
           <div class="mb-3">
             <!-- Max Tokens -->
             <label class="form-label">Model</label>
-            <select class="form-control"
-              [ngModel]="selectedBlock.isAmazonProduct ?
-               selectedBlock.settings.modelSections :
-               selectedBlock.settings.modelSectionsNoAMZ "
-               (ngModelChange)="onModelChange($event)">
+            <select
+              class="form-control"
+              [ngModel]="
+                selectedBlock.isAmazonProduct
+                  ? selectedBlock.settings.modelSections
+                  : selectedBlock.settings.modelSectionsNoAMZ
+              "
+              (ngModelChange)="onModelChange($event)"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -207,21 +310,36 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [ngModel]="selectedBlock.isAmazonProduct ?
-            selectedBlock.settings.maxTokensSections :
-            selectedBlock.settings.maxTokensSectionsNoAMZ"
-            (ngModelChange)="onMaxTokensChange($event)"/>
+            <input
+              type="number"
+              class="form-control"
+              [ngModel]="
+                selectedBlock.isAmazonProduct
+                  ? selectedBlock.settings.maxTokensSections
+                  : selectedBlock.settings.maxTokensSectionsNoAMZ
+              "
+              (ngModelChange)="onMaxTokensChange($event)"
+            />
           </div>
           <!-- Prompt text -->
-          <div class="mb-3" *ngIf="selectedBlock.isAmazonProduct; else noAmazonProduct">
+          <div
+            class="mb-3"
+            *ngIf="selectedBlock.isAmazonProduct; else noAmazonProduct"
+          >
             <label class="form-label">Prompt text (Amazon Product)</label>
-            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextSections"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.promptTextSections"
+            ></textarea>
           </div>
 
           <ng-template #noAmazonProduct>
             <div class="mb-3">
               <label class="form-label">Prompt text (NO Amazon Product)</label>
-              <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextSectionsNoAMZ"></textarea>
+              <textarea
+                class="form-control"
+                [(ngModel)]="selectedBlock.settings.promptTextSectionsNoAMZ"
+              ></textarea>
             </div>
           </ng-template>
         </div>
@@ -232,7 +350,10 @@
           <!-- Model -->
           <div class="mb-3">
             <label class="form-label">Model</label>
-            <select class="form-control" [(ngModel)]="selectedBlock.settings.modelContent">
+            <select
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.modelContent"
+            >
               <option *ngFor="let model of models" value="{{ model.model }}">
                 {{ model.model }}
               </option>
@@ -241,12 +362,19 @@
           <!-- Max Tokens -->
           <div class="mb-3">
             <label class="form-label">Max Tokens</label>
-            <input type="number" class="form-control" [(ngModel)]="selectedBlock.settings.maxTokensContent" />
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.maxTokensContent"
+            />
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
             <label class="form-label">Prompt text</label>
-            <textarea class="form-control" [(ngModel)]="selectedBlock.settings.promptTextContent"></textarea>
+            <textarea
+              class="form-control"
+              [(ngModel)]="selectedBlock.settings.promptTextContent"
+            ></textarea>
           </div>
         </div>
 
@@ -254,16 +382,32 @@
         <div class="mb-2">
           <h5 class="form-label">
             Insert custom shortcode
-            <i class="fas fa-circle-info mx-2" data-toggle="tooltip" data-placement="top"
-              title="Accepted placeholders: [KEYWORD]"></i>
-            <button *ngIf="shortcodes.length == 0" class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+            <i
+              class="fas fa-circle-info mx-2"
+              data-toggle="tooltip"
+              data-placement="top"
+              title="Accepted placeholders: [KEYWORD]"
+            ></i>
+            <button
+              *ngIf="shortcodes.length == 0"
+              class="btn btn-primary btn-sm me-2"
+              (click)="addShortcode()"
+            >
               <i class="fas fa-plus"></i>
             </button>
           </h5>
 
-          <div *ngFor="let shortcode of shortcodes; let i = index" class="d-flex justify-content-between mb-2">
+          <div
+            *ngFor="let shortcode of shortcodes; let i = index"
+            class="d-flex justify-content-between mb-2"
+          >
             <div class="col-10 d-flex flex-row">
-              <input type="text" class="form-control" placeholder="Enter shortcode" [(ngModel)]="shortcode.code" />
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter shortcode"
+                [(ngModel)]="shortcode.code"
+              />
               <select class="form-control" [(ngModel)]="shortcode.position">
                 <optgroup label="Introduction">
                   <option value="beforeIntroduction">
@@ -325,10 +469,16 @@
               </select>
             </div>
             <div class="col-2 mx-1 my-auto">
-              <button class="btn btn-secondary btn-sm me-2" (click)="addShortcode()">
+              <button
+                class="btn btn-primary btn-sm me-2"
+                (click)="addShortcode()"
+              >
                 <i class="fas fa-plus"></i>
               </button>
-              <button class="btn btn-danger btn-sm" (click)="removeShortcode(shortcode.id)">
+              <button
+                class="btn btn-danger btn-sm"
+                (click)="removeShortcode(shortcode.id)"
+              >
                 <i class="fas fa-minus"></i>
               </button>
             </div>
@@ -336,11 +486,19 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          data-mdb-dismiss="modal"
+        >
           Save for this article
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" data-mdb-dismiss="modal"
-          (click)="saveAsDefaultSettings(); saveShortcode()">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          data-mdb-dismiss="modal"
+          (click)="saveAsDefaultSettings(); saveShortcode()"
+        >
           Save as default
         </button>
       </div>

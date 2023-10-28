@@ -73,68 +73,68 @@ export class BulkPillarArticlesComponent {
           }
         ]
       }
-    },
-    {
-      topicTitle: 'Aspirapolveri 2',
-      isAmazonProduct: true,
-      rows: [
-        {
-          asin: 'B07GH89JZD',
-          title: 'Dyson V11',
-          details: 'Aspirapolvere potente con batteria a lunga durata.'
-        },
-        {
-          asin: 'B081QNXFSF',
-          title: 'Roomba i7',
-          details: 'Robot aspirapolvere programmabile e con stazione di svuotamento.'
-        }
-      ],
-      settings: {
-        // Impostazioni Prompt
-        selectedLanguage: 'italiano',
-        selectedStyle: 'article',
-        selectedTone: 'formal',
-
-        // Impostazioni Titolo
-        modelTitle: 'gpt-3.5-turbo',
-        maxTokensTitle: 150,
-        promptTextTitle: 'Guida all\'acquisto di aspirapolveri nel 2023',
-
-        // Impostazioni Introduzione
-        modelIntroduction: 'gpt-3.5-turbo',
-        maxTokensIntroduction: 200,
-        promptTextIntroduction: 'Introduzione alle migliori opzioni di aspirapolveri disponibili nel mercato.',
-
-        // Impostazioni Sezioni
-        qtyParagraphs: 2,
-        modelSections: 'gpt-3.5-turbo',
-        maxTokensSections: 300,
-        promptTextSections: 'Caratteristiche salienti e differenze tra Dyson V11 e Roomba i7.',
-
-        // Impostazioni sezioni senza prodotto Amazon
-        qtyParagraphsNoAMZ: 2,
-        modelSectionsNoAMZ: 'gpt-3.5-turbo',
-        maxTokensSectionsNoAMZ: 300,
-        promptTextSectionsNoAMZ: 'Caratteristiche salienti e differenze tra Dyson V11 e Roomba i7.',
-
-        // Impostazioni Contenuto
-        modelContent: 'gpt-3.5-turbo',
-        maxTokensContent: 500,
-        promptTextContent: 'Dettagli sul funzionamento, manutenzione e suggerimenti per l\'utilizzo ottimale degli aspirapolveri.',
-
-        // Impostazioni Shortcode
-        shortcodes: [
-          {
-            code: '[ScontoSpeciale]',
-            position: 'afterThirdH2'
-          },
-          {
-            code: '[PromozioneEstiva]',
-            position: 'beginningOfArticle'
-          }
-        ]
-      }
     }
+    // {
+    //   topicTitle: 'Aspirapolveri 2',
+    //   isAmazonProduct: true,
+    //   rows: [
+    //     {
+    //       asin: 'B07GH89JZD',
+    //       title: 'Dyson V11',
+    //       details: 'Aspirapolvere potente con batteria a lunga durata.'
+    //     },
+    //     {
+    //       asin: 'B081QNXFSF',
+    //       title: 'Roomba i7',
+    //       details: 'Robot aspirapolvere programmabile e con stazione di svuotamento.'
+    //     }
+    //   ],
+    //   settings: {
+    //     // Impostazioni Prompt
+    //     selectedLanguage: 'italiano',
+    //     selectedStyle: 'article',
+    //     selectedTone: 'formal',
+
+    //     // Impostazioni Titolo
+    //     modelTitle: 'gpt-3.5-turbo',
+    //     maxTokensTitle: 150,
+    //     promptTextTitle: 'Guida all\'acquisto di aspirapolveri nel 2023',
+
+    //     // Impostazioni Introduzione
+    //     modelIntroduction: 'gpt-3.5-turbo',
+    //     maxTokensIntroduction: 200,
+    //     promptTextIntroduction: 'Introduzione alle migliori opzioni di aspirapolveri disponibili nel mercato.',
+
+    //     // Impostazioni Sezioni
+    //     qtyParagraphs: 2,
+    //     modelSections: 'gpt-3.5-turbo',
+    //     maxTokensSections: 300,
+    //     promptTextSections: 'Caratteristiche salienti e differenze tra Dyson V11 e Roomba i7.',
+
+    //     // Impostazioni sezioni senza prodotto Amazon
+    //     qtyParagraphsNoAMZ: 2,
+    //     modelSectionsNoAMZ: 'gpt-3.5-turbo',
+    //     maxTokensSectionsNoAMZ: 300,
+    //     promptTextSectionsNoAMZ: 'Caratteristiche salienti e differenze tra Dyson V11 e Roomba i7.',
+
+    //     // Impostazioni Contenuto
+    //     modelContent: 'gpt-3.5-turbo',
+    //     maxTokensContent: 500,
+    //     promptTextContent: 'Dettagli sul funzionamento, manutenzione e suggerimenti per l\'utilizzo ottimale degli aspirapolveri.',
+
+    //     // Impostazioni Shortcode
+    //     shortcodes: [
+    //       {
+    //         code: '[ScontoSpeciale]',
+    //         position: 'afterThirdH2'
+    //       },
+    //       {
+    //         code: '[PromozioneEstiva]',
+    //         position: 'beginningOfArticle'
+    //       }
+    //     ]
+    //   }
+    // }
   ];
 
   models: any[] = [];

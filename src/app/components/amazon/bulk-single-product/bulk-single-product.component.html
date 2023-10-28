@@ -4,7 +4,7 @@
       Bulk products
       <button
         type="button"
-        class="btn btn-secondary btn-sm shadow mx-3"
+        class="btn btn-primary btn-sm shadow mx-3"
         data-mdb-toggle="modal"
         data-mdb-target="#exampleModal"
       >
@@ -71,7 +71,7 @@
             [(ngModel)]="listProducts"
           ></textarea>
           <button
-            class="btn btn-secondary my-3 btn-sm"
+            class="btn btn-primary my-3 btn-sm"
             (click)="saveOrPublish()"
             [disabled]="!listProducts"
           >
@@ -502,7 +502,7 @@
             ></i>
             <button
               *ngIf="shortcodes.length == 0"
-              class="btn btn-secondary btn-sm me-2"
+              class="btn btn-primary btn-sm me-2"
               (click)="addShortcode()"
             >
               <i class="fas fa-plus"></i>
@@ -585,7 +585,7 @@
             </div>
             <div class="col-2 mx-1 my-auto">
               <button
-                class="btn btn-secondary btn-sm me-2"
+                class="btn btn-primary btn-sm me-2"
                 (click)="addShortcode()"
               >
                 <i class="fas fa-plus"></i>
@@ -603,7 +603,7 @@
       <div class="modal-footer">
         <button
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-primary btn-sm"
           data-mdb-dismiss="modal"
           (click)="saveSettings(); saveShortcode()"
         >

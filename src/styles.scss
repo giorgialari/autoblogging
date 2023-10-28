@@ -40,6 +40,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   border-top-left-radius:  8px !important;
   border-top-right-radius:  8px !important
 }
+
+.mat-stepper-horizontal, .mat-stepper-vertical{
+  background-color: transparent !important;
+}
 .shadow {
   box-shadow: 2px 2px 2px rgba(55,94,148,.2), 2px 2px 2px rgba(255,255,255,.4) !important;
 }

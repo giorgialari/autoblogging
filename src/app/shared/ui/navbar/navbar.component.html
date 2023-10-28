@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-primary py-0">
   <!-- Container wrapper -->
   <div class="container-fluid">
     <div class="d-flex flex-row">
@@ -6,25 +6,13 @@
       <a class="navbar-brand mt-lg-0" routerLink="/home">
         <div class="d-flex flex-column">
           <img src="assets/logo.png" height="50" alt="Logo" loading="lazy" />
-          <div style="font-size: 10px;" class="text-center">V 1.0.0</div>
+          <div style="font-size: 10px" class="text-center">V 1.0.0</div>
         </div>
       </a>
-      <!-- Toggle button -->
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-mdb-toggle="collapse"
-        data-mdb-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <i class="fas fa-bars"></i>
-      </button>
     </div>
 
     <!-- Collapsible wrapper -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <div class="collapse navbar-collapse left-elements text-center" id="navbarSupportedContent">
       <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item" routerLinkActive="active">
@@ -46,11 +34,11 @@
     <!-- Collapsible wrapper -->
 
     <!-- Right elements -->
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center righ-elements">
       <!-- Notifications -->
-      <div class="dropdown mt-1">
+      <div class="dropdown">
         <a
-          class="text-reset mx-4 my-auto dropdown-toggle hidden-arrow"
+          class="text-reset mx-1 my-auto dropdown-toggle hidden-arrow"
           href="#"
           id="navbarDropdownMenuLink"
           role="button"
@@ -106,6 +94,18 @@
           </li>
         </ul>
       </div>
+      <!-- Toggle button -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-mdb-toggle="collapse"
+        data-mdb-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
     <!-- Right elements -->
   </div>

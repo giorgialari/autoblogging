@@ -1,11 +1,5 @@
-import { Component, HostListener } from '@angular/core';
-import { from } from 'rxjs';
-import { DbService } from 'src/app/services/db.service';
-import { OpenAIService } from 'src/app/services/open-ai.service';
-import { WpService } from 'src/app/services/wp.service';
-import { FunctionsService } from 'src/app/utils/functions/amazon/functions.service';
-import Swal from 'sweetalert2';
-import { saveAs } from 'file-saver';
+import { Component } from '@angular/core';
+import { CARDS } from 'src/app/utils/data/cards';
 
 @Component({
   selector: 'app-pillar',
@@ -13,5 +7,6 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./pillar.component.scss']
 })
 export class PillarComponent {
+  cards = CARDS.filter(card => card.header === 'Pillar');
 
 }

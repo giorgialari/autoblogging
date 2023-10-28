@@ -1,21 +1,13 @@
 <div class="container my-4 d-flex flex-wrap gap-2 ">
-  <div class="card border-secondary mb-3 mx-auto mx-md-0" style="max-width: 20rem;">
-    <div class="card-header">Pillar</div>
+  <div
+    class="card border-secondary mb-3 mx-auto mx-md-0"
+    style="max-width: 20rem;"
+    *ngFor="let pillar of cards">
+    <div class="card-header">{{ pillar.header }}</div>
     <div class="card-body">
-      <h4 class="card-title">Single Pillar Article</h4>
-      <p class="card-text">
-        Generate a single pillar article with images.
-      </p>
+      <h4 class="card-title">{{ pillar.title }}</h4>
+      <p class="card-text">{{ pillar.text }}</p>
     </div>
-    <button class="btn btn-primary mt-3  m-4 btn-sm" routerLink="/single-pillar-article">GO</button>
-  </div>
-
-  <div class="card border-secondary mb-3 mx-auto mx-md-0" style="max-width: 20rem;">
-    <div class="card-header">Pillar</div>
-    <div class="card-body">
-      <h4 class="card-title">Bulk Pillar Articles</h4>
-      <p class="card-text">Generate pillar articles in bulk with images</p>
-    </div>
-    <button class="btn btn-primary mt-3 m-4 btn-sm" routerLink="/bulk-pillar-article">GO</button>
+    <button class="btn btn-primary mt-3 m-4 btn-sm" [routerLink]="pillar.routerLink">GO</button>
   </div>
 </div>

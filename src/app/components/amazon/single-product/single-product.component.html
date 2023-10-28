@@ -4,7 +4,7 @@
       Topic
       <button
         type="button"
-        class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+        class="btn btn-primary btn-sm shadow btn-sm mx-3"
         data-mdb-toggle="modal"
         data-mdb-target="#modaleSettingsTOPIC"
       >
@@ -41,7 +41,7 @@
       </div>
 
       <button
-        class="btn btn-secondary my-3 btn-sm"
+        class="btn btn-primary my-3 btn-sm"
         (click)="improveTopicTitle()"
         [disabled]="topicTitle == ''"
       >
@@ -54,7 +54,7 @@
         Improve Topic Title
       </button>
       <button
-        class="btn btn-secondary my-3 mx-2 btn-sm"
+        class="btn btn-primary my-3 mx-2 btn-sm"
         (click)="stopRequest()"
         [disabled]="!isGettingTopicTitle"
       >
@@ -71,7 +71,7 @@
         >
         </textarea>
         <button
-          class="btn btn-secondary my-3 btn-sm"
+          class="btn btn-primary my-3 btn-sm"
           (click)="improveTopicInfo()"
           [disabled]="topicInfos == ''"
         >
@@ -84,7 +84,7 @@
           Improve Topic Infos
         </button>
         <button
-          class="btn btn-secondary my-3 mx-2 btn-sm"
+          class="btn btn-primary my-3 mx-2 btn-sm"
           (click)="stopRequest()"
           [disabled]="!isGettingTopicInfo"
         >
@@ -112,7 +112,7 @@
           Title
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettingsSTEPPER"
             (click)="loadDefaultData()"
@@ -122,7 +122,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getTitle()"
             [disabled]="isGettingTitle"
           >
@@ -135,7 +135,7 @@
             Generate Title
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingTitle"
           >
@@ -157,7 +157,7 @@
           Introduction
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettingsSTEPPER"
           >
@@ -166,7 +166,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getAndOptimizeIntroduction()"
             [disabled]="isGettingIntroduction"
           >
@@ -179,7 +179,7 @@
             Generate Introduction
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingIntroduction"
           >
@@ -202,7 +202,7 @@
           Sections
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettingsSTEPPER"
           >
@@ -211,7 +211,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getSections()"
             [disabled]="isGettingSections"
           >
@@ -224,7 +224,7 @@
             Generate Sections
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingSections"
           >
@@ -246,7 +246,7 @@
           Content
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettingsSTEPPER"
           >
@@ -255,7 +255,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getContent()"
             [disabled]="isGettingContent"
           >
@@ -268,7 +268,7 @@
             Generate Content
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingContent"
           >
@@ -290,7 +290,7 @@
           Generate Complete Article
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettingsSTEPPER"
           >
@@ -566,7 +566,7 @@
         <div class="modal-footer">
           <button
             type="button"
-            class="btn btn-secondary btn-sm"
+            class="btn btn-primary btn-sm"
             data-mdb-dismiss="modal"
             (click)="saveSettings()"
           >
@@ -586,7 +586,7 @@
             ></i>
             <button
             *ngIf="shortcodes.length == 0"
-            class="btn btn-secondary btn-sm me-2"
+            class="btn btn-primary btn-sm me-2"
             (click)="addShortcode()"
           >
             <i class="fas fa-plus"></i>
@@ -668,7 +668,7 @@
             </div>
             <div class="col-2 mx-1 my-auto">
               <button
-                class="btn btn-secondary btn-sm me-2"
+                class="btn btn-primary btn-sm me-2"
                 (click)="addShortcode()"
               >
                 <i class="fas fa-plus"></i>
@@ -683,7 +683,7 @@
           </div>
           <div class="d-flex justify-content-end">
             <button
-              class="btn btn-secondary btn-sm me-2"
+              class="btn btn-primary btn-sm me-2"
               data-mdb-dismiss="modal"
               aria-label="Close"
               (click)="saveShortcode()"
@@ -854,7 +854,7 @@
       <div class="modal-footer">
         <button
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-primary btn-sm"
           data-mdb-dismiss="modal"
           (click)="saveSettingsTOPIC()"
         >

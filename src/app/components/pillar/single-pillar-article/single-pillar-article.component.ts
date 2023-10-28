@@ -413,6 +413,7 @@ export class SinglePillarArticleComponent {
       .replace('[LANGUAGE]', this.block.settings.selectedLanguageTitle)
       .replace('[STYLE]', this.block.settings.selectedStyleTitle)
       .replace('[TONE]', this.block.settings.selectedToneTitle);
+      console.log(localStorage.getItem('openAI_apiKey'))
     this.openAIService.getResponse(
       titlePrompt, this.block.settings.modelTitle, this.block.settings.maxTokensTitle).subscribe((response) => {
         this.titleResponse = response.message;

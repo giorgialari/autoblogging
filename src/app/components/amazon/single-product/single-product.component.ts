@@ -23,8 +23,7 @@ export class SingleProductComponent implements OnInit {
   contentResponse: string = '';
   completeArticleResponse: string = '';
   topicTitle = 'Brigros - Barbecue a gas DALLAS con rotelle potente e pratico, comodo da spostare, sistema di pulizia facile (3 fuochi)';
-  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni
-  Grigli barbecue 60 x 42 cm con opzioni di cottura infinite
+  topicInfos = `Barbecue gas con 3 bruciatori, tubi di acciaio ad alte prestazioni. Griglia barbecue 60 x 42 cm con opzioni di cottura infinite
   Barbecue a gas con sistema di pulizia facile e veloce
   bbq a gas dotato di rotelle per un facile trasporto
   bbq gas dimensioni: prodotto (coperchio chiuso) 122 x 57 x 112 cm, peso del prodotto: 26,70 kg, imballo: 60 x 58 x 53 cm

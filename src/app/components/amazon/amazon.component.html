@@ -1,21 +1,13 @@
 <div class="container my-4 d-flex flex-wrap gap-2 ">
-  <div class="card border-secondary mb-3 mx-auto mx-md-0" style="max-width: 20rem;">
-    <div class="card-header">Amazon</div>
+  <div
+    class="card border-secondary mb-3 mx-auto mx-md-0"
+    style="max-width: 20rem;"
+    *ngFor="let card of cards">
+    <div class="card-header">{{ card.header }}</div>
     <div class="card-body">
-      <h4 class="card-title">Single Product</h4>
-      <p class="card-text">
-        Generate a single product page with images.
-      </p>
+      <h4 class="card-title">{{ card.title }}</h4>
+      <p class="card-text">{{ card.text }}</p>
     </div>
-    <button class="btn btn-primary mt-3  m-4 btn-sm" routerLink="/single-product">GO</button>
-  </div>
-
-  <div class="card border-secondary mb-3 mx-auto mx-md-0" style="max-width: 20rem;">
-    <div class="card-header">Amazon</div>
-    <div class="card-body">
-      <h4 class="card-title">Bulk Product</h4>
-      <p class="card-text">Generate products in bulk with images</p>
-    </div>
-    <button class="btn btn-primary mt-3 m-4 btn-sm" routerLink="/bulk-product">GO</button>
+    <button class="btn btn-primary mt-3  m-4 btn-sm" [routerLink]="card.routerLink">GO</button>
   </div>
 </div>

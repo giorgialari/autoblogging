@@ -29,54 +29,59 @@
       </div>
 
       <div
-        class="d-flex flex-row justify-content-between mx-4 my-4"
+        class="mx-4 my-4"
         *ngFor="let row of block.rows; let rowIndex = index"
       >
-        <div class="form-group col-3">
-          <label for="topicInput">Enter the ASIN here:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="topicASIN"
-            [disabled]="!block.isAmazonProduct"
-            [(ngModel)]="row.asin"
-          />
-        </div>
-        <div class="form-group col-3">
-          <label for="topicInput">Enter the title of product here:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="titleProduct"
-            [(ngModel)]="row.title"
-          />
-        </div>
-        <div class="form-group col-4">
-          <label for="topicInput">Enter the infos of product here:</label>
-          <textarea
-            type="text"
-            class="form-control"
-            id="topicInfos"
-            [(ngModel)]="row.details"
-          ></textarea>
-        </div>
-
-        <div class="col-1 d-flex flex-row align-items-center mt-3">
-          <button class="btn btn-secondary btn-sm me-2" (click)="addRow(block)">
-            <i class="fas fa-plus"></i>
-          </button>
-          <button
-            class="btn btn-danger btn-sm"
-            (click)="removeRow(block, rowIndex)"
-          >
-            <i class="fas fa-minus"></i>
-          </button>
+        <div class="d-flex flex-row justify-content-between">
+          <div>
+            <div class="d-flex flex-row justify-content-between">
+              <div class="form-group me-1">
+                <label for="topicInput">Enter the ASIN here:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="topicASIN"
+                  [disabled]="!block.isAmazonProduct"
+                  [(ngModel)]="row.asin"
+                />
+              </div>
+              <div class="form-group">
+                <label for="topicInput">Enter the title of product here:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="titleProduct"
+                  [(ngModel)]="row.title"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="topicInput">Enter the infos of product here:</label>
+              <textarea
+                type="text"
+                class="form-control"
+                id="topicInfos"
+                [(ngModel)]="row.details"
+              ></textarea>
+            </div>
+          </div>
+          <div class="col-1 d-flex flex-row align-items-center mt-3">
+            <button class="btn btn-primary btn-sm me-2" (click)="addRow(block)">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              (click)="removeRow(block, rowIndex)"
+            >
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Pulsante per aggiungere una nuova riga se tutte le righe sono state eliminate -->
       <div class="text-center" *ngIf="block.rows.length === 0">
-        <button class="btn btn-secondary btn-sm my-4" (click)="addRow(block)">
+        <button class="btn btn-primary btn-sm my-4" (click)="addRow(block)">
           Add new row
         </button>
       </div>
@@ -95,7 +100,7 @@
           Title
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettings"
             (click)="loadDefaultData()"
@@ -105,7 +110,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getTitle()"
             [disabled]="isGettingTitle"
           >
@@ -118,7 +123,7 @@
             Generate Title
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingTitle"
           >
@@ -140,7 +145,7 @@
           Introduction
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettings"
           >
@@ -149,7 +154,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getAndOptimizeIntroduction()"
             [disabled]="isGettingIntroduction"
           >
@@ -162,7 +167,7 @@
             Generate Introduction
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingIntroduction"
           >
@@ -185,7 +190,7 @@
           Sections
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettings"
           >
@@ -194,7 +199,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getSections()"
             [disabled]="isGettingSections"
           >
@@ -207,7 +212,7 @@
             Generate Sections
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingSections"
           >
@@ -229,7 +234,7 @@
           Content
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettings"
           >
@@ -238,7 +243,7 @@
         </div>
         <div class="card-body">
           <button
-            class="btn btn-secondary mb-3 btn-sm"
+            class="btn btn-primary mb-3 btn-sm"
             (click)="getContent()"
             [disabled]="isGettingContent"
           >
@@ -251,7 +256,7 @@
             Generate Content
           </button>
           <button
-            class="btn btn-secondary mb-3 mx-2 btn-sm"
+            class="btn btn-primary mb-3 mx-2 btn-sm"
             (click)="stopRequest()"
             [disabled]="!isGettingContent"
           >
@@ -273,7 +278,7 @@
           Generate Complete Article
           <button
             type="button"
-            class="btn btn-secondary btn-sm shadow btn-sm mx-3"
+            class="btn btn-primary btn-sm shadow btn-sm mx-3"
             data-mdb-toggle="modal"
             data-mdb-target="#modaleSettings"
           >
@@ -591,7 +596,7 @@
             ></i>
             <button
               *ngIf="shortcodes.length == 0"
-              class="btn btn-secondary btn-sm me-2"
+              class="btn btn-primary btn-sm me-2"
               (click)="addShortcode()"
             >
               <i class="fas fa-plus"></i>
@@ -671,7 +676,7 @@
             </div>
             <div class="col-2 mx-1 my-auto">
               <button
-                class="btn btn-secondary btn-sm me-2"
+                class="btn btn-primary btn-sm me-2"
                 (click)="addShortcode()"
               >
                 <i class="fas fa-plus"></i>
@@ -689,7 +694,7 @@
       <div class="modal-footer">
         <button
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-primary btn-sm"
           data-mdb-dismiss="modal"
           (click)="saveAsDefaultSettings(); saveShortcode()"
         >
