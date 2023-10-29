@@ -6,16 +6,22 @@
   padding: 2px 4px; /* Riduci il padding */
   min-width: 20px; /* Imposta una larghezza minima */
 }
-
-.read {
-  font-weight: normal;
-  color: grey;
-}
 .notification {
   font-weight: bold;
   color: darken;
 }
-
+.read {
+  font-weight: normal;
+  color: grey;
+}
+.navbar-toggler,
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler-icon:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
 @media screen and (max-width: 992px) {
   .right-elements {
     order: 1;

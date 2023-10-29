@@ -54,12 +54,10 @@
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end"
-          aria-labelledby="navbarDropdownMenuLink"
-          *ngIf="notificationCount > 0"
-        >
+          aria-labelledby="navbarDropdownMenuLink"        >
           <li *ngFor="let notification of notifications; let i = index">
             <div
-              class="dropdown-item notification"
+              class="dropdown-item notification text-white"
               [class.read]="notification.read"
               (click)="onNotificationClick(i)"
             >

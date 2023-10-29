@@ -15,6 +15,7 @@ import { DbService } from 'src/app/services/db.service';
   styleUrls: ['./bulk-single-product.component.scss']
 })
 export class BulkSingleProductComponent implements OnInit {
+  showInfo: boolean = false;
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';

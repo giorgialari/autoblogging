@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./single-article.component.scss']
 })
 export class SingleArticleComponent {
+  showInfo: boolean = false;
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';

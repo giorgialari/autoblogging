@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { NotificationService } from 'src/app/services/notifications/notifications.service';
 import { Notification } from 'src/app/services/notifications/notifications-model';
 
@@ -18,7 +18,14 @@ export class NavbarComponent {
     });
 
     this.notificationService.notifications$.subscribe((notifications) => {
+      if(notifications.length > 0) {
       this.notifications = notifications;
+      } else {
+        this.notifications = [{
+          message: 'No new notifications',
+          read: true
+        }];
+      }
     });
   }
 

@@ -12,6 +12,7 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./bulk-pillar-articles.component.scss']
 })
 export class BulkPillarArticlesComponent {
+  showInfo: boolean = false;
   isProcessing = false;
   blocks = [
     {

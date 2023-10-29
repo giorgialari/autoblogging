@@ -17,6 +17,7 @@ import { DbService } from 'src/app/services/db.service';
   styleUrls: ['./single-product.component.scss']
 })
 export class SingleProductComponent implements OnInit {
+  showInfo: boolean = false;
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';

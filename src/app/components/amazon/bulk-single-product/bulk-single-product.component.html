@@ -496,10 +496,16 @@
             Insert custom shortcode
             <i
               class="fas fa-circle-info mx-2"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Accepted placeholders: [KEYWORD]"
+             (click)="showInfo = !showInfo"
             ></i>
+            <div>
+              <small
+                class="text-secondary font-weight-normal"
+                *ngIf="showInfo"
+                >Accepted placeholders: [ASIN] -  [KEYWORD]</small
+              >
+            </div>
+
             <button
               *ngIf="shortcodes.length == 0"
               class="btn btn-primary btn-sm me-2"

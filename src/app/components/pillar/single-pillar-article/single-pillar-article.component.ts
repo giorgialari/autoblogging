@@ -17,6 +17,7 @@ import { DbService } from 'src/app/services/db.service';
   styleUrls: ['./single-pillar-article.component.scss']
 })
 export class SinglePillarArticleComponent {
+  showInfo: boolean = false;
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';

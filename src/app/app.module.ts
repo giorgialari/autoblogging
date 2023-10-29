@@ -6,6 +6,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -58,6 +59,7 @@ import { BulkPillarArticlesComponent } from './components/pillar/bulk-pillar-art
     CKEditorModule,
     MatStepperModule,
     MatInputModule,
+    MatTooltipModule,
     MatFormFieldModule,
     MatButtonModule,
     MatDialogModule,
