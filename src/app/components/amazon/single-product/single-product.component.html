@@ -105,7 +105,7 @@
       topicInfos != ''
     "
   >
-    <mat-step label="Title">
+    <mat-step label="Title" [completed]="titleResponse != ''">
       <ng-template matStepLabel>Title</ng-template>
       <div class="card my-2" (click)="currentStep(1)">
         <div class="card-header bg-primary text-white">
@@ -540,6 +540,32 @@
               </div>
 
               <div class="col-11">
+                <label class="form-label">Prompt
+                  {{
+                    currentStepValue == 1
+                      ? "Title"
+                      : currentStepValue == 2
+                      ? "Introduction"
+                      : currentStepValue == 3
+                      ? "Sections"
+                      : currentStepValue == 4
+                      ? "Content"
+                      : "Title"
+                  }}
+                  <app-info-tooltip
+                    [type]="
+                      currentStepValue == 1
+                        ? 'title'
+                        : currentStepValue == 2
+                        ? 'introduction'
+                        : currentStepValue == 3
+                        ? 'sections'
+                        : currentStepValue == 4
+                        ? 'content'
+                        : 'title'
+                    "
+                  ></app-info-tooltip>
+                </label>
                 <textarea
                   type="number"
                   height="130px"
@@ -578,15 +604,7 @@
         <div class="modal-body">
           <label class="form-label"
             >Insert custom shortcode
-            <i
-              class="fas fa-circle-info mx-2"
-              (click)="showInfo = !showInfo"
-            ></i>
-            <div>
-              <small class="text-secondary font-weight-normal" *ngIf="showInfo"
-                >Accepted placeholders: [ASIN] -  [KEYWORD]</small
-              >
-            </div>
+            <app-info-tooltip type="ShortcodeProduct"></app-info-tooltip>
             <button
               *ngIf="shortcodes.length == 0"
               class="btn btn-primary btn-sm me-2"
@@ -806,7 +824,10 @@
               </div>
 
               <div class="col-11 mb-3">
-                <h6>Prompt Title</h6>
+                <h6>
+                  Prompt Title
+                  <app-info-tooltip type="title"></app-info-tooltip>
+                </h6>
 
                 <textarea
                   height="130px"
@@ -829,7 +850,10 @@
               </div>
 
               <div class="col-11">
-                <h6>Prompt Info</h6>
+                <h6>
+                  Prompt Info
+                  <app-info-tooltip type="Info"></app-info-tooltip>
+                </h6>
 
                 <textarea
                   height="130px"

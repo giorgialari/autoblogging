@@ -16,7 +16,7 @@
         </label>
       </div>
 
-      <div class="d-flex flex-row justify-content-between">
+      <div class="d-flex flex-row justify-content-center">
         <div class="form-group col-11">
           <label for="topicInput">Topic Title:</label>
           <input
@@ -32,10 +32,12 @@
         class="mx-4 my-4"
         *ngFor="let row of block.rows; let rowIndex = index"
       >
-        <div class="d-flex flex-row justify-content-between">
-          <div>
-            <div class="d-flex flex-row justify-content-between">
-              <div class="form-group me-1">
+        <div
+          class="d-flex flex-row justify-content-between justify-content-lg-around"
+        >
+          <div class="col-8">
+            <div class="d-flex flex-column flex-lg-row justify-content-between">
+              <div class="form-group col-lg-5 me-1">
                 <label for="topicInput">Enter the ASIN here:</label>
                 <input
                   type="text"
@@ -45,7 +47,7 @@
                   [(ngModel)]="row.asin"
                 />
               </div>
-              <div class="form-group">
+              <div class="form-group col-lg-5">
                 <label for="topicInput">Enter the title of product here:</label>
                 <input
                   type="text"
@@ -433,7 +435,10 @@
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
-            <label class="form-label">Prompt text</label>
+            <label class="form-label"
+              >Prompt text
+              <app-info-tooltip [type]="'title'"></app-info-tooltip>
+            </label>
             <textarea
               class="form-control"
               [(ngModel)]="block.settings.promptTextTitle"
@@ -467,7 +472,10 @@
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
-            <label class="form-label">Prompt text</label>
+            <label class="form-label"
+              >Prompt text
+              <app-info-tooltip [type]="'introduction'"></app-info-tooltip>
+            </label>
             <textarea
               class="form-control"
               [(ngModel)]="block.settings.promptTextIntroduction"
@@ -478,10 +486,7 @@
         <!-- Sections Settings -->
         <div
           class="mb-2"
-          *ngIf="
-            currentStepValue == 3 && block.isAmazonProduct;
-            else noAmazonProduct
-          "
+          *ngIf="currentStepValue == 3 && block.isAmazonProduct"
         >
           <h5 class="form-label">Sections</h5>
           <!-- Model -->
@@ -507,15 +512,17 @@
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
-            <label class="form-label">Prompt text (Amazon Product)</label>
+            <label class="form-label"
+              >Prompt text (Amazon Product)
+              <app-info-tooltip [type]="'sectionsPillar'"></app-info-tooltip>
+            </label>
             <textarea
               class="form-control"
               [(ngModel)]="block.settings.promptTextSections"
             ></textarea>
           </div>
         </div>
-
-        <ng-template #noAmazonProduct>
+        <div *ngIf="currentStepValue == 3 && !block.isAmazonProduct">
           <div class="mb-2">
             <h5 class="form-label">Sections (No Amazon)</h5>
             <!-- Model -->
@@ -539,16 +546,19 @@
                 [(ngModel)]="block.settings.maxTokensSectionsNoAMZ"
               />
             </div>
-            <!-- Prompt text -->>
+            <!-- Prompt text -->
             <div class="mb-3">
-              <label class="form-label">Prompt text (NO Amazon Product)</label>
+              <label class="form-label"
+                >Prompt text (NO Amazon Product)
+                <app-info-tooltip [type]="'sectionsPillar'"></app-info-tooltip>
+              </label>
               <textarea
                 class="form-control"
                 [(ngModel)]="block.settings.promptTextSectionsNoAMZ"
               ></textarea>
             </div>
           </div>
-        </ng-template>
+        </div>
 
         <!-- Content Settings -->
         <div class="mb-2" *ngIf="currentStepValue == 4">
@@ -576,7 +586,10 @@
           </div>
           <!-- Prompt text -->
           <div class="mb-3">
-            <label class="form-label">Prompt text</label>
+            <label class="form-label"
+              >Prompt text
+              <app-info-tooltip [type]="'content'"></app-info-tooltip>
+            </label>
             <textarea
               class="form-control"
               [(ngModel)]="block.settings.promptTextContent"
@@ -586,25 +599,17 @@
 
         <!-- Custom Shortcode -->
         <div class="mb-2" *ngIf="currentStepValue == 5">
-          <h5 class="form-label">
+          <label class="form-label">
             Insert custom shortcode
-            <i
-            class="fas fa-circle-info mx-2"
-            (click)="showInfo = !showInfo"
-          ></i>
-          <div>
-            <small class="text-secondary font-weight-normal" *ngIf="showInfo"
-              >Accepted placeholders: [KEYWORD]</small
-            >
-          </div>
-            <button
-              *ngIf="shortcodes.length == 0"
-              class="btn btn-primary btn-sm me-2"
-              (click)="addShortcode()"
-            >
-              <i class="fas fa-plus"></i>
-            </button>
-          </h5>
+            <app-info-tooltip
+              *ngIf="block.isAmazonProduct"
+              [type]="'ShortcodeProduct'"
+            ></app-info-tooltip>
+            <app-info-tooltip
+            *ngIf="!block.isAmazonProduct"
+            [type]="'shortcode'"
+          ></app-info-tooltip>
+          </label>
 
           <div
             *ngFor="let shortcode of shortcodes; let i = index"

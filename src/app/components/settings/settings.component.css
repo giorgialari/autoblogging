@@ -1,0 +1,9 @@
+.text-lime{
+  color: lime !important;
+}
+div[class="text-lime"]{
+  border: 1px solid lime  !important;
+  padding-right: 3px !important;
+  padding-left: 3px !important;
+  border-radius: 10px !important;
+}

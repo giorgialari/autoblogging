@@ -6,11 +6,13 @@ import { OpenAIService } from 'src/app/services/open-ai.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
+  styleUrls: ['./settings.component.css'],
 })
 export class SettingsComponent implements OnInit {
   openAISettingsForm!: FormGroup;
   wpSettingsForm!: FormGroup;
-
+  successApiKey = false
+  successWordpress = false
   constructor(private fb: FormBuilder, private openAiService: OpenAIService) { }
 
   ngOnInit() {
@@ -40,8 +42,15 @@ export class SettingsComponent implements OnInit {
     localStorage.setItem('wp_btoa', settings.btoa);
   }
 
-  saveAll(){
+  saveAll(type: string){
     this.saveOpenAISettings()
     this.saveWPSettings()
+    if(type == 'ApiKey'){
+      this.successApiKey = true
+      this.successWordpress = false
+    } else if(type == 'Wordpress'){
+      this.successApiKey = false
+      this.successWordpress = true
+    }
   }
 }

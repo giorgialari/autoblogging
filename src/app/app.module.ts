@@ -29,6 +29,7 @@ import { BulkTableArticlesComponent } from './components/blog-post/bulk-articles
 import { PillarComponent } from './components/pillar/pillar.component';
 import { SinglePillarArticleComponent } from './components/pillar/single-pillar-article/single-pillar-article.component';
 import { BulkPillarArticlesComponent } from './components/pillar/bulk-pillar-articles/bulk-pillar-articles.component';
+import { InfoTooltipComponent } from './info-tooltip/info-tooltip.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { BulkPillarArticlesComponent } from './components/pillar/bulk-pillar-art
     BulkTableArticlesComponent,
     PillarComponent,
     SinglePillarArticleComponent,
-    BulkPillarArticlesComponent
+    BulkPillarArticlesComponent,
+    InfoTooltipComponent
   ],
   imports: [
     BrowserAnimationsModule,

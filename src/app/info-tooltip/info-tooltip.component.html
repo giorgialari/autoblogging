@@ -1,0 +1,45 @@
+<i class="fas fa-circle-info mx-1" (click)="toggleTooltip()"></i>
+<br />
+<ng-container *ngIf="showTooltip" [ngSwitch]="type">
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'title'">
+    Accepted placeholders: [TOPIC], [LANGUAGE], [STYLE], [TONE].
+  </small>
+  <small
+    class="text-secondary font-weight-normal"
+    *ngSwitchCase="'introduction'"
+  >
+    Accepted placeholders: [TOPIC], [LANGUAGE], [STYLE], [TONE].
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'sections'">
+    Accepted placeholders: [QUANTITY], [TOPIC], [LANGUAGE], [STYLE], [TONE].
+  </small>
+  <small
+    class="text-secondary font-weight-normal"
+    *ngSwitchCase="'sectionsPillar'"
+  >
+    Accepted placeholders: [TITLE], [DETAILS], [LANGUAGE], [STYLE], [TONE].
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'content'">
+    Accepted placeholders: [QUANTITY], [TOPIC], [LANGUAGE], [STYLE], [TONE],
+    [SECTIONS], [PARPERSECTIONS], [TOPIC_INFOS].
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'Info'">
+    Accepted placeholders: [INFOS], [LANGUAGE], [STYLE], [TONE].
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'shortcode'">
+    Accepted placeholders: [KEYWORD].
+  </small>
+  <small
+    class="text-secondary font-weight-normal"
+    *ngSwitchCase="'ShortcodeProduct'"
+  >
+    Accepted placeholders: [ASIN] - [KEYWORD].
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchCase="'btoa'">
+    BTOA is a string that is used to encode the password for the Wordpress API.
+    Example: 'username:password'.
+  </small>
+  <small class="text-secondary font-weight-normal" *ngSwitchDefault>
+    Tooltip non definito.
+  </small>
+</ng-container>

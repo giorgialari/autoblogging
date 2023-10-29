@@ -17,13 +17,19 @@
             formControlName="apiKey"
           />
         </div>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm"
-          (click)="saveAll()"
-        >
-          Save
-        </button>
+        <div class="d-flex align-items-end button-sections">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm me-2"
+            (click)="saveAll('ApiKey')"
+          >
+            Save
+          </button>
+          <div class="text-lime" *ngIf="successApiKey">
+            <i class="far fa-circle-check me-1"></i>
+            <span class="text-lime">API Key is saved</span>
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -31,8 +37,7 @@
   <div class="card mt-4">
     <div class="card-header">
       WordPress Settings -
-      <a href="assets/jwt_setup.txt" target="_blank"
-        download="jwt_setup.txt"
+      <a href="assets/jwt_setup.txt" target="_blank" download="jwt_setup.txt"
         >Download guide JWT installation</a
       >
     </div>
@@ -56,7 +61,11 @@
           </select>
         </div>
         <div class="mb-3">
-          <label for="status" class="form-label">Btoa</label>
+          <label for="status" class="form-label">Btoa
+            <app-info-tooltip
+              [type]="'btoa'"
+            ></app-info-tooltip>
+          </label>
           <input
             type="text"
             class="form-control"
@@ -64,13 +73,19 @@
             formControlName="btoa"
           />
         </div>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm"
-          (click)="saveAll()"
-        >
-          Save
-        </button>
+        <div class="d-flex align-items-end button-sections">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm me-2"
+            (click)="saveAll('Wordpress')"
+          >
+            Save
+          </button>
+          <div class="text-lime" *ngIf="successWordpress">
+            <i class="far fa-circle-check me-1"></i>
+            <span class="text-lime">Wordpress data is saved</span>
+          </div>
+        </div>
       </form>
     </div>
   </div>

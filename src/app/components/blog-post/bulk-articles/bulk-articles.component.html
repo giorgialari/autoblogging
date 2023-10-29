@@ -128,17 +128,17 @@
             <div class="row">
               <div class="col-11">
                 <select
-                class="form-control"
-                id="model"
-                [(ngModel)]="modelTitle"
-              >
-                <option
-                  *ngFor="let model of models"
-                  value="{{ model.model }}"
+                  class="form-control"
+                  id="model"
+                  [(ngModel)]="modelTitle"
                 >
-                  {{ model.model }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
+                </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
                 <button
@@ -175,7 +175,10 @@
             </div>
           </div>
 
-          <label class="form-label">Prompt text</label>
+          <label class="form-label"
+            >Prompt text
+            <app-info-tooltip [type]="'title'"></app-info-tooltip>
+          </label>
           <div class="mb-3 d-flex">
             <div class="col-11">
               <textarea
@@ -207,17 +210,17 @@
             <div class="row">
               <div class="col-11">
                 <select
-                class="form-control"
-                id="model"
-                [(ngModel)]="modelIntroduction"
-              >
-                <option
-                  *ngFor="let model of models"
-                  value="{{ model.model }}"
+                  class="form-control"
+                  id="model"
+                  [(ngModel)]="modelIntroduction"
                 >
-                  {{ model.model }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
+                </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
                 <button
@@ -254,7 +257,10 @@
             </div>
           </div>
 
-          <label class="form-label">Prompt text</label>
+          <label class="form-label"
+            >Prompt text
+            <app-info-tooltip [type]="'introduction'"></app-info-tooltip>
+          </label>
           <div class="mb-3 d-flex">
             <div class="col-11">
               <textarea
@@ -310,17 +316,17 @@
             <div class="row">
               <div class="col-11">
                 <select
-                class="form-control"
-                id="model"
-                [(ngModel)]="modelSections"
-              >
-                <option
-                  *ngFor="let model of models"
-                  value="{{ model.model }}"
+                  class="form-control"
+                  id="model"
+                  [(ngModel)]="modelSections"
                 >
-                  {{ model.model }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
+                </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
                 <button
@@ -357,7 +363,10 @@
             </div>
           </div>
 
-          <label class="form-label">Prompt text</label>
+          <label class="form-label"
+            >Prompt text
+            <app-info-tooltip [type]="'sections'"></app-info-tooltip>
+          </label>
           <div class="mb-3 d-flex">
             <div class="col-11">
               <textarea
@@ -389,17 +398,17 @@
             <div class="row">
               <div class="col-11">
                 <select
-                class="form-control"
-                id="model"
-                [(ngModel)]="modelContent"
-              >
-                <option
-                  *ngFor="let model of models"
-                  value="{{ model.model }}"
+                  class="form-control"
+                  id="model"
+                  [(ngModel)]="modelContent"
                 >
-                  {{ model.model }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let model of models"
+                    value="{{ model.model }}"
+                  >
+                    {{ model.model }}
+                  </option>
+                </select>
               </div>
               <div class="col-1 d-flex justify-content-end align-items-center">
                 <button
@@ -435,7 +444,10 @@
               </div>
             </div>
           </div>
-          <label class="form-label">Prompt text</label>
+          <label class="form-label"
+            >Prompt text
+            <app-info-tooltip [type]="'content'"></app-info-tooltip>
+          </label>
           <div class="mb-3 d-flex">
             <div class="col-11">
               <textarea
@@ -461,14 +473,9 @@
         </div>
 
         <div class="mb-2">
-          <h5 class="form-label">
+          <label class="form-label">
             Insert custom shortcode
-            <i
-              class="fas fa-circle-info mx-2"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Accepted placeholders: [KEYWORD]"
-            ></i>
+            <app-info-tooltip [type]="'shortcode'"></app-info-tooltip>
 
             <button
               *ngIf="shortcodes.length == 0"
@@ -477,7 +484,7 @@
             >
               <i class="fas fa-plus"></i>
             </button>
-          </h5>
+          </label>
 
           <div
             *ngFor="let shortcode of shortcodes; let i = index"

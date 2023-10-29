@@ -18,6 +18,8 @@ import { DbService } from 'src/app/services/db.service';
 })
 export class SingleProductComponent implements OnInit {
   showInfo: boolean = false;
+  showInfoTitle: boolean = false;
+  showInfoInfo: boolean = false;
   titleResponse: string = '';
   introductionResponse: string = '';
   sectionsResponse: string = '';

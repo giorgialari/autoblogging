@@ -90,11 +90,7 @@
     linear
     style="background-color: #d9e3f1"
     [orientation]="(stepperOrientation | async)!"
-    *ngIf="
-      topicKeyword != '' &&
-      topicTitle != '' &&
-      topicInfos != ''
-    "
+    *ngIf="topicKeyword != '' && topicTitle != '' && topicInfos != ''"
   >
     <mat-step label="Title">
       <ng-template matStepLabel>Title</ng-template>
@@ -465,72 +461,99 @@
               <div class="col-11">
                 <h6>Language</h6>
                 <select
-                class="form-control mb-3"
-                [ngModel]="
-                  currentStepValue == 1
-                    ? selectedLanguageTitle
-                    : currentStepValue == 2
-                    ? selectedLanguageIntroduction
-                    : currentStepValue == 3
-                    ? selectedLanguageSections
-                    : currentStepValue == 4
-                    ? selectedLanguageContent
-                    : selectedLanguageTitle
-                "
-                (ngModelChange)="setCurrentValueLanguage($event)"
-              >
-                <option
-                  *ngFor="let language of languages"
-                  value="{{ language.code }}"
+                  class="form-control mb-3"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedLanguageTitle
+                      : currentStepValue == 2
+                      ? selectedLanguageIntroduction
+                      : currentStepValue == 3
+                      ? selectedLanguageSections
+                      : currentStepValue == 4
+                      ? selectedLanguageContent
+                      : selectedLanguageTitle
+                  "
+                  (ngModelChange)="setCurrentValueLanguage($event)"
                 >
-                  {{ language.language }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let language of languages"
+                    value="{{ language.code }}"
+                  >
+                    {{ language.language }}
+                  </option>
+                </select>
 
                 <h6>Style</h6>
                 <select
-                class="form-control mb-3"
-                [ngModel]="
-                  currentStepValue == 1
-                    ? selectedStyleTitle
-                    : currentStepValue == 2
-                    ? selectedStyleIntroduction
-                    : currentStepValue == 3
-                    ? selectedStyleSections
-                    : currentStepValue == 4
-                    ? selectedStyleContent
-                    : selectedStyleTitle
-                "
-                (ngModelChange)="setCurrentValueStyle($event)"
-              >
-                <option *ngFor="let style of styles" value="{{ style.code }}">
-                  {{ style.type }}
-                </option>
-              </select>
+                  class="form-control mb-3"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedStyleTitle
+                      : currentStepValue == 2
+                      ? selectedStyleIntroduction
+                      : currentStepValue == 3
+                      ? selectedStyleSections
+                      : currentStepValue == 4
+                      ? selectedStyleContent
+                      : selectedStyleTitle
+                  "
+                  (ngModelChange)="setCurrentValueStyle($event)"
+                >
+                  <option *ngFor="let style of styles" value="{{ style.code }}">
+                    {{ style.type }}
+                  </option>
+                </select>
 
                 <h6>Tone</h6>
                 <select
-                class="form-control mb-3"
-                [ngModel]="
-                  currentStepValue == 1
-                    ? selectedToneTile
-                    : currentStepValue == 2
-                    ? selectedToneIntroduction
-                    : currentStepValue == 3
-                    ? selectedToneSections
-                    : currentStepValue == 4
-                    ? selectedToneContent
-                    : selectedToneTile
-                "
-                (ngModelChange)="setCurrentValueTone($event)"
-              >
-                <option *ngFor="let tone of tones" value="{{ tone.code }}">
-                  {{ tone.tone }}
-                </option>
-              </select>
+                  class="form-control mb-3"
+                  [ngModel]="
+                    currentStepValue == 1
+                      ? selectedToneTile
+                      : currentStepValue == 2
+                      ? selectedToneIntroduction
+                      : currentStepValue == 3
+                      ? selectedToneSections
+                      : currentStepValue == 4
+                      ? selectedToneContent
+                      : selectedToneTile
+                  "
+                  (ngModelChange)="setCurrentValueTone($event)"
+                >
+                  <option *ngFor="let tone of tones" value="{{ tone.code }}">
+                    {{ tone.tone }}
+                  </option>
+                </select>
               </div>
 
               <div class="col-11">
+                <label class="form-label"
+                  >Prompt
+                  {{
+                    currentStepValue == 1
+                      ? "Title"
+                      : currentStepValue == 2
+                      ? "Introduction"
+                      : currentStepValue == 3
+                      ? "Sections"
+                      : currentStepValue == 4
+                      ? "Content"
+                      : "Title"
+                  }}
+                  <app-info-tooltip
+                    [type]="
+                      currentStepValue == 1
+                        ? 'title'
+                        : currentStepValue == 2
+                        ? 'introduction'
+                        : currentStepValue == 3
+                        ? 'sections'
+                        : currentStepValue == 4
+                        ? 'content'
+                        : 'title'
+                    "
+                  ></app-info-tooltip>
+                </label>
                 <textarea
                   type="number"
                   height="130px"
@@ -569,22 +592,14 @@
         <div class="modal-body">
           <label class="form-label"
             >Insert custom shortcode
-            <i
-              class="fas fa-circle-info mx-2"
-              (click)="showInfo = !showInfo"
-            ></i>
-            <div>
-              <small class="text-secondary font-weight-normal" *ngIf="showInfo"
-                >Accepted placeholders:  [KEYWORD]</small
-              >
-            </div>
+            <app-info-tooltip [type]="'shortcode'"></app-info-tooltip>
             <button
-            *ngIf="shortcodes.length == 0"
-            class="btn btn-primary btn-sm me-2"
-            (click)="addShortcode()"
-          >
-            <i class="fas fa-plus"></i>
-          </button>
+              *ngIf="shortcodes.length == 0"
+              class="btn btn-primary btn-sm me-2"
+              (click)="addShortcode()"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
           </label>
           <div
             *ngFor="let shortcode of shortcodes; let i = index"
@@ -668,9 +683,9 @@
                 <i class="fas fa-plus"></i>
               </button>
               <button
-              class="btn btn-danger btn-sm"
-              (click)="removeShortcode(shortcode.id)"
-            >
+                class="btn btn-danger btn-sm"
+                (click)="removeShortcode(shortcode.id)"
+              >
                 <i class="fas fa-minus"></i>
               </button>
             </div>
@@ -762,28 +777,28 @@
               <div class="col-11">
                 <h6>Language</h6>
                 <select
-                class="form-control mb-3"
-                [(ngModel)]="selectedLanguageImproveTOPIC"
-                (change)="useCorrectDefaultPromptImproveTOPIC()"
-              >
-                <option
-                  *ngFor="let language of languages"
-                  value="{{ language.code }}"
+                  class="form-control mb-3"
+                  [(ngModel)]="selectedLanguageImproveTOPIC"
+                  (change)="useCorrectDefaultPromptImproveTOPIC()"
                 >
-                  {{ language.language }}
-                </option>
-              </select>
+                  <option
+                    *ngFor="let language of languages"
+                    value="{{ language.code }}"
+                  >
+                    {{ language.language }}
+                  </option>
+                </select>
 
                 <h6>Style</h6>
                 <select
-                class="form-control mb-3"
-                [(ngModel)]="selectedStyleImproveTOPIC"
-                (change)="useCorrectDefaultPromptImproveTOPIC()"
-              >
-                <option *ngFor="let style of styles" value="{{ style.code }}">
-                  {{ style.type }}
-                </option>
-              </select>
+                  class="form-control mb-3"
+                  [(ngModel)]="selectedStyleImproveTOPIC"
+                  (change)="useCorrectDefaultPromptImproveTOPIC()"
+                >
+                  <option *ngFor="let style of styles" value="{{ style.code }}">
+                    {{ style.type }}
+                  </option>
+                </select>
 
                 <h6>Tone</h6>
                 <select
@@ -798,7 +813,10 @@
               </div>
 
               <div class="col-11 mb-3">
-                <h6>Prompt Title</h6>
+                <h6>
+                  Prompt Title
+                  <app-info-tooltip [type]="'title'"></app-info-tooltip>
+                </h6>
 
                 <textarea
                   height="130px"
@@ -821,7 +839,10 @@
               </div>
 
               <div class="col-11">
-                <h6>Prompt Info</h6>
+                <h6>
+                  Prompt Info
+                  <app-info-tooltip [type]="'Info'"></app-info-tooltip>
+                </h6>
 
                 <textarea
                   height="130px"

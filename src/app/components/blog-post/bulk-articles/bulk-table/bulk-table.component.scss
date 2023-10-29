@@ -2,3 +2,14 @@ input {
   height: 20px;
   margin-bottom: 10px;
 }
+/* Stile base per l'input */
+.form-control {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Stile per l'input in focus su un dispositivo mobile che si allarga per permettere la scrittura*/
+@media (max-width: 767px) {
+.form-control:focus {
+    width: 150px;
+}
+}
