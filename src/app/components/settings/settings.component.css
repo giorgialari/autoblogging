@@ -1,8 +1,8 @@
-.text-lime{
-  color: lime !important;
+.text-lime {
+  color: lightgreen !important;
 }
-div[class="text-lime"]{
-  border: 1px solid lime  !important;
+div[class="text-lime"] {
+  border: 1px solid lightgreen !important;
   padding-right: 3px !important;
   padding-left: 3px !important;
   border-radius: 10px !important;

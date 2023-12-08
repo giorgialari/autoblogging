@@ -12,7 +12,10 @@
     </div>
 
     <!-- Collapsible wrapper -->
-    <div class="collapse navbar-collapse left-elements text-center" id="navbarSupportedContent">
+    <div
+      class="collapse navbar-collapse left-elements text-center"
+      id="navbarSupportedContent"
+    >
       <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item" routerLinkActive="active">
@@ -54,10 +57,11 @@
         </a>
         <ul
           class="dropdown-menu dropdown-menu-end"
-          aria-labelledby="navbarDropdownMenuLink"        >
+          aria-labelledby="navbarDropdownMenuLink"
+        >
           <li *ngFor="let notification of notifications; let i = index">
             <div
-              class="dropdown-item notification text-white"
+              class="dropdown-item notification text-secondary"
               [class.read]="notification.read"
               (click)="onNotificationClick(i)"
             >
